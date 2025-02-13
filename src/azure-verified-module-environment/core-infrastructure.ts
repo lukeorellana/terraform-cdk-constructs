@@ -45,11 +45,15 @@ export class CoreInfrastructure extends Construct {
       resourceGroupName: rg.name,
       location: rg.location,
       enableTelemetry: false,
-      addressSpace: ["10.0.0.0/16"],
+      addressSpace: ["10.100.0.0/16"],
       subnets: {
         default: {
           name: "default",
-          address_prefix: "10.0.1.0/24",
+          address_prefix: "10.100.1.0/24",
+        },
+        appgw: {
+          name: "appgw",
+          address_prefix: "10.100.2.0/24",
         },
       },
     });

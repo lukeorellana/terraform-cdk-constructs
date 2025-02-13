@@ -5,7 +5,7 @@ import { JsonPatch } from "projen/lib/json-patch";
 const project = new cdktf.ConstructLibraryCdktf({
   author: "Microsoft",
   authorAddress: "https://microsoft.com",
-  cdktfVersion: "0.17.3",
+  cdktfVersion: "0.20.11",
   jsiiVersion: "~5.2.0",
   description:
     "A collection of CDK modules for provisioning and managing Terraform resources efficiently.",
@@ -18,7 +18,7 @@ const project = new cdktf.ConstructLibraryCdktf({
     "devops",
     "azure",
   ],
-  constructsVersion: "^10.1.106",
+  constructsVersion: "^10.4.2",
   typescriptVersion: "~5.2.0", // should always be the same major/minor as JSII
   minNodeVersion: "20.10.0",
   defaultReleaseBranch: "main",
@@ -51,18 +51,18 @@ const project = new cdktf.ConstructLibraryCdktf({
     updateSnapshot: UpdateSnapshot.NEVER,
   },
   deps: [
-    "@cdktf/provider-azurerm@9.0.8",
+    "@cdktf/provider-azurerm@13.17.1",
     "nanoid@^4.0.2",
     "ts-md5@^1.3.1",
-    "cdktf@0.17.3",
+    "cdktf@0.20.11",
     //"constructs@^10.1.106",
     "moment@^2.30.1",
   ],
-  peerDeps: ["@cdktf/provider-azurerm@9.0.8"],
+  peerDeps: ["@cdktf/provider-azurerm@13.17.1"],
   bundledDeps: ["moment@^2.30.1", "ts-md5@^1.3.1", "nanoid@^4.0.2"],
   devDeps: [
-    "@cdktf/provider-azurerm@9.0.8",
-    "cdktf@0.17.3",
+    "@cdktf/provider-azurerm@13.17.1",
+    "cdktf@0.20.11",
     "@types/jest@^29.5.8",
     "@types/node@^18.7.18",
     "jest@^29.6.1",

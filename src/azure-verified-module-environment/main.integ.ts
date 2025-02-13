@@ -7,7 +7,8 @@ import {
 import { generateRandomName } from "../util/randomName";
 import "cdktf/lib/testing/adapters/jest";
 import { CoreInfrastructure } from "./core-infrastructure";
-import { AdxInfrastructure } from "./adx-infrastructure";
+import { AksInfrastructure } from "./aks-infrastructure";
+//import { AdxInfrastructure } from "./adx-infrastructure";
 
 describe("Example of deploying an Environment", () => {
   let stack: TerraformStack;
@@ -21,23 +22,33 @@ describe("Example of deploying an Environment", () => {
 
     new AzurermProvider(stack, "azureFeature", {
       subscriptionId: "635ff6b0-25c0-4b95-ae39-e04703583504",
-      features: {},
+      features: [{}],
     });
 
     const core = new CoreInfrastructure(
       stack,
       "core-infrastructure",
       randomName,
-      "eastus",
+      "eastus2",
     );
-    new AdxInfrastructure(
+
+    new AksInfrastructure(
       stack,
-      "adx-infrastructure",
+      "aks-infrastructure",
       randomName,
-      "eastus",
+      "eastus2",
       core.resourceGroup,
       core.virtualnetwork,
     );
+
+    // new AdxInfrastructure(
+    //   stack,
+    //   "adx-infrastructure",
+    //   randomName,
+    //   "eastus2",
+    //   core.resourceGroup,
+    //   core.virtualnetwork,
+    // );
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

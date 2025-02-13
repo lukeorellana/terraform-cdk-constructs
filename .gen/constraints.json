@@ -1,0 +1,12 @@
+{
+  "cdktf": "0.17.3",
+  "providers": {
+    "aks": "0.1.3",
+    "azapi": "~> 0.6.0",
+    "containerregistry": "0.4.0",
+    "keyvault": "0.9.1",
+    "kusto-cluster": "0.1.0",
+    "random": "~> 3.5.1",
+    "virtualnetwork": "0.8.1"
+  }
+}

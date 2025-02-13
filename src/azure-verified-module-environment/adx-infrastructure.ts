@@ -1,9 +1,10 @@
+import { KustoCluster } from "@cdktf/provider-azurerm/lib/kusto-cluster";
 import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { KustoCluster } from "../../.gen/modules/kusto-cluster";
 import { Virtualnetwork } from "../../.gen/modules/virtualnetwork";
 import "cdktf/lib/testing/adapters/jest";
 import { Construct } from "constructs";
 import { PrivateDnsZone } from "@cdktf/provider-azurerm/lib/private-dns-zone";
+import { PrivateEndpoint } from "@cdktf/provider-azurerm/lib/private-endpoint";
 
 export class AdxInfrastructure extends Construct {
   public readonly kustoCluster: KustoCluster;
@@ -27,47 +28,42 @@ export class AdxInfrastructure extends Construct {
       name: `adx${name}`,
       location: location,
       resourceGroupName: resourceGroup.name,
-      enableTelemetry: false,
       allowedFqdns: [],
       allowedIpRanges: [],
       autoStopEnabled: true,
       diskEncryptionEnabled: true,
       doubleEncryptionEnabled: false,
       outboundNetworkAccessRestricted: false,
-      languageExtensions: ["PYTHON"],
       publicIpType: "IPv4",
       publicNetworkAccessEnabled: false,
       purgeEnabled: false,
       streamingIngestionEnabled: true,
       trustedExternalTenants: [],
       zones: ["1", "2", "3"],
-      lock: { kind: "None" },
       sku: {
         name: "Dev(No SLA)_Standard_D11_v2",
         capacity: 1,
       },
-
-      // Databases
-      databases: {
-        crm: {
-          name: "crm",
-          hotCachePeriod: "P30D",
-          softDeletePeriod: "P30D",
-        },
-      },
-
-      // Managed Identities
-      managedIdentities: {
+      identity: {
         type: "SystemAssigned",
+        identityIds: [],
       },
+    });
 
-      privateEndpoints: {
-        primary: {
-          private_dns_zone_resource_ids: [adxpvdns.id],
-          subnet_resource_id: virtualNetwork.getString(
-            "subnets.default.resource_id",
-          ),
-        },
+    new PrivateEndpoint(this, "adx-private-endpoint", {
+      name: `adx-pe-${name}`,
+      location: location,
+      resourceGroupName: resourceGroup.name,
+      subnetId: virtualNetwork.getString("subnets.default.resource_id"),
+      privateServiceConnection: {
+        name: `adx-psc-${name}`,
+        privateConnectionResourceId: this.kustoCluster.id,
+        isManualConnection: false,
+        subresourceNames: ["cluster"],
+      },
+      privateDnsZoneGroup: {
+        name: "default",
+        privateDnsZoneIds: [adxpvdns.id],
       },
     });
   }

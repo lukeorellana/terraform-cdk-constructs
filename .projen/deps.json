@@ -2,7 +2,7 @@
   "dependencies": [
     {
       "name": "@cdktf/provider-azurerm",
-      "version": "9.0.8",
+      "version": "13.17.1",
       "type": "build"
     },
     {
@@ -31,7 +31,7 @@
     },
     {
       "name": "cdktf",
-      "version": "0.17.3",
+      "version": "0.20.11",
       "type": "build"
     },
     {
@@ -134,27 +134,27 @@
     },
     {
       "name": "@cdktf/provider-azurerm",
-      "version": "9.0.8",
+      "version": "13.17.1",
       "type": "peer"
     },
     {
       "name": "cdktf",
-      "version": "0.17.3",
+      "version": "0.20.11",
       "type": "peer"
     },
     {
       "name": "constructs",
-      "version": "^10.1.106",
+      "version": "^10.4.2",
       "type": "peer"
     },
     {
       "name": "@cdktf/provider-azurerm",
-      "version": "9.0.8",
+      "version": "13.17.1",
       "type": "runtime"
     },
     {
       "name": "cdktf",
-      "version": "0.17.3",
+      "version": "0.20.11",
       "type": "runtime"
     },
     {
