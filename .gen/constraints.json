@@ -7,6 +7,8 @@
     "keyvault": "0.9.1",
     "kusto-cluster": "0.1.0",
     "random": "~> 3.5.1",
+    "sql": "0.1.2",
+    "storage": "0.5.0",
     "virtualnetwork": "0.8.1"
   }
 }

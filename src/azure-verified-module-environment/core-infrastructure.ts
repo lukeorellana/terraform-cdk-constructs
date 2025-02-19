@@ -1,6 +1,5 @@
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
 import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { PrivateDnsZone } from "@cdktf/provider-azurerm/lib/private-dns-zone";
 import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Containerregistry } from "../../.gen/modules/containerregistry";
 import { Keyvault } from "../../.gen/modules/keyvault";
@@ -58,11 +57,6 @@ export class CoreInfrastructure extends Construct {
       },
     });
 
-    const kvpvdns = new PrivateDnsZone(this, "azurerm_private_dns_zone", {
-      name: "privatelink.vaultcore.azure.net",
-      resourceGroupName: rg.name,
-    });
-
     const kv = new Keyvault(this, "kv", {
       name: `kv-${name}`,
       resourceGroupName: rg.name,
@@ -71,11 +65,15 @@ export class CoreInfrastructure extends Construct {
 
       tenantId: clientConfig.tenantId,
       publicNetworkAccessEnabled: false,
-      privateEndpoints: {
-        primary: {
-          private_dns_zone_resource_ids: [kvpvdns.id],
-          subnet_resource_id: vnet.getString("subnets.default.resource_id"),
-        },
+      networkAcls: {
+        defaultAction: "Deny",
+        bypass: "AzureServices",
+        ipRules: [],
+        virtualNetworkSubnets: [
+          {
+            id: vnet.getString("subnets.default.resource_id"),
+          },
+        ],
       },
       diagnosticSettings: {
         log: {
@@ -88,11 +86,6 @@ export class CoreInfrastructure extends Construct {
       },
     });
 
-    const acrpvdns = new PrivateDnsZone(this, "acrzone", {
-      name: "privatelink.azurecr.io",
-      resourceGroupName: rg.name,
-    });
-
     const acr = new Containerregistry(this, "acr", {
       name: `acr${name}`,
       resourceGroupName: rg.name,
@@ -100,12 +93,15 @@ export class CoreInfrastructure extends Construct {
       publicNetworkAccessEnabled: false,
       adminEnabled: false,
       enableTelemetry: false,
-
-      privateEndpoints: {
-        primary: {
-          private_dns_zone_resource_ids: [acrpvdns.id],
-          subnet_resource_id: vnet.getString("subnets.default.resource_id"),
-        },
+      networkRuleSet: {
+        defaultAction: "Deny",
+        ipRules: [],
+        virtualNetworkRules: [
+          {
+            action: "Allow",
+            id: vnet.getString("subnets.default.resource_id"),
+          },
+        ],
       },
     });
 

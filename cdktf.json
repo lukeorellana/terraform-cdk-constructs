@@ -33,6 +33,18 @@
       "name": "aks",
       "source": "Azure/avm-res-containerservice-managedcluster/azurerm",
       "version": "0.1.3"
+    },
+    {
+      "name": "storage",
+      "source": "Azure/avm-res-storage-storageaccount/azurerm",
+      "version": "0.5.0"
+    },
+    {
+      "name": "sql",
+      "source": "Azure/avm-res-sql-server/azurerm",
+      "version": "0.1.2"
     }
+
+    
   ]
 }

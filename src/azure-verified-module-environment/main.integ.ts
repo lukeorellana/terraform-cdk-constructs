@@ -7,8 +7,9 @@ import {
 import { generateRandomName } from "../util/randomName";
 import "cdktf/lib/testing/adapters/jest";
 import { CoreInfrastructure } from "./core-infrastructure";
-import { AksInfrastructure } from "./aks-infrastructure";
-//import { AdxInfrastructure } from "./adx-infrastructure";
+//import { AksInfrastructure } from "./aks-infrastructure";
+import { DatalakeInfrastructure } from "./datalake-infrastructure";
+// import { AdxInfrastructure } from "./adx-infrastructure";
 
 describe("Example of deploying an Environment", () => {
   let stack: TerraformStack;
@@ -32,9 +33,18 @@ describe("Example of deploying an Environment", () => {
       "eastus2",
     );
 
-    new AksInfrastructure(
+    // new AksInfrastructure(
+    //   stack,
+    //   "aks-infrastructure",
+    //   randomName,
+    //   "eastus2",
+    //   core.resourceGroup,
+    //   core.virtualnetwork,
+    // );
+
+    new DatalakeInfrastructure(
       stack,
-      "aks-infrastructure",
+      "datalake-infrastructure",
       randomName,
       "eastus2",
       core.resourceGroup,
@@ -47,7 +57,6 @@ describe("Example of deploying an Environment", () => {
     //   randomName,
     //   "eastus2",
     //   core.resourceGroup,
-    //   core.virtualnetwork,
     // );
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
