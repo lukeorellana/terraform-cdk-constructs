@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -37,6 +38,8 @@ func TestTerraformCDKAzureApplicationInsightsExample(t *testing.T) {
 	// At the end of the test, run `terraform destroy` to clean up any resources that were created
 	defer func() {
 		util.CdkTFDestroyAll(t, terraformOptions, example_file)
+		// Wait a few seconds before deleting .tempstacks
+		time.Sleep(20 * time.Second)
 		os.RemoveAll("./.tempstacks")
 	}()
 	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors

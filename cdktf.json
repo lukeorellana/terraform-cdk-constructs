@@ -43,6 +43,11 @@
       "name": "sql",
       "source": "Azure/avm-res-sql-server/azurerm",
       "version": "0.1.2"
+    },
+    {
+      "name": "postgressql",
+      "source": "Azure/avm-res-dbforpostgresql-flexibleserver/azurerm",
+      "version": "0.1.4"
     }
 
     

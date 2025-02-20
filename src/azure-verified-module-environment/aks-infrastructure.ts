@@ -1,3 +1,6 @@
+import { ApplicationLoadBalancer } from "@cdktf/provider-azurerm/lib/application-load-balancer";
+import { ApplicationLoadBalancerFrontend } from "@cdktf/provider-azurerm/lib/application-load-balancer-frontend";
+import { ApplicationLoadBalancerSubnetAssociation } from "@cdktf/provider-azurerm/lib/application-load-balancer-subnet-association";
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
 import { PrivateDnsZone } from "@cdktf/provider-azurerm/lib/private-dns-zone";
 import { PrivateDnsZoneVirtualNetworkLink } from "@cdktf/provider-azurerm/lib/private-dns-zone-virtual-network-link";
@@ -117,5 +120,34 @@ export class AksInfrastructure extends Construct {
         },
       },
     });
+
+    const alb = new ApplicationLoadBalancer(
+      this,
+      "aksApplicationLoadBalancer",
+      {
+        name: `aks-${name}-alb`,
+        location: location,
+        resourceGroupName: resourceGroup.name,
+      },
+    );
+
+    new ApplicationLoadBalancerFrontend(
+      this,
+      "aksApplicationLoadBalancerFrontend",
+      {
+        name: `aks-${name}-alb-frontend`,
+        applicationLoadBalancerId: alb.id,
+      },
+    );
+
+    new ApplicationLoadBalancerSubnetAssociation(
+      this,
+      "aksApplicationLoadBalancerSubnetAssociation",
+      {
+        name: `aks-${name}-alb-subnet-association`,
+        applicationLoadBalancerId: alb.id,
+        subnetId: virtualNetwork.getString("subnets.appgw.resource_id"),
+      },
+    );
   }
 }

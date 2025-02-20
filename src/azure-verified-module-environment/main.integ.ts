@@ -7,9 +7,11 @@ import {
 import { generateRandomName } from "../util/randomName";
 import "cdktf/lib/testing/adapters/jest";
 import { CoreInfrastructure } from "./core-infrastructure";
-//import { AksInfrastructure } from "./aks-infrastructure";
-import { DatalakeInfrastructure } from "./datalake-infrastructure";
+// import { SQLInfrastructure } from "./sql-infrastructure";
+// import { AksInfrastructure } from "./aks-infrastructure";
+// import { DatalakeInfrastructure } from "./datalake-infrastructure";
 // import { AdxInfrastructure } from "./adx-infrastructure";
+import { PostgresSQLInfrastructure } from "./postgressql-infrastructure";
 
 describe("Example of deploying an Environment", () => {
   let stack: TerraformStack;
@@ -42,14 +44,14 @@ describe("Example of deploying an Environment", () => {
     //   core.virtualnetwork,
     // );
 
-    new DatalakeInfrastructure(
-      stack,
-      "datalake-infrastructure",
-      randomName,
-      "eastus2",
-      core.resourceGroup,
-      core.virtualnetwork,
-    );
+    // new DatalakeInfrastructure(
+    //   stack,
+    //   "datalake-infrastructure",
+    //   randomName,
+    //   "eastus2",
+    //   core.resourceGroup,
+    //   core.virtualnetwork,
+    // );
 
     // new AdxInfrastructure(
     //   stack,
@@ -58,6 +60,24 @@ describe("Example of deploying an Environment", () => {
     //   "eastus2",
     //   core.resourceGroup,
     // );
+
+    // new SQLInfrastructure(
+    //   stack,
+    //   "sql-infrastructure",
+    //   randomName,
+    //   "eastus2",
+    //   core.resourceGroup,
+    //   core.virtualnetwork,
+    // );
+
+    new PostgresSQLInfrastructure(
+      stack,
+      "postgresql-infrastructure",
+      randomName,
+      "eastus2",
+      core.resourceGroup,
+      core.virtualnetwork,
+    );
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

@@ -53,6 +53,19 @@ export class CoreInfrastructure extends Construct {
         appgw: {
           name: "appgw",
           address_prefix: "10.100.2.0/24",
+          delegation: [
+            {
+              name: "appgw_delegation",
+              service_delegation: {
+                name: "Microsoft.ServiceNetworking/trafficControllers",
+                actions: ["Microsoft.Network/virtualNetworks/subnets/action"],
+              },
+            },
+          ],
+        },
+        pep: {
+          name: "pep",
+          address_prefix: "10.100.3.0/24",
         },
       },
     });
@@ -64,7 +77,7 @@ export class CoreInfrastructure extends Construct {
       location: rg.location,
 
       tenantId: clientConfig.tenantId,
-      publicNetworkAccessEnabled: false,
+      publicNetworkAccessEnabled: true,
       networkAcls: {
         defaultAction: "Deny",
         bypass: "AzureServices",

@@ -1,9 +1,12 @@
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { PrivateDnsZone } from "@cdktf/provider-azurerm/lib/private-dns-zone";
 import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { TerraformOutput } from "cdktf";
 import { Construct } from "constructs";
+import {
+  Containerregistry,
+  ContainerregistryConfig,
+} from "../../.gen/modules/containerregistry";
+
 import { Keyvault, KeyvaultConfig } from "../../.gen/modules/keyvault";
 import {
   Virtualnetwork,
@@ -36,7 +39,6 @@ export class ResourceGroupStack extends BaseTestStack {
 
 export class NetworkStack extends BaseTestStack {
   public readonly virtualNetworkInstance: Virtualnetwork;
-  public readonly subnets: TerraformOutput;
   constructor(
     scope: Construct,
     id: string,
@@ -54,13 +56,6 @@ export class NetworkStack extends BaseTestStack {
       name: `vnet-${this.name}`,
       ...virtualNetworkConfig,
     });
-
-    const subnets = new TerraformOutput(this, "subnets", {
-      value: this.virtualNetworkInstance.subnetsOutput,
-      sensitive: true,
-    });
-
-    this.subnets = subnets;
   }
 }
 
@@ -70,7 +65,6 @@ export class KeyVaultStack extends BaseTestStack {
     scope: Construct,
     id: string,
     subscription: string,
-    subnet: Virtualnetwork,
     keyVaultConfig: KeyvaultConfig,
   ) {
     super(scope, id);
@@ -85,22 +79,12 @@ export class KeyVaultStack extends BaseTestStack {
       "CurrentClientConfig",
       {},
     );
-    const kvpvdns = new PrivateDnsZone(this, "azurerm_private_dns_zone", {
-      name: "privatelink.vaultcore.azure.net",
-      resourceGroupName: keyVaultConfig.resourceGroupName,
-    });
 
     // Merge values into the provided KeyvaultConfig
     const updatedKeyVaultConfig: KeyvaultConfig = {
       ...keyVaultConfig, // Keep all existing properties
       tenantId: clientConfig.tenantId, // Override tenantId dynamically
       name: `kv-${this.name}`, // Override name dynamically
-      privateEndpoints: {
-        primary: {
-          private_dns_zone_resource_ids: [kvpvdns.id],
-          subnet_resource_id: subnet.getString("subnets.default.resource_id"),
-        },
-      },
     };
 
     // Create the Key Vault instance with the updated config
@@ -108,10 +92,44 @@ export class KeyVaultStack extends BaseTestStack {
   }
 }
 
+export class ACRStack extends BaseTestStack {
+  public readonly acrInstance: Containerregistry;
+
+  constructor(
+    scope: Construct,
+    id: string,
+    subscription: string,
+    acrConfig: ContainerregistryConfig,
+  ) {
+    super(scope, id);
+
+    new AzurermProvider(this, "azurerm", {
+      subscriptionId: subscription,
+      features: [{}],
+    });
+
+    const clientConfig = new DataAzurermClientConfig(
+      this,
+      "CurrentClientConfig",
+      {},
+    );
+
+    // Merge values into the provided ACRConfig
+    const updatedACRConfig: ContainerregistryConfig = {
+      ...acrConfig, // Keep all existing properties
+      name: `acr${this.name}`, // Dynamic name assignment
+    };
+
+    // Create the ACR instance with the updated config
+    this.acrInstance = new Containerregistry(this, "acr", updatedACRConfig);
+  }
+}
+
 export class CoreInfrastructure {
   public readonly resourceGroupStack: ResourceGroupStack;
   public readonly networkStack: NetworkStack;
   public readonly keyVaultStack: KeyVaultStack;
+  public readonly acrStack: ACRStack;
 
   constructor(
     scope: Construct,
@@ -130,37 +148,72 @@ export class CoreInfrastructure {
       resourceGroupName: this.resourceGroupStack.resourceGroupInstance.name,
       location: this.resourceGroupStack.resourceGroupInstance.location,
       enableTelemetry: false,
-      addressSpace: ["10.0.0.0/16"],
+      addressSpace: ["10.100.0.0/16"],
       subnets: {
         default: {
           name: "default",
-          address_prefix: "10.0.1.0/24",
+          address_prefix: "10.100.1.0/24",
+        },
+        appgw: {
+          name: "appgw",
+          address_prefix: "10.100.2.0/24",
+          delegation: [
+            {
+              name: "appgw_delegation",
+              service_delegation: {
+                name: "Microsoft.ServiceNetworking/trafficControllers",
+                actions: ["Microsoft.Network/virtualNetworks/subnets/action"],
+              },
+            },
+          ],
+        },
+        pep: {
+          name: "pep",
+          address_prefix: "10.100.3.0/24",
         },
       },
     });
 
-    this.keyVaultStack = new KeyVaultStack(
-      scope,
-      `${id}-kv`,
-      subscription,
-      this.networkStack.virtualNetworkInstance,
-      {
-        name: `kv-${id}`, // Ensure 'name' is set
-        tenantId: "", // Placeholder (will be overridden dynamically)
-        resourceGroupName: this.resourceGroupStack.resourceGroupInstance.name,
-        enableTelemetry: false,
-        location: this.resourceGroupStack.resourceGroupInstance.location,
-        publicNetworkAccessEnabled: false,
-        privateEndpoints: {
-          primary: {
-            private_dns_zone_resource_ids: [],
-            subnet_resource_id:
-              this.networkStack.virtualNetworkInstance.getString(
-                "subnets.default.resource_id",
-              ),
+    this.keyVaultStack = new KeyVaultStack(scope, `${id}-kv`, subscription, {
+      name: `kv-${id}`, // Ensure 'name' is set
+      tenantId: "", // Placeholder (will be overridden dynamically)
+      resourceGroupName: this.resourceGroupStack.resourceGroupInstance.name,
+      enableTelemetry: false,
+      location: this.resourceGroupStack.resourceGroupInstance.location,
+      publicNetworkAccessEnabled: true,
+      networkAcls: {
+        defaultAction: "Deny",
+        bypass: "AzureServices",
+        ipRules: [],
+        virtualNetworkSubnets: [
+          {
+            id: this.networkStack.virtualNetworkInstance.getString(
+              "subnets.default.resource_id",
+            ),
           },
-        },
+        ],
       },
-    );
+    });
+
+    this.acrStack = new ACRStack(scope, `${id}-acr`, subscription, {
+      name: `acr-${id}`, // Ensure 'name' is set
+      resourceGroupName: this.resourceGroupStack.resourceGroupInstance.name,
+      location: this.resourceGroupStack.resourceGroupInstance.location,
+      publicNetworkAccessEnabled: false,
+      adminEnabled: false,
+      enableTelemetry: false,
+      networkRuleSet: {
+        defaultAction: "Deny",
+        ipRules: [],
+        virtualNetworkRules: [
+          {
+            action: "Allow",
+            id: this.networkStack.virtualNetworkInstance.getString(
+              "subnets.default.resource_id",
+            ),
+          },
+        ],
+      },
+    });
   }
 }
