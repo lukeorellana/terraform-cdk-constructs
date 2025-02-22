@@ -24,7 +24,7 @@ describe("Example of deploying an Environment", () => {
     const randomName = generateRandomName(12);
 
     new AzurermProvider(stack, "azureFeature", {
-      subscriptionId: "635ff6b0-25c0-4b95-ae39-e04703583504",
+      subscriptionId: "84553ab2-e68b-4793-a30d-92b43f6a8fc6",
       features: [{}],
     });
 

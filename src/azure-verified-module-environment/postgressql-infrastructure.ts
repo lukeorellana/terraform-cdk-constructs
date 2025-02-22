@@ -60,18 +60,18 @@ export class PostgresSQLInfrastructure extends Construct {
         mode: "SameZone",
       },
 
-      firewallRules: {
-        single_ip: {
-          start_ip_address: "172.191.151.56",
-          end_ip_address: "172.191.151.56",
-          name: "single_ip",
-        },
-        ip_range: {
-          start_ip_address: "40.112.0.0",
-          end_ip_address: "40.112.255.255",
-          name: "ip_range",
-        },
-      },
+      // firewallRules: {
+      //   single_ip: {
+      //     start_ip_address: "172.191.151.56",
+      //     end_ip_address: "172.191.151.56",
+      //     name: "single_ip",
+      //   },
+      //   ip_range: {
+      //     start_ip_address: "40.112.0.0",
+      //     end_ip_address: "40.112.255.255",
+      //     name: "ip_range",
+      //   },
+      // },
 
       privateEndpoints: {
         primary: {

@@ -8,10 +8,10 @@ const core = new CoreInfrastructure(
   app,
   "dev",
   "EastUS2",
-  "635ff6b0-25c0-4b95-ae39-e04703583504",
+  "84553ab2-e68b-4793-a30d-92b43f6a8fc6",
 );
 
-new DatalakeStack(app, "dev", "635ff6b0-25c0-4b95-ae39-e04703583504", {
+new DatalakeStack(app, "dev", "84553ab2-e68b-4793-a30d-92b43f6a8fc6", {
   name: `datalake`,
   resourceGroupName: core.resourceGroupStack.resourceGroupInstance.name,
   location: core.resourceGroupStack.resourceGroupInstance.location,

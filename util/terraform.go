@@ -119,8 +119,8 @@ func CdkTFDestroyAll(t testing.TestingT, options *terraform.Options, exampleFile
 
 	cmdoutput := fmt.Sprintf("--output %s", tempstackfolder)
 
-	// RunTerraformCommandE doesn't actually raise any errors. It returns them.
-	result, err := terraform.RunTerraformCommandE(t, options, terraform.FormatArgs(options, "destroy", "*", "--skip-synth", "--auto-approve", "--app", "npx ts-node"+" "+exampleFile, cmdoutput)...)
+	// RunTerraformCommandE doesn't actually raise any errors. It returns them. , "--skip-synth"
+	result, err := terraform.RunTerraformCommandE(t, options, terraform.FormatArgs(options, "destroy", "*", "--auto-approve", "--app", "npx ts-node"+" "+exampleFile, cmdoutput)...)
 	if err != nil {
 		t.Errorf("%s", err.Error())
 	}
