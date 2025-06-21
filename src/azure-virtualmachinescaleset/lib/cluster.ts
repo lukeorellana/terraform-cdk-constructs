@@ -1,26 +1,7 @@
-import {
-  LinuxVirtualMachineSourceImageReference,
-  LinuxVirtualMachineOsDisk,
-  LinuxVirtualMachineAdminSshKey,
-  LinuxVirtualMachineIdentity,
-} from "@cdktf/provider-azurerm/lib/linux-virtual-machine";
-import {
-  LinuxVirtualMachineScaleSet,
-  LinuxVirtualMachineScaleSetNetworkInterfaceIpConfigurationPublicIpAddress,
-} from "@cdktf/provider-azurerm/lib/linux-virtual-machine-scale-set";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
-import { VirtualMachineScaleSetExtensionA } from "@cdktf/provider-azurerm/lib/virtual-machine-scale-set-extension";
-import {
-  WindowsVirtualMachineOsDisk,
-  WindowsVirtualMachineSourceImageReference,
-} from "@cdktf/provider-azurerm/lib/windows-virtual-machine";
-import {
-  WindowsVirtualMachineScaleSet,
-  WindowsVirtualMachineScaleSetNetworkInterfaceIpConfigurationPublicIpAddress,
-} from "@cdktf/provider-azurerm/lib/windows-virtual-machine-scale-set";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib";
 import {
   WindowsImageReferences,
   LinuxImageReferences,
@@ -53,7 +34,7 @@ export interface LinuxClusterProps {
 
   /**
    * An optional reference to the resource group in which to deploy the Virtual Machine.
-   * If not provided, the Virtual Machine will be deployed in the default resource group.
+   * If not provided, a new resource group will be created.
    */
   readonly resourceGroup?: ResourceGroup;
 
@@ -69,9 +50,9 @@ export interface LinuxClusterProps {
   readonly userData?: string;
 
   /**
-   * An array of SSH keys for the admin user.
+   * SSH public key for the admin user.
    */
-  readonly adminSshKey?: LinuxVirtualMachineAdminSshKey[] | cdktf.IResolvable;
+  readonly sshPublicKey?: string;
 
   /**
    * The availability zone(s) in which the VMs should be placed.
@@ -79,15 +60,15 @@ export interface LinuxClusterProps {
   readonly zones?: string[];
 
   /**
-   * Managed identity settings for the VMs.
-   */
-  readonly identity?: LinuxVirtualMachineIdentity;
-
-  /**
    * The source image reference for the virtual machines.
    * @default - Uses a default Ubuntu image.
    */
-  readonly sourceImageReference?: LinuxVirtualMachineSourceImageReference;
+  readonly sourceImageReference?: {
+    publisher: string;
+    offer: string;
+    sku: string;
+    version: string;
+  };
 
   /**
    * The ID of the source image for the virtual machines.
@@ -103,22 +84,19 @@ export interface LinuxClusterProps {
    * The OS disk configuration for the virtual machines.
    * @default - Uses a disk with caching set to "ReadWrite" and storage account type "Standard_LRS".
    */
-  readonly osDisk?: LinuxVirtualMachineOsDisk;
+  readonly osDisk?: {
+    caching?: string;
+    storageAccountType?: string;
+    diskSizeGB?: number;
+    createOption?: string;
+    deleteOption?: string;
+    writeAcceleratorEnabled?: boolean;
+  };
 
   /**
-   * The subnet in which the virtual machines will be placed.
+   * The subnet resource where the virtual machines will be placed.
    */
-  readonly subnet?: Subnet;
-
-  /**
-   * The allocation method for the public IP.
-   */
-  readonly publicIPAddress?: LinuxVirtualMachineScaleSetNetworkInterfaceIpConfigurationPublicIpAddress[];
-
-  /**
-   * Custom data to pass to the virtual machines upon creation.
-   */
-  readonly customData?: string;
+  readonly subnet?: resource.Resource;
 
   /**
    * The number of VM instances in the scale set.
@@ -138,20 +116,94 @@ export interface LinuxClusterProps {
   readonly overprovision?: boolean;
 
   /**
-   * Specifies the scale-in policy for the VMSS.
+   * Enable managed identity for the VMSS.
+   * @default false
    */
-  readonly scaleInPolicy?: string;
+  readonly enableManagedIdentity?: boolean;
 
   /**
-   * Boot diagnostics settings for the VMSS.
+   * Lifecycle rules to ignore changes.
    */
-  readonly bootDiagnosticsStorageURI?: string;
+  readonly ignoreChanges?: string[];
 
   /**
    * Enable SSH Azure AD Login, required managed identity to be set.
    * @default false
    */
   readonly enableSshAzureADLogin?: boolean;
+
+  /**
+   * The priority for the virtual machines in the scale set.
+   * Possible values: Regular, Low, Spot
+   * @default "Regular"
+   */
+  readonly priority?: string;
+
+  /**
+   * The eviction policy for Azure Spot virtual machines.
+   * Possible values: Deallocate, Delete
+   * @default "Deallocate"
+   */
+  readonly evictionPolicy?: string;
+
+  /**
+   * Specifies the billing related details of a Azure Spot VMSS.
+   */
+  readonly maxPrice?: number;
+
+  /**
+   * Fault Domain count for each placement group.
+   */
+  readonly platformFaultDomainCount?: number;
+
+  /**
+   * When true this limits the scale set to a single placement group.
+   * @default true
+   */
+  readonly singlePlacementGroup?: boolean;
+
+  /**
+   * Whether to force strictly even Virtual Machine distribution cross x-zones.
+   */
+  readonly zoneBalance?: boolean;
+
+  /**
+   * Specifies whether extension operations should be allowed on the VMSS.
+   * @default true
+   */
+  readonly allowExtensionOperations?: boolean;
+
+  /**
+   * Indicates whether virtual machine agent should be provisioned on the VM.
+   * @default true
+   */
+  readonly provisionVMAgent?: boolean;
+
+  /**
+   * Specifies whether password authentication should be disabled.
+   * @default - Determined by presence of adminPassword
+   */
+  readonly disablePasswordAuthentication?: boolean;
+
+  /**
+   * Specifies VM Guest patch assessment mode.
+   * Possible values: ImageDefault, AutomaticByPlatform
+   * @default "ImageDefault"
+   */
+  readonly patchAssessmentMode?: string;
+
+  /**
+   * Specifies VM Guest patching mode.
+   * Possible values: ImageDefault, AutomaticByPlatform
+   * @default "ImageDefault"
+   */
+  readonly patchMode?: string;
+
+  /**
+   * Indicates whether VMAgent Platform Updates is enabled.
+   * @default false
+   */
+  readonly enableVMAgentPlatformUpdates?: boolean;
 
   /**
    * Lifecycle settings for the Terraform resource.
@@ -167,10 +219,13 @@ export interface LinuxClusterProps {
 
 export class LinuxCluster extends AzureResource {
   public readonly props: LinuxClusterProps;
-  public resourceGroup: ResourceGroup;
+  public readonly resourceGroup: ResourceGroup;
   public id: string;
   public readonly name: string;
   public readonly fqn: string;
+  public readonly vmss: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
 
   /**
    * Represents a Linux Virtual Machine Scale Set (VMSS) within Microsoft Azure.
@@ -225,11 +280,17 @@ export class LinuxCluster extends AzureResource {
    * scaling policies, network setup, OS installation, and security settings, providing a robust and scalable infrastructure
    * for hosting cloud-based Linux applications.
    */
-  constructor(scope: Construct, id: string, props: LinuxClusterProps) {
+  constructor(scope: Construct, id: string, props: LinuxClusterProps = {}) {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+
+    // Create or use existing resource group
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "rg", {
+        location: props.location || "eastus",
+      });
 
     const pathName = this.node.path.split("/")[0];
 
@@ -239,72 +300,138 @@ export class LinuxCluster extends AzureResource {
       location: props.location || "eastus",
       sku: props.sku || "Standard_B2s",
       instances: props.instances || 1,
-      osDisk: props.osDisk || {
-        caching: "ReadWrite",
-        storageAccountType: "Standard_LRS",
+      osDisk: {
+        caching: props.osDisk?.caching || "ReadWrite",
+        storageAccountType: props.osDisk?.storageAccountType || "Standard_LRS",
+        createOption: props.osDisk?.createOption || "FromImage",
+        diskSizeGB: props.osDisk?.diskSizeGB,
+        deleteOption: props.osDisk?.deleteOption,
+        writeAcceleratorEnabled: props.osDisk?.writeAcceleratorEnabled,
       },
       sourceImageReference:
         props.sourceImageReference || LinuxImageReferences.ubuntuServer2204LTS,
-      subnet:
-        props.subnet ||
-        new Network(this, "vnet", {
-          resourceGroup: this.resourceGroup,
-        }).subnets.default,
+      subnet: props.subnet || new Network(this, "vnet", {}).subnets.default,
     };
 
-    const azurermLinuxVirtualMachineScaleSet = new LinuxVirtualMachineScaleSet(
-      this,
-      "vmss",
-      {
-        ...defaults,
-        resourceGroupName: this.resourceGroup.name,
-        adminPassword: props.adminPassword,
-        disablePasswordAuthentication: props.adminPassword ? false : true,
-        tags: props.tags,
-        lifecycle: props.lifecycle,
-        networkInterface: [
-          {
-            name: `nic-${defaults.name}`,
-            primary: true,
-            ipConfiguration: [
-              {
-                name: "internal",
-                subnetId: defaults.subnet.id,
-                primary: true,
-                publicIpAddress: props.publicIPAddress,
-              },
-            ],
-          },
-        ],
-        osDisk: {
-          ...defaults.osDisk,
+    // Create the Linux Virtual Machine Scale Set using AzAPI
+    this.vmss = new resource.Resource(this, "vmss", {
+      name: defaults.name,
+      location: defaults.location,
+      type: "Microsoft.Compute/virtualMachineScaleSets@2023-09-01",
+      parentId: this.resourceGroup.resourceGroup.id,
+      body: {
+        sku: {
+          name: defaults.sku,
+          tier: "Standard",
+          capacity: defaults.instances,
         },
-        sourceImageId: props.sourceImageId,
-        customData: props.customData
-          ? Buffer.from(props.customData).toString("base64")
+        properties: {
+          overprovision: props.overprovision ?? true,
+          upgradePolicy: {
+            mode: props.upgradePolicyMode || "Manual",
+          },
+          virtualMachineProfile: {
+            storageProfile: {
+              osDisk: {
+                caching: defaults.osDisk.caching,
+                createOption: "FromImage",
+                managedDisk: {
+                  storageAccountType: defaults.osDisk.storageAccountType,
+                },
+              },
+              imageReference: props.sourceImageId
+                ? {
+                    id: props.sourceImageId,
+                  }
+                : defaults.sourceImageReference,
+            },
+            osProfile: {
+              computerNamePrefix: defaults.name,
+              adminUsername: defaults.adminUsername,
+              adminPassword: props.adminPassword,
+              customData: props.userData
+                ? Buffer.from(props.userData).toString("base64")
+                : undefined,
+              linuxConfiguration: {
+                disablePasswordAuthentication:
+                  props.disablePasswordAuthentication ??
+                  (props.adminPassword ? false : true),
+                provisionVMAgent: props.provisionVMAgent ?? true,
+                enableVMAgentPlatformUpdates:
+                  props.enableVMAgentPlatformUpdates ?? false,
+                patchSettings: {
+                  assessmentMode: props.patchAssessmentMode || "ImageDefault",
+                  patchMode: props.patchMode || "ImageDefault",
+                },
+                ssh: props.sshPublicKey
+                  ? {
+                      publicKeys: [
+                        {
+                          path: `/home/${defaults.adminUsername}/.ssh/authorized_keys`,
+                          keyData: props.sshPublicKey,
+                        },
+                      ],
+                    }
+                  : undefined,
+              },
+            },
+            networkProfile: {
+              networkInterfaceConfigurations: [
+                {
+                  name: `nic-${defaults.name}`,
+                  properties: {
+                    primary: true,
+                    ipConfigurations: [
+                      {
+                        name: "internal",
+                        properties: {
+                          primary: true,
+                          subnet: {
+                            id: defaults.subnet.id,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+        zones: props.zones,
+        identity: props.enableManagedIdentity
+          ? {
+              type: "SystemAssigned",
+            }
           : undefined,
-        userData: props.userData
-          ? Buffer.from(props.userData).toString("base64")
-          : undefined,
-        adminSshKey: props.adminSshKey,
-        identity: props.identity,
       },
-    );
+      tags: props.tags,
+    });
 
-    this.id = azurermLinuxVirtualMachineScaleSet.id;
-    this.name = azurermLinuxVirtualMachineScaleSet.name;
-    this.fqn = azurermLinuxVirtualMachineScaleSet.fqn;
-
-    // Enable SSH Azure AD Login if specified
-    if (props.enableSshAzureADLogin) {
-      new VirtualMachineScaleSetExtensionA(this, "AADSSHlogin", {
-        name: "AADSSHLoginForLinux",
-        virtualMachineScaleSetId: this.id,
-        publisher: "Microsoft.Azure.ActiveDirectory",
-        type: "AADSSHLoginForLinux",
-        typeHandlerVersion: "1.0",
-      });
+    // Add lifecycle ignore changes if specified
+    if (props.ignoreChanges && props.ignoreChanges.length > 0) {
+      this.vmss.addOverride("lifecycle", [
+        {
+          ignore_changes: props.ignoreChanges,
+        },
+      ]);
     }
+
+    this.id = this.vmss.id;
+    this.name = defaults.name;
+    this.fqn = this.vmss.fqn;
+
+    // Terraform Outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.vmss.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.vmss.name,
+    });
+
+    // Override logical IDs to match original naming
+    this.nameOutput.overrideLogicalId("name");
+    this.idOutput.overrideLogicalId("id");
   }
 }
 
@@ -323,7 +450,7 @@ export interface WindowsClusterProps {
 
   /**
    * An optional reference to the resource group in which to deploy the Virtual Machine.
-   * If not provided, the Virtual Machine will be deployed in the default resource group.
+   * If not provided, a new resource group will be created.
    */
   readonly resourceGroup?: ResourceGroup;
 
@@ -358,7 +485,12 @@ export interface WindowsClusterProps {
    * The source image reference for the virtual machine.
    * @default - Uses WindowsServer2022DatacenterCore.
    */
-  readonly sourceImageReference?: WindowsVirtualMachineSourceImageReference;
+  readonly sourceImageReference?: {
+    publisher: string;
+    offer: string;
+    sku: string;
+    version: string;
+  };
 
   /**
    * The ID of the source image for the virtual machine.
@@ -374,18 +506,16 @@ export interface WindowsClusterProps {
    * The OS disk configuration for the virtual machine.
    * @default - Uses a disk with caching set to "ReadWrite" and storage account type "Standard_LRS".
    */
-  readonly osDisk?: WindowsVirtualMachineOsDisk;
+  readonly osDisk?: {
+    caching?: string;
+    storageAccountType?: string;
+  };
 
   /**
-   * The subnet in which the virtual machine will be placed.
+   * The subnet resource where the virtual machine will be placed.
    * @default - Uses the default subnet from a new virtual network.
    */
-  readonly subnet?: Subnet;
-
-  /**
-   * The allocation method for the public IP.
-   */
-  readonly publicIPAddress?: WindowsVirtualMachineScaleSetNetworkInterfaceIpConfigurationPublicIpAddress[];
+  readonly subnet?: resource.Resource;
 
   /**
    * Specifies the scale set's upgrade policy settings.
@@ -398,43 +528,31 @@ export interface WindowsClusterProps {
   readonly customData?: string;
 
   /**
-   * Custom data to bootstrap the virtual machine. Automatically triggers Azure Custom Script extension to deploy code in custom data.
-   */
-  readonly boostrapCustomData?: string;
-
-  /**
-   * Bootdiagnostics settings for the VM.
-   */
-  readonly bootDiagnosticsStorageURI?: string;
-
-  /**
    * Specifies if the VMSS should be overprovisioned.
    * @default true
    */
   readonly overprovision?: boolean;
 
   /**
-   * Specifies the scale-in policy for the VMSS.
+   * Enable managed identity for the VMSS.
+   * @default false
    */
-  readonly scaleInPolicy?: string;
+  readonly enableManagedIdentity?: boolean;
 
   /**
-   * Lifecycle settings for the Terraform resource.
-   *
-   * @remarks
-   * This property specifies the lifecycle customizations for the Terraform resource,
-   * allowing you to define specific actions to be taken during the lifecycle of the
-   * resource. It can include settings such as create before destroy, prevent destroy,
-   * ignore changes, etc.
+   * Lifecycle rules to ignore changes.
    */
-  readonly lifecycle?: cdktf.TerraformMetaArguments["lifecycle"];
+  readonly ignoreChanges?: string[];
 }
 
 export class WindowsCluster extends AzureResource {
   readonly props: WindowsClusterProps;
-  public resourceGroup: ResourceGroup;
+  public readonly resourceGroup: ResourceGroup;
   public id: string;
   public readonly name: string;
+  public readonly vmss: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
 
   /**
    * Represents a Windows Virtual Machine Scale Set (VMSS) within Microsoft Azure.
@@ -491,7 +609,13 @@ export class WindowsCluster extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+
+    // Create or use existing resource group
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "rg", {
+        location: props.location || "eastus",
+      });
 
     const pathName = this.node.path.split("/")[0];
 
@@ -509,67 +633,104 @@ export class WindowsCluster extends AzureResource {
       sourceImageReference:
         props.sourceImageReference ||
         WindowsImageReferences.windowsServer2022DatacenterCore,
-      subnet:
-        props.subnet ||
-        new Network(this, "vnet", {
-          resourceGroup: this.resourceGroup,
-        }).subnets.default,
+      subnet: props.subnet || new Network(this, "vnet", {}).subnets.default,
     };
 
-    // Base64 encode custom data if provided.
-    const customData = props.customData || props.boostrapCustomData;
-    const base64CustomData = customData
-      ? Buffer.from(customData).toString("base64")
-      : undefined;
-
-    // Create the Windows Virtual Machine.
-    const azurermWindowsVirtualMachine = new WindowsVirtualMachineScaleSet(
-      this,
-      "vmss",
-      {
-        ...defaults,
-        resourceGroupName: this.resourceGroup.name,
-        adminUsername: props.adminUsername,
-        adminPassword: props.adminPassword,
-        tags: props.tags,
-        lifecycle: props.lifecycle,
-        networkInterface: [
-          {
-            name: `nic-${defaults.name}`,
-            primary: true,
-            ipConfiguration: [
-              {
-                name: "internal",
-                subnetId: defaults.subnet.id,
-                primary: true,
-                publicIpAddress: props.publicIPAddress,
-              },
-            ],
-          },
-        ],
-        osDisk: {
-          ...defaults.osDisk,
+    // Create the Windows Virtual Machine Scale Set using AzAPI
+    this.vmss = new resource.Resource(this, "vmss", {
+      name: defaults.name,
+      location: defaults.location,
+      type: "Microsoft.Compute/virtualMachineScaleSets@2023-09-01",
+      parentId: this.resourceGroup.resourceGroup.id,
+      body: {
+        sku: {
+          name: defaults.sku,
+          tier: "Standard",
+          capacity: defaults.instances,
         },
-        sourceImageId: props.sourceImageId,
-        customData: base64CustomData,
-        bootDiagnostics: { storageAccountUri: props.bootDiagnosticsStorageURI },
+        properties: {
+          overprovision: props.overprovision ?? true,
+          upgradePolicy: {
+            mode: props.upgradePolicyMode || "Manual",
+          },
+          virtualMachineProfile: {
+            storageProfile: {
+              osDisk: {
+                caching: defaults.osDisk.caching,
+                createOption: "FromImage",
+                managedDisk: {
+                  storageAccountType: defaults.osDisk.storageAccountType,
+                },
+              },
+              imageReference: props.sourceImageId
+                ? {
+                    id: props.sourceImageId,
+                  }
+                : defaults.sourceImageReference,
+            },
+            osProfile: {
+              computerNamePrefix: defaults.name,
+              adminUsername: props.adminUsername,
+              adminPassword: props.adminPassword,
+              customData: props.customData
+                ? Buffer.from(props.customData).toString("base64")
+                : undefined,
+            },
+            networkProfile: {
+              networkInterfaceConfigurations: [
+                {
+                  name: `nic-${defaults.name}`,
+                  properties: {
+                    primary: true,
+                    ipConfigurations: [
+                      {
+                        name: "internal",
+                        properties: {
+                          primary: true,
+                          subnet: {
+                            id: defaults.subnet.id,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+        zones: props.zones,
+        identity: props.enableManagedIdentity
+          ? {
+              type: "SystemAssigned",
+            }
+          : undefined,
       },
-    );
+      tags: props.tags,
+    });
 
-    this.id = azurermWindowsVirtualMachine.id;
-    this.name = azurermWindowsVirtualMachine.name;
-
-    // Bootstrap VM with custom script extension if bootstrap custom data is provided.
-    if (props.boostrapCustomData) {
-      new VirtualMachineScaleSetExtensionA(this, "script-ext", {
-        name: `${this.name}-script-ext`,
-        virtualMachineScaleSetId: this.id,
-        publisher: "Microsoft.Compute",
-        type: "CustomScriptExtension",
-        typeHandlerVersion: "1.10",
-        protectedSettings:
-          '{"commandToExecute": "rename  C:\\\\AzureData\\\\CustomData.bin  postdeploy.ps1 & powershell -ExecutionPolicy Unrestricted -File C:\\\\AzureData\\\\postdeploy.ps1"}',
-      });
+    // Add lifecycle ignore changes if specified
+    if (props.ignoreChanges && props.ignoreChanges.length > 0) {
+      this.vmss.addOverride("lifecycle", [
+        {
+          ignore_changes: props.ignoreChanges,
+        },
+      ]);
     }
+
+    this.id = this.vmss.id;
+    this.name = defaults.name;
+
+    // Terraform Outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.vmss.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.vmss.name,
+    });
+
+    // Override logical IDs to match original naming
+    this.nameOutput.overrideLogicalId("name");
+    this.idOutput.overrideLogicalId("id");
   }
 }

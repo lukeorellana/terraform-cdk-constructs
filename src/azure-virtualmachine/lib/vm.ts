@@ -9,7 +9,6 @@ import {
 } from "@cdktf/provider-azurerm/lib/linux-virtual-machine";
 import { NetworkInterface } from "@cdktf/provider-azurerm/lib/network-interface";
 import { PublicIp } from "@cdktf/provider-azurerm/lib/public-ip";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
 import { VirtualMachineExtension } from "@cdktf/provider-azurerm/lib/virtual-machine-extension";
 import {
@@ -21,6 +20,7 @@ import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 
 import { WindowsImageReferences } from "./image-references";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { Network } from "../../azure-virtualnetwork/lib/network";
 import { AzureResource } from "../../core-azure/lib";
 
@@ -174,7 +174,12 @@ export class WindowsVM extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location || "eastus",
+        name: props.name ? `rg-${props.name}` : undefined,
+      });
 
     // Default configurations for the virtual machine.
     const defaults = {
@@ -200,7 +205,7 @@ export class WindowsVM extends AzureResource {
     if (props.publicIPAllocationMethod) {
       const azurermPublicIp = new PublicIp(this, "public-ip", {
         name: `pip-${defaults.name}`,
-        resourceGroupName: this.resourceGroup.name,
+        resourceGroupName: this.resourceGroup.resourceGroup.name,
         location: defaults.location,
         allocationMethod: props.publicIPAllocationMethod,
         tags: props.tags,
@@ -214,7 +219,7 @@ export class WindowsVM extends AzureResource {
     const azurermNetworkInterface = new NetworkInterface(this, "nic", {
       ...defaults,
       name: `nic-${defaults.name}`,
-      resourceGroupName: this.resourceGroup.name,
+      resourceGroupName: this.resourceGroup.resourceGroup.name,
       ipConfiguration: [
         {
           name: "internal",
@@ -235,7 +240,7 @@ export class WindowsVM extends AzureResource {
     // Create the Windows Virtual Machine.
     const azurermWindowsVirtualMachine = new WindowsVirtualMachine(this, "vm", {
       ...defaults,
-      resourceGroupName: this.resourceGroup.name,
+      resourceGroupName: this.resourceGroup.resourceGroup.name,
       adminUsername: props.adminUsername,
       adminPassword: props.adminPassword,
       tags: props.tags,
@@ -454,7 +459,12 @@ export class LinuxVM extends AzureResource {
 
     // Assigning the properties
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location || "eastus",
+        name: props.name ? `rg-${props.name}` : undefined,
+      });
 
     // Extracting the name from the node path
     const pathName = this.node.path.split("/")[0];
@@ -484,7 +494,7 @@ export class LinuxVM extends AzureResource {
     if (props.publicIPAllocationMethod) {
       const azurermPublicIp = new PublicIp(this, "public-ip", {
         name: `pip-${defaults.name}`,
-        resourceGroupName: this.resourceGroup.name,
+        resourceGroupName: this.resourceGroup.resourceGroup.name,
         location: defaults.location,
         allocationMethod: props.publicIPAllocationMethod,
         tags: props.tags,
@@ -498,7 +508,7 @@ export class LinuxVM extends AzureResource {
     const azurermNetworkInterface = new NetworkInterface(this, "nic", {
       ...defaults,
       name: `nic-${defaults.name}`,
-      resourceGroupName: this.resourceGroup.name,
+      resourceGroupName: this.resourceGroup.resourceGroup.name,
       ipConfiguration: [
         {
           name: "internal",
@@ -513,7 +523,7 @@ export class LinuxVM extends AzureResource {
     // Create the Linux Virtual Machine
     const azurermLinuxVirtualMachine = new LinuxVirtualMachine(this, "vm", {
       ...defaults,
-      resourceGroupName: this.resourceGroup.name,
+      resourceGroupName: this.resourceGroup.resourceGroup.name,
       adminPassword: props.adminPassword,
       tags: props.tags,
       networkInterfaceIds: [azurermNetworkInterface.id],
