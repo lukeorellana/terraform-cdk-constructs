@@ -49,8 +49,4 @@ junit.xml
 .jsii
 tsconfig.json
 !/API.md
-!cdk.out
-cdktf.out
-/test
-*terraform.*.tfstate*
 !/.projenrc.ts

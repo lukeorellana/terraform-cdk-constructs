@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Resource Group With Defaults renders a Resource Group with defaults and checks snapshot 1`] = `
 "{
@@ -16,8 +16,11 @@ exports[`Resource Group With Defaults renders a Resource Group with defaults and
   "provider": {
     "azurerm": [
       {
-        "features": {
-        }
+        "features": [
+          {
+          }
+        ],
+        "subscription_id": "635ff6b0-25c0-4b95-ae39-e04703583504"
       }
     ]
   },
@@ -39,7 +42,7 @@ exports[`Resource Group With Defaults renders a Resource Group with defaults and
     "required_providers": {
       "azurerm": {
         "source": "azurerm",
-        "version": "3.70.0"
+        "version": "4.34.0"
       }
     }
   }
