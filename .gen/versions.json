@@ -1,0 +1,4 @@
+{
+  "registry.terraform.io/hashicorp/random": "3.5.1",
+  "registry.terraform.io/azure/azapi": "2.4.0"
+}

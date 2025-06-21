@@ -1,6 +1,6 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { Testing, TerraformStack } from "cdktf";
-import * as rg from "..";
+import * as azure from "..";
 import { TerraformPlan } from "../../testing";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 setupJest();
@@ -13,12 +13,9 @@ describe("Resource Group With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", {
-      features: [{}],
+    new AzapiProvider(stack, "testAzureFeature", {});
 
-      subscriptionId: "635ff6b0-25c0-4b95-ae39-e04703583504",
-    });
-    new rg.Group(stack, "testRG");
+    new azure.ResourceGroup(stack, "testRG");
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

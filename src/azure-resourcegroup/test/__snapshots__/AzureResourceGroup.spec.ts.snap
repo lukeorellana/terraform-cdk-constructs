@@ -4,29 +4,24 @@ exports[`Resource Group With Defaults renders a Resource Group with defaults and
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_resource_group.testRG_rg_D9B234FB.id}"
+      "value": "\${azapi_resource.testRG-resource.id}"
     },
     "location": {
-      "value": "\${azurerm_resource_group.testRG_rg_D9B234FB.location}"
+      "value": "\${azapi_resource.testRG-resource.location}"
     },
     "name": {
-      "value": "\${azurerm_resource_group.testRG_rg_D9B234FB.name}"
+      "value": "\${azapi_resource.testRG-resource.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": [
-          {
-          }
-        ],
-        "subscription_id": "635ff6b0-25c0-4b95-ae39-e04703583504"
       }
     ]
   },
   "resource": {
-    "azurerm_resource_group": {
-      "testRG_rg_D9B234FB": {
+    "azapi_resource": {
+      "testRG-resource": {
         "lifecycle": [
           {
             "ignore_changes": [
@@ -34,15 +29,16 @@ exports[`Resource Group With Defaults renders a Resource Group with defaults and
           }
         ],
         "location": "eastus",
-        "name": "rg-test"
+        "name": "rg-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "4.34.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

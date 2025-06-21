@@ -1,4 +1,4 @@
-import { RoleAssignment } from "@cdktf/provider-azurerm/lib/role-assignment";
+import * as resource from "../../../.gen/providers/azapi/resource";
 import { Construct } from "constructs";
 
 export interface RbacProps {
@@ -54,13 +54,17 @@ export class Rbac extends Construct {
    */
   constructor(scope: Construct, id: string, props: RbacProps) {
     super(scope, id);
-
-    // Create a new role assignment using the provided properties.
-    new RoleAssignment(this, "role", {
-      name: props.roleDefinitionUUID,
-      principalId: props.objectId,
-      roleDefinitionName: props.roleDefinitionName,
-      scope: props.scope,
+    new resource.Resource(this, "${id}-role", {
+      type: "Microsoft.Authorization/roleAssignments@2020-04-01-preview",
+      name: "<GUID>",  // Unique name for the role assignment
+      parentId: props.scope,
+      body: {
+        properties: {
+          roleDefinitionName: props.roleDefinitionName,
+          principalId: props.objectId,
+          scope: props.scope,
+        },
+      },
     });
   }
 }

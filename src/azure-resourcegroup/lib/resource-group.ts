@@ -1,4 +1,4 @@
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
+import * as resource from "../../../.gen/providers/azapi/resource";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import { AzureResource } from "../../core-azure/lib";
@@ -7,7 +7,7 @@ import { AzureResource } from "../../core-azure/lib";
 /**
  * Properties for the resource group
  */
-export interface GroupProps {
+export interface ResourceGroupProps {
   /**
    * The Azure Region to deploy.
    */
@@ -27,16 +27,12 @@ export interface GroupProps {
   readonly ignoreChanges?: string[];
 }
 
-export class Group extends AzureResource {
-  public resourceGroup: ResourceGroup;
-  readonly props: GroupProps;
-  idOutput: cdktf.TerraformOutput;
-  locationOutput: cdktf.TerraformOutput;
-  nameOutput: cdktf.TerraformOutput;
+export class ResourceGroup extends AzureResource {
+  public readonly resourceGroup: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly locationOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
 
-  public id: string;
-  public readonly location: string;
-  public readonly name: string;
 
   /**
    * Represents an Azure Resource Group.
@@ -66,41 +62,35 @@ export class Group extends AzureResource {
    * ```
    * This class sets up the resource group and applies any specified configurations, making it ready to hold other Azure resources.
    */
-  constructor(scope: Construct, id: string, props: GroupProps = {}) {
+  constructor(scope: Construct, id: string, props: ResourceGroupProps = {}) {
     super(scope, id);
-
-    this.props = props;
 
     const defaults = {
       name: props.name || `rg-${this.node.path.split("/")[0]}`,
       location: props.location || "eastus",
     };
 
-    const azurermResourceGroupRg = new ResourceGroup(this, "rg", {
+    this.resourceGroup = new resource.Resource(scope, `${id}-resource`, {
       ...defaults,
       tags: props.tags,
+      type: "Microsoft.Resources/resourceGroups@2022-09-01",
     });
 
-    azurermResourceGroupRg.addOverride("lifecycle", [
+    this.resourceGroup.addOverride("lifecycle", [
       {
         ignore_changes: props.ignoreChanges || [],
       },
     ]);
-
-    this.id = azurermResourceGroupRg.id;
-    this.name = azurermResourceGroupRg.name;
-    this.location = azurermResourceGroupRg.location;
-    this.resourceGroup = azurermResourceGroupRg;
-
+  
     // Terraform Outputs
     this.idOutput = new cdktf.TerraformOutput(this, "id", {
-      value: azurermResourceGroupRg.id,
+      value: this.resourceGroup.id,
     });
     this.locationOutput = new cdktf.TerraformOutput(this, "location", {
-      value: azurermResourceGroupRg.location,
+      value: this.resourceGroup.location,
     });
     this.nameOutput = new cdktf.TerraformOutput(this, "name", {
-      value: azurermResourceGroupRg.name,
+      value: this.resourceGroup.name,
     });
 
     /*This allows the Terraform resource name to match the original name. You can remove the call if you don't need them to match.*/
