@@ -4,42 +4,30 @@ exports[`Resource Group With Defaults renders a Resource Group with defaults and
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_resource_group.testRG_rg_D9B234FB.id}"
+      "value": "\${azapi_resource.testRG_rg_D9B234FB.id}"
     },
     "location": {
-      "value": "\${azurerm_resource_group.testRG_rg_D9B234FB.location}"
+      "value": "\${azapi_resource.testRG_rg_D9B234FB.location}"
     },
     "name": {
-      "value": "\${azurerm_resource_group.testRG_rg_D9B234FB.name}"
+      "value": "\${azapi_resource.testRG_rg_D9B234FB.name}"
     }
   },
-  "provider": {
-    "azurerm": [
-      {
-        "features": {
-        }
-      }
-    ]
-  },
   "resource": {
-    "azurerm_resource_group": {
+    "azapi_resource": {
       "testRG_rg_D9B234FB": {
-        "lifecycle": [
-          {
-            "ignore_changes": [
-            ]
-          }
-        ],
+        "body": "{}",
         "location": "eastus",
-        "name": "rg-test"
+        "name": "rg-test",
+        "type": "Microsoft.Resources/resourceGroups@2021-04-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "azure/azapi",
+        "version": "~> 1.13.1"
       }
     }
   }

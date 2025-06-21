@@ -1,5 +1,6 @@
 import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Construct } from "constructs";
+import * as cdktf from "cdktf";
 import {
   DiagnosticSettings,
   BaseDiagnosticSettingsProps,
@@ -10,7 +11,7 @@ import * as queryalert from "../../azure-queryrulealert";
 
 export abstract class AzureResource extends Construct {
   public id: string;
-  public abstract resourceGroup: ResourceGroup;
+  public abstract resourceGroup: ResourceGroup | cdktf.TerraformResource;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);

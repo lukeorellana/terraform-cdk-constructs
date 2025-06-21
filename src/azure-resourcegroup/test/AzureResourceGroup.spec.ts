@@ -1,4 +1,3 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
 import * as rg from "..";
 import { TerraformPlan } from "../../testing";
@@ -12,7 +11,7 @@ describe("Resource Group With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    // No provider needed since we're using raw terraform resources
     new rg.Group(stack, "testRG");
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse

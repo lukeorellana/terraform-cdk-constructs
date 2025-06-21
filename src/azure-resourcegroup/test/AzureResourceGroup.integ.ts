@@ -1,4 +1,3 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
 import * as rg from "..";
 import {
@@ -18,7 +17,7 @@ describe("Resource Group With Defaults", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    // No provider needed since we're using raw terraform resources
     new rg.Group(stack, "testRG", {
       name: `rg-${randomName}`,
       location: "eastus",

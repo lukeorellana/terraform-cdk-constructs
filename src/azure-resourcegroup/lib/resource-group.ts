@@ -1,4 +1,3 @@
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import { AzureResource } from "../../core-azure/lib";
@@ -28,7 +27,7 @@ export interface GroupProps {
 }
 
 export class Group extends AzureResource {
-  public resourceGroup: ResourceGroup;
+  public resourceGroup: cdktf.TerraformResource;
   readonly props: GroupProps;
   idOutput: cdktf.TerraformOutput;
   locationOutput: cdktf.TerraformOutput;
@@ -72,35 +71,48 @@ export class Group extends AzureResource {
     this.props = props;
 
     const defaults = {
-      name: props.name || `rg-${this.node.path.split("/")[0]}`,
+      name: props.name || `rg-${(this as any).node.path.split("/")[0]}`,
       location: props.location || "eastus",
     };
 
-    const azurermResourceGroupRg = new ResourceGroup(this, "rg", {
-      ...defaults,
-      tags: props.tags,
+    // Create resource group using AzAPI
+    const resourceGroupBody = {
+      ...(props.tags && { tags: props.tags })
+    };
+
+    const azapiResourceGroupRg = new cdktf.TerraformResource(this, "rg", {
+      terraformResourceType: "azapi_resource",
+      terraformGeneratorMetadata: {
+        providerName: "azapi",
+        providerVersion: "1.13.1",
+        providerVersionConstraint: "~> 1.13.1"
+      }
     });
 
-    azurermResourceGroupRg.addOverride("lifecycle", [
-      {
-        ignore_changes: props.ignoreChanges || [],
-      },
-    ]);
+    // Set the properties directly on the resource
+    azapiResourceGroupRg.addOverride("type", "Microsoft.Resources/resourceGroups@2021-04-01");
+    azapiResourceGroupRg.addOverride("name", defaults.name);
+    azapiResourceGroupRg.addOverride("location", defaults.location);
+    azapiResourceGroupRg.addOverride("body", JSON.stringify(resourceGroupBody));
+    
+    if (props.ignoreChanges && props.ignoreChanges.length > 0) {
+      azapiResourceGroupRg.addOverride("ignore_body_changes", props.ignoreChanges);
+    }
 
-    this.id = azurermResourceGroupRg.id;
-    this.name = azurermResourceGroupRg.name;
-    this.location = azurermResourceGroupRg.location;
-    this.resourceGroup = azurermResourceGroupRg;
+    this.id = azapiResourceGroupRg.interpolationForAttribute("id") as any;
+    this.name = azapiResourceGroupRg.interpolationForAttribute("name") as any;
+    this.location = azapiResourceGroupRg.interpolationForAttribute("location") as any;
+    this.resourceGroup = azapiResourceGroupRg;
 
     // Terraform Outputs
     this.idOutput = new cdktf.TerraformOutput(this, "id", {
-      value: azurermResourceGroupRg.id,
+      value: azapiResourceGroupRg.interpolationForAttribute("id"),
     });
     this.locationOutput = new cdktf.TerraformOutput(this, "location", {
-      value: azurermResourceGroupRg.location,
+      value: azapiResourceGroupRg.interpolationForAttribute("location"),
     });
     this.nameOutput = new cdktf.TerraformOutput(this, "name", {
-      value: azurermResourceGroupRg.name,
+      value: azapiResourceGroupRg.interpolationForAttribute("name"),
     });
 
     /*This allows the Terraform resource name to match the original name. You can remove the call if you don't need them to match.*/
