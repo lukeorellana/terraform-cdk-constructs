@@ -1,8 +1,8 @@
-import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { Testing, TerraformStack } from "cdktf";
-import * as azure from "..";
-import { TerraformPlan } from "../../testing";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
+import * as azure from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { TerraformPlan } from "../../testing";
 setupJest();
 
 describe("Resource Group With Defaults", () => {

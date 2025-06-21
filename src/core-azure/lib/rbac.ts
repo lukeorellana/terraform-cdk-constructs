@@ -1,5 +1,5 @@
-import * as resource from "../../../.gen/providers/azapi/resource";
 import { Construct } from "constructs";
+import * as resource from "../../../.gen/providers/azapi/resource";
 
 export interface RbacProps {
   /**
@@ -56,7 +56,7 @@ export class Rbac extends Construct {
     super(scope, id);
     new resource.Resource(this, "${id}-role", {
       type: "Microsoft.Authorization/roleAssignments@2020-04-01-preview",
-      name: "<GUID>",  // Unique name for the role assignment
+      name: "<GUID>", // Unique name for the role assignment
       parentId: props.scope,
       body: {
         properties: {

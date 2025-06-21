@@ -1,6 +1,6 @@
-import * as resource from "../../../.gen/providers/azapi/resource";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
+import * as resource from "../../../.gen/providers/azapi/resource";
 import { AzureResource } from "../../core-azure/lib";
 
 // Construct
@@ -32,7 +32,6 @@ export class ResourceGroup extends AzureResource {
   public readonly idOutput: cdktf.TerraformOutput;
   public readonly locationOutput: cdktf.TerraformOutput;
   public readonly nameOutput: cdktf.TerraformOutput;
-
 
   /**
    * Represents an Azure Resource Group.
@@ -81,7 +80,7 @@ export class ResourceGroup extends AzureResource {
         ignore_changes: props.ignoreChanges || [],
       },
     ]);
-  
+
     // Terraform Outputs
     this.idOutput = new cdktf.TerraformOutput(this, "id", {
       value: this.resourceGroup.id,

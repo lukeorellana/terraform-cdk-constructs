@@ -20,11 +20,13 @@ Azure Virtual Network (VNet) is the fundamental building block for your private 
 
 This class has several properties that control the Azure Virtual Network's behavior:
 
-- `resourceGroupName`: The name of the Azure Resource Group.
+- `resourceGroup`: Optional reference to the resource group where the VNet will be created. If not provided, a new resource group will be created.
 - `name`: The name of the Virtual Network.
 - `location`: The Azure Region where the Virtual Network will be deployed.
 - `addressSpace`: The IP address ranges for the VNet.
 - `subnets`: An array of subnet configurations, each having a `name` and `addressPrefixes`.
+- `tags`: Optional tags to assign to the Virtual Network.
+- `ignoreChanges`: Optional lifecycle rules to ignore changes.
 - `id`: The unique identifier of the Virtual Network.
 - `virtualNetwork`: The underlying Virtual Network resource.
 
@@ -33,8 +35,7 @@ This class has several properties that control the Azure Virtual Network's behav
 You can deploy an Azure Virtual Network using this class like so:
 
 ```typescript
-const azureVNet = new AzureVirtualNetwork(this, 'myVNet', {
-  resourceGroupName: 'myResourceGroup',
+const azureVNet = new Network(this, 'myVNet', {
   name: 'myVNet',
   location: 'East US',
   addressSpace: ['10.0.0.0/16'],
@@ -47,7 +48,7 @@ const azureVNet = new AzureVirtualNetwork(this, 'myVNet', {
 });
 ```
 
-This code will create a new Azure Virtual Network named myVNet in the East US Azure region with a specified address space. The VNet belongs to the resource group myResourceGroup and contains a subnet named default.
+This code will create a new Azure Virtual Network named myVNet in the East US Azure region with a specified address space. A resource group will be automatically created, and the VNet will contain a subnet named default.
 
 ## VNet Peering
 VNet peering allows for a direct network connection between two VNets in the same region. This class provides a method addVnetPeering to establish a peering connection between two VNets.
@@ -55,10 +56,10 @@ VNet peering allows for a direct network connection between two VNets in the sam
 Example:
 
 ```typescript
-Copy code
-const remoteVNet = new AzureVirtualNetwork(this, 'remoteVNet', { /* ... */ });
+const remoteVNet = new Network(this, 'remoteVNet', { /* ... */ });
 azureVNet.addVnetPeering(remoteVNet);
-``````
+```
+
 This code establishes a peering connection between `myVNet` and `remoteVNet`.
 
 ## Cost Optimization

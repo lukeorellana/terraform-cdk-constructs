@@ -1,7 +1,6 @@
 import { Construct } from "constructs";
 import { Rbac } from "./rbac";
 
-
 export abstract class AzureResource extends Construct {
   public id: string;
 

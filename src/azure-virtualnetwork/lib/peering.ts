@@ -1,6 +1,6 @@
-import { VirtualNetworkPeering } from "@cdktf/provider-azurerm/lib/virtual-network-peering";
 import { Construct } from "constructs";
 import { Network } from "./network";
+import * as resource from "../../../.gen/providers/azapi/resource";
 
 /**
  * Interface defining the settings for peer connections.
@@ -102,23 +102,51 @@ export class Peer extends Construct {
     const localtoRemotePeerName =
       props.virtualNetwork.name + "to" + props.remoteVirtualNetwork.name;
 
-    new VirtualNetworkPeering(this, "VNetPeerLocaltoRemote", {
+    // Create local to remote peering using AzAPI
+    new resource.Resource(this, "VNetPeerLocaltoRemote", {
       name: localtoRemotePeerName,
-      resourceGroupName: props.virtualNetwork.resourceGroup.name,
-      virtualNetworkName: props.virtualNetwork.name,
-      remoteVirtualNetworkId: props.remoteVirtualNetwork.id,
-      ...props.localToRemoteSettings,
+      type: "Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-09-01",
+      parentId: props.virtualNetwork.id,
+      body: {
+        properties: {
+          remoteVirtualNetwork: {
+            id: props.remoteVirtualNetwork.id,
+          },
+          allowVirtualNetworkAccess:
+            props.localToRemoteSettings?.allowVirtualNetworkAccess ?? true,
+          allowForwardedTraffic:
+            props.localToRemoteSettings?.allowForwardedTraffic ?? false,
+          allowGatewayTransit:
+            props.localToRemoteSettings?.allowGatewayTransit ?? false,
+          useRemoteGateways:
+            props.localToRemoteSettings?.useRemoteGateways ?? false,
+        },
+      },
     });
 
     const remoteToLocalPeerName =
       props.remoteVirtualNetwork.name + "to" + props.virtualNetwork.name;
 
-    new VirtualNetworkPeering(this, "VNetPeerRemotetoLocal", {
+    // Create remote to local peering using AzAPI
+    new resource.Resource(this, "VNetPeerRemotetoLocal", {
       name: remoteToLocalPeerName,
-      resourceGroupName: props.remoteVirtualNetwork.resourceGroup.name,
-      virtualNetworkName: props.remoteVirtualNetwork.name,
-      remoteVirtualNetworkId: props.virtualNetwork.id,
-      ...props.remoteToLocalSettings,
+      type: "Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-09-01",
+      parentId: props.remoteVirtualNetwork.id,
+      body: {
+        properties: {
+          remoteVirtualNetwork: {
+            id: props.virtualNetwork.id,
+          },
+          allowVirtualNetworkAccess:
+            props.remoteToLocalSettings?.allowVirtualNetworkAccess ?? true,
+          allowForwardedTraffic:
+            props.remoteToLocalSettings?.allowForwardedTraffic ?? false,
+          allowGatewayTransit:
+            props.remoteToLocalSettings?.allowGatewayTransit ?? false,
+          useRemoteGateways:
+            props.remoteToLocalSettings?.useRemoteGateways ?? false,
+        },
+      },
     });
   }
 }

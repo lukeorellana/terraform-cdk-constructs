@@ -1,8 +1,8 @@
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
-import { VirtualNetwork } from "@cdktf/provider-azurerm/lib/virtual-network";
+import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import { PeerProps, Peer, PeerSettings } from "./peering";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../../src/azure-resourcegroup/lib";
 import { AzureResource } from "../../core-azure/lib";
 
 /**
@@ -26,8 +26,8 @@ export interface SubnetConfig {
  */
 export interface NetworkProps {
   /**
-   * An optional reference to the resource group in which to deploy the Virtual Machine.
-   * If not provided, the Virtual Machine will be deployed in the default resource group.
+   * Optional: Reference to the resource group where the virtual network will be created.
+   * If not provided, a new resource group will be created.
    */
   readonly resourceGroup?: ResourceGroup;
 
@@ -39,7 +39,7 @@ export interface NetworkProps {
 
   /**
    * Optional: The Azure region in which to create the virtual network, e.g., 'East US', 'West Europe'.
-   * If not specified, the region of the resource group will be used.
+   * If not specified, defaults to 'eastus'.
    */
   readonly location?: string;
 
@@ -54,15 +54,29 @@ export interface NetworkProps {
    * Each subnet is defined by its name and address prefix(es).
    */
   readonly subnets?: SubnetConfig[];
+
+  /**
+   * Optional: Tags to assign to the Virtual Network.
+   */
+  readonly tags?: { [key: string]: string };
+
+  /**
+   * Optional: The lifecycle rules to ignore changes.
+   */
+  readonly ignoreChanges?: string[];
 }
 
 export class Network extends AzureResource {
   readonly props: NetworkProps;
   public readonly name: string;
-  public resourceGroup: ResourceGroup;
+  public readonly location: string;
+  public readonly resourceGroup: ResourceGroup;
   public id: string;
-  public readonly virtualNetwork: VirtualNetwork;
-  public readonly subnets: { [name: string]: Subnet } = {}; // Map of subnet name to Subnet object
+  public readonly virtualNetwork: resource.Resource;
+  public readonly subnets: { [name: string]: resource.Resource } = {}; // Map of subnet name to Resource object
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly locationOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
   /**
    * Represents an Azure Virtual Network (VNet) within Microsoft Azure.
    *
@@ -92,11 +106,17 @@ export class Network extends AzureResource {
    * This class initializes a virtual network with the specified configurations and handles the provisioning of subnets
    * within the network, providing a foundational networking layer for hosting cloud resources.
    */
-  constructor(scope: Construct, id: string, props: NetworkProps) {
+  constructor(scope: Construct, id: string, props: NetworkProps = {}) {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+
+    // Create or use existing resource group
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "rg", {
+        location: props.location || "eastus",
+      });
 
     const defaults = {
       name: props.name || `vnet-${this.node.path.split("/")[0]}`,
@@ -110,28 +130,76 @@ export class Network extends AzureResource {
       ],
     };
 
-    // Create a virtual network
-    const vnet = new VirtualNetwork(this, "vnet", {
-      ...defaults,
-      resourceGroupName: this.resourceGroup.name,
+    // Create the virtual network using AzAPI
+    this.virtualNetwork = new resource.Resource(this, "vnet", {
+      name: defaults.name,
+      location: defaults.location,
+      type: "Microsoft.Network/virtualNetworks@2023-09-01",
+      parentId: this.resourceGroup.resourceGroup.id,
+      body: {
+        properties: {
+          addressSpace: {
+            addressPrefixes: defaults.addressSpace,
+          },
+          subnets: defaults.subnets.map((subnet) => ({
+            name: subnet.name,
+            properties: {
+              addressPrefix: subnet.addressPrefixes[0], // Use first address prefix
+            },
+          })),
+        },
+      },
+      tags: props.tags,
     });
 
-    this.name = vnet.name;
-    this.id = vnet.id;
-    this.resourceGroup = this.resourceGroup;
-    this.virtualNetwork = vnet;
-
-    // Create subnets within the virtual network
-    for (const subnetConfig of defaults.subnets) {
-      const subnet = new Subnet(this, subnetConfig.name, {
-        name: subnetConfig.name,
-        resourceGroupName: this.resourceGroup.name,
-        virtualNetworkName: vnet.name,
-        addressPrefixes: subnetConfig.addressPrefixes,
-      });
-
-      this.subnets[subnetConfig.name] = subnet; // Populate the subnetsMap
+    // Add lifecycle ignore changes if specified
+    if (props.ignoreChanges && props.ignoreChanges.length > 0) {
+      this.virtualNetwork.addOverride("lifecycle", [
+        {
+          ignore_changes: props.ignoreChanges,
+        },
+      ]);
     }
+
+    this.name = defaults.name;
+    this.location = defaults.location;
+    this.id = this.virtualNetwork.id;
+
+    // Create individual subnet resources for better management
+    for (const subnetConfig of defaults.subnets) {
+      const subnet = new resource.Resource(
+        this,
+        `subnet-${subnetConfig.name}`,
+        {
+          name: subnetConfig.name,
+          type: "Microsoft.Network/virtualNetworks/subnets@2023-09-01",
+          parentId: this.virtualNetwork.id,
+          body: {
+            properties: {
+              addressPrefixes: subnetConfig.addressPrefixes,
+            },
+          },
+        },
+      );
+
+      this.subnets[subnetConfig.name] = subnet;
+    }
+
+    // Terraform Outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.virtualNetwork.id,
+    });
+    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+      value: this.virtualNetwork.location,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.virtualNetwork.name,
+    });
+
+    // Override logical IDs to match original naming
+    this.locationOutput.overrideLogicalId("location");
+    this.nameOutput.overrideLogicalId("name");
+    this.idOutput.overrideLogicalId("id");
   }
 
   /**

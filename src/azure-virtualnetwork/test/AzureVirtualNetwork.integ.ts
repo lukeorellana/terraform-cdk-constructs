@@ -1,16 +1,14 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as vnet from "..";
-
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import * as rg from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
 import { generateRandomName } from "../../util/randomName";
-import "cdktf/lib/testing/adapters/jest";
+setupJest();
 
 describe("Example of deploying a Virtual Network", () => {
   let stack: TerraformStack;
@@ -22,24 +20,23 @@ describe("Example of deploying a Virtual Network", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azureFeature", {});
 
-    const clientConfig = new DataAzurermClientConfig(
-      stack,
-      "CurrentClientConfig",
-      {},
-    );
-
-    // Create a resource group
-    const resourceGroup = new ResourceGroup(stack, "rg", {
-      name: `rg-${randomName}`,
+    // Create resource groups for each virtual network
+    const resourceGroupEast = new rg.ResourceGroup(stack, "rg-east", {
+      name: `rg-east-${randomName}`,
       location: "eastus",
+    });
+
+    const resourceGroupWest = new rg.ResourceGroup(stack, "rg-west", {
+      name: `rg-west-${randomName}`,
+      location: "westus",
     });
 
     const network = new vnet.Network(stack, "testAzureVirtualNetworkDefaults", {
       name: `vnet-${randomName}`,
       location: "eastus",
-      resourceGroup: resourceGroup,
+      resourceGroup: resourceGroupEast,
       addressSpace: ["10.0.0.0/16"],
       subnets: [
         {
@@ -59,7 +56,7 @@ describe("Example of deploying a Virtual Network", () => {
       {
         name: `vnet-${randomName}2`,
         location: "westus",
-        resourceGroup: resourceGroup,
+        resourceGroup: resourceGroupWest,
         addressSpace: ["10.1.0.0/16"],
         subnets: [
           {
@@ -73,30 +70,6 @@ describe("Example of deploying a Virtual Network", () => {
         ],
       },
     );
-
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
-      stack,
-      "log_analytics",
-      {
-        location: "eastus",
-        name: `la-${randomName}`,
-        resourceGroupName: resourceGroup.name,
-      },
-    );
-
-    // Diag Settings
-    network.addDiagSettings({
-      name: "diagsettings",
-      logAnalyticsWorkspaceId: logAnalyticsWorkspace.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
-    });
-
-    // RBAC
-    network.addAccess(clientConfig.objectId, "Contributor");
 
     // Peer the networks
     network.addVnetPeering(remotenetwork);
