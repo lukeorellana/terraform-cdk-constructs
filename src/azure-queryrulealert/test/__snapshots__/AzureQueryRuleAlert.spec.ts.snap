@@ -3,60 +3,78 @@
 exports[`Azure Query Rule Alert With Defaults renders an Azure Query Rule Alert with defaults and checks snapshot 1`] = `
 "{
   "output": {
+    "id": {
+      "value": "\${azapi_resource.MyResourceGroup-resource.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.MyResourceGroup-resource.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.MyResourceGroup-resource.name}"
+    },
     "query_rule_alert_id": {
-      "value": "\${azurerm_monitor_scheduled_query_rules_alert_v2.testAzureQueryRuleAlert_queryrulealert_851B0C95.id}"
+      "value": "\${azapi_resource.testAzureQueryRuleAlert_testAzureQueryRuleAlert-alert_9EDF5728.id}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_monitor_scheduled_query_rules_alert_v2": {
-      "testAzureQueryRuleAlert_queryrulealert_851B0C95": {
-        "auto_mitigation_enabled": false,
-        "criteria": [
+    "azapi_resource": {
+      "MyResourceGroup-resource": {
+        "lifecycle": [
           {
-            "failing_periods": {
-              "minimum_failing_periods_to_trigger_alert": 1,
-              "number_of_evaluation_periods": 1
-            },
-            "operator": "GreaterThan",
-            "query": "\\nAppExceptions \\n| where Message has \\"file can not be reloaded\\"\\n",
-            "threshold": 100,
-            "time_aggregation_method": "Count"
+            "ignore_changes": [
+            ]
           }
         ],
-        "enabled": true,
-        "evaluation_frequency": "PT5M",
+        "location": "eastus",
+        "name": "rg-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      },
+      "testAzureQueryRuleAlert_testAzureQueryRuleAlert-alert_9EDF5728": {
+        "body": {
+          "properties": {
+            "autoMitigate": false,
+            "checkWorkspaceAlertsStorageConfigured": false,
+            "criteria": [
+              {
+                "failingPeriods": {
+                  "minFailingPeriodsToAlert": 1,
+                  "numberOfEvaluationPeriods": 1
+                },
+                "operator": "GreaterThan",
+                "query": "\\nAppExceptions \\n| where Message has \\"file can not be reloaded\\"\\n",
+                "threshold": 100,
+                "timeAggregationMethod": "Count"
+              }
+            ],
+            "enabled": true,
+            "evaluationFrequency": "PT5M",
+            "scopes": [
+              "/subscriptions/00000000-0000-0000-0000-000000000000"
+            ],
+            "severity": 3,
+            "skipQueryValidation": true,
+            "windowSize": "PT30M"
+          }
+        },
         "location": "eastus",
         "name": "alert test",
-        "resource_group_name": "\${azurerm_resource_group.MyResourceGroup.name}",
-        "scopes": [
-          "/subscriptions/00000000-0000-0000-0000-000000000000"
-        ],
-        "severity": 3,
-        "skip_query_validation": true,
-        "window_duration": "PT30M",
-        "workspace_alerts_storage_enabled": false
-      }
-    },
-    "azurerm_resource_group": {
-      "MyResourceGroup": {
-        "location": "eastus",
-        "name": "rg-test"
+        "parent_id": "\${azapi_resource.MyResourceGroup-resource.id}",
+        "schema_validation_enabled": false,
+        "type": "Microsoft.Insights/scheduledQueryRules@2023-03-15-preview"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

@@ -1,9 +1,7 @@
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import * as queryalert from "../../azure-queryrulealert";
-
+import * as azureResourceGroup from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
@@ -21,23 +19,13 @@ describe("Example of deploying a Query Alert", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     // Create a resource group
-    const resourceGroup = new ResourceGroup(stack, "rg", {
+    const resourceGroup = new azureResourceGroup.ResourceGroup(stack, "rg", {
       name: `rg-${randomName}`,
       location: "eastus",
     });
-
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
-      stack,
-      "log_analytics",
-      {
-        location: "eastus",
-        name: `la-${randomName}`,
-        resourceGroupName: resourceGroup.name,
-      },
-    );
 
     // Query Rule Alert
     new queryalert.QueryRuleAlert(stack, "queryRuleAlert", {
@@ -53,7 +41,9 @@ AppExceptions
       criteriatimeAggregationMethod: "Count",
       evaluationFrequency: "PT5M",
       windowDuration: "PT30M",
-      scopes: [logAnalyticsWorkspace.id],
+      scopes: [
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.OperationalInsights/workspaces/test-workspace",
+      ],
       severity: 4,
       criteriaFailMinimumFailingPeriodsToTriggerAlert: 1,
       criteriaFailNumberOfEvaluationPeriods: 1,

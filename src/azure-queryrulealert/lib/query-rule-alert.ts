@@ -1,8 +1,9 @@
-import { MonitorScheduledQueryRulesAlertV2 } from "@cdktf/provider-azurerm/lib/monitor-scheduled-query-rules-alert-v2";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import * as moment from "moment";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
+import { AzureResource } from "../../core-azure/lib";
 
 export interface BaseAzureQueryRuleAlertProps {
   /**
@@ -10,7 +11,7 @@ export interface BaseAzureQueryRuleAlertProps {
    */
   readonly name: string;
   /**
-   * The name of the resource group in which the Monitor Scheduled Query Rule is created.
+   * The resource group in which the Monitor Scheduled Query Rule is created.
    */
   readonly resourceGroup: ResourceGroup;
   /**
@@ -128,6 +129,10 @@ export interface BaseAzureQueryRuleAlertProps {
    * A mapping of tags which should be assigned to the Monitor Scheduled Query Rule.
    */
   readonly tags?: { [key: string]: string };
+  /**
+   * The lifecycle rules to ignore changes.
+   */
+  readonly ignoreChanges?: string[];
 }
 
 export interface AzureQueryRuleAlertProps extends BaseAzureQueryRuleAlertProps {
@@ -137,9 +142,10 @@ export interface AzureQueryRuleAlertProps extends BaseAzureQueryRuleAlertProps {
   readonly scopes: string[];
 }
 
-export class QueryRuleAlert extends Construct {
+export class QueryRuleAlert extends AzureResource {
   readonly queryRuleAlertProps: AzureQueryRuleAlertProps;
-  public id: string;
+  public readonly queryRuleAlert: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
   public resourceGroup: ResourceGroup;
 
   /**
@@ -288,78 +294,99 @@ export class QueryRuleAlert extends Construct {
 
     // Properties with default values
     const defaults = {
-      autoMitigationEnabled: props.autoMitigationEnabled || false,
+      name: props.name,
+      location: props.location,
+      autoMitigationEnabled: props.autoMitigationEnabled ?? false,
       workspaceAlertsStorageEnabled:
-        props.workspaceAlertsStorageEnabled || false,
-      enabled: props.enabled || true,
-      skipQueryValidation: props.skipQueryValidation || true,
-      metricMeasureColumn: props.criteriaMetricMeasureColumn || undefined,
+        props.workspaceAlertsStorageEnabled ?? false,
+      enabled: props.enabled ?? true,
+      skipQueryValidation: props.skipQueryValidation ?? true,
     };
 
-    const criteriaFailingPeriods =
-      props.criteriaFailMinimumFailingPeriodsToTriggerAlert !== undefined &&
-      props.criteriaFailNumberOfEvaluationPeriods !== undefined
-        ? {
-            minimumFailingPeriodsToTriggerAlert:
-              props.criteriaFailMinimumFailingPeriodsToTriggerAlert,
-            numberOfEvaluationPeriods:
-              props.criteriaFailNumberOfEvaluationPeriods,
-          }
-        : undefined;
+    // Build the criteria object
+    const criteria = {
+      operator: props.criteriaOperator,
+      query: props.criteriaQuery,
+      threshold: props.criteriaThreshold,
+      timeAggregationMethod: props.criteriatimeAggregationMethod,
+      metricMeasureColumn: props.criteriaMetricMeasureColumn,
+      dimensions:
+        props.criteriaDimensionName &&
+        props.criteriaDimensionOperator &&
+        props.criteriaDimensionValues
+          ? [
+              {
+                name: props.criteriaDimensionName,
+                operator: props.criteriaDimensionOperator,
+                values: props.criteriaDimensionValues,
+              },
+            ]
+          : undefined,
+      failingPeriods:
+        props.criteriaFailMinimumFailingPeriodsToTriggerAlert !== undefined &&
+        props.criteriaFailNumberOfEvaluationPeriods !== undefined
+          ? {
+              minFailingPeriodsToAlert:
+                props.criteriaFailMinimumFailingPeriodsToTriggerAlert,
+              numberOfEvaluationPeriods:
+                props.criteriaFailNumberOfEvaluationPeriods,
+            }
+          : undefined,
+    };
 
-    const dimension =
-      props.criteriaDimensionName &&
-      props.criteriaDimensionOperator &&
-      props.criteriaDimensionValues
-        ? [
-            {
-              name: props.criteriaDimensionName,
-              operator: props.criteriaDimensionOperator,
-              values: props.criteriaDimensionValues,
-            },
-          ]
-        : undefined;
-
-    const azurermMonitorQueryRuleAlert = new MonitorScheduledQueryRulesAlertV2(
-      this,
-      "queryrulealert",
-      {
-        ...defaults,
-        name: props.name,
-        resourceGroupName: props.resourceGroup.name,
-        location: props.location,
+    // Build the properties object for the AzAPI resource
+    const resourceProperties = {
+      properties: {
         scopes: props.scopes,
-        windowDuration: props.windowDuration,
+        criteria: [criteria],
+        enabled: defaults.enabled,
         evaluationFrequency: props.evaluationFrequency,
         severity: props.severity,
-        criteria: [
-          {
-            operator: props.criteriaOperator,
-            query: props.criteriaQuery,
-            threshold: props.criteriaThreshold,
-            timeAggregationMethod: props.criteriatimeAggregationMethod,
-            dimension: dimension,
-            failingPeriods: criteriaFailingPeriods,
+        windowSize: props.windowDuration,
+        autoMitigate: defaults.autoMitigationEnabled,
+        checkWorkspaceAlertsStorageConfigured:
+          defaults.workspaceAlertsStorageEnabled,
+        skipQueryValidation: defaults.skipQueryValidation,
+        ...(props.description && { description: props.description }),
+        ...(props.displayName && { displayName: props.displayName }),
+        ...(props.muteActionsAfterAlertDuration && {
+          muteActionsDuration: props.muteActionsAfterAlertDuration,
+        }),
+        ...(props.queryTimeRangeOverride && {
+          overrideQueryTimeRange: props.queryTimeRangeOverride,
+        }),
+        ...(props.actionActionGroupId && {
+          actions: {
+            actionGroups: props.actionActionGroupId,
           },
-        ],
-        action: props.actionActionGroupId
-          ? { actionGroups: props.actionActionGroupId }
-          : undefined,
-        tags: props.tags,
+        }),
       },
-    );
+    };
+
+    // Create the AzAPI resource
+    this.queryRuleAlert = new resource.Resource(this, `${id}-alert`, {
+      name: defaults.name,
+      location: defaults.location,
+      parentId: props.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Insights/scheduledQueryRules@2023-03-15-preview",
+      body: resourceProperties,
+      tags: props.tags,
+      schemaValidationEnabled: false,
+    });
+
+    // Add lifecycle ignore changes if needed
+    if (props.ignoreChanges) {
+      this.queryRuleAlert.addOverride("lifecycle", [
+        {
+          ignore_changes: props.ignoreChanges,
+        },
+      ]);
+    }
 
     // Output
-    this.id = azurermMonitorQueryRuleAlert.id;
-    const cdktfTerraformOutputQueryRuleAlertId = new cdktf.TerraformOutput(
-      this,
-      "id",
-      {
-        value: azurermMonitorQueryRuleAlert.id,
-      },
-    );
-    cdktfTerraformOutputQueryRuleAlertId.overrideLogicalId(
-      "query_rule_alert_id",
-    );
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.queryRuleAlert.id,
+    });
+    this.idOutput.overrideLogicalId("query_rule_alert_id");
   }
 }
