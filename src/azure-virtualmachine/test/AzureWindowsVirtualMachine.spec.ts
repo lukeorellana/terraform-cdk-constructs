@@ -1,8 +1,9 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as vm from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
-import "cdktf/lib/testing/adapters/jest";
+setupJest();
 
 describe("Azure Windows Virtual Machine With Defaults", () => {
   let stack: TerraformStack;
@@ -12,7 +13,7 @@ describe("Azure Windows Virtual Machine With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "testAzureVMWithDefaults");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azureFeature", {});
 
     new vm.WindowsVM(stack, "testVirtualMachine", {
       adminUsername: "testAdmin",

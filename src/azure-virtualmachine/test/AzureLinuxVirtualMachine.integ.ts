@@ -1,11 +1,8 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { StorageAccount } from "@cdktf/provider-azurerm/lib/storage-account";
-import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
-import { VirtualNetwork } from "@cdktf/provider-azurerm/lib/virtual-network";
 import { Testing, TerraformStack } from "cdktf";
 import * as vm from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
+import { Network } from "../../azure-virtualnetwork/lib/network";
 
 import {
   TerraformApplyAndCheckIdempotency,
@@ -24,13 +21,7 @@ describe("Example of deploying a Linux Virtual Machine", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    const clientConfig = new DataAzurermClientConfig(
-      stack,
-      "CurrentClientConfig",
-      {},
-    );
-
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azureFeature", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {
@@ -38,32 +29,12 @@ describe("Example of deploying a Linux Virtual Machine", () => {
       location: "southcentralus",
     });
 
-    const vnet = new VirtualNetwork(stack, "vnet", {
+    // Create a virtual network
+    const network = new Network(stack, "vnet", {
       name: `vnet-${randomName}`,
-      location: resourceGroup.location,
-      resourceGroupName: resourceGroup.name,
+      location: "southcentralus",
+      resourceGroup: resourceGroup,
       addressSpace: ["10.0.0.0/16"],
-    });
-
-    const subnet = new Subnet(stack, "subnet1", {
-      name: "subnet1",
-      resourceGroupName: resourceGroup.name,
-      virtualNetworkName: vnet.name,
-      addressPrefixes: ["10.0.1.0/24"],
-    });
-
-    const storage = new StorageAccount(stack, "storage", {
-      name: `sta${randomName}08l98`,
-      resourceGroupName: resourceGroup.name,
-      location: resourceGroup.location,
-      accountReplicationType: "LRS",
-      accountTier: "Standard",
-      minTlsVersion: "TLS1_2",
-      publicNetworkAccessEnabled: false,
-      networkRules: {
-        bypass: ["AzureServices"],
-        defaultAction: "Deny",
-      },
     });
 
     const linuxVm = new vm.LinuxVM(stack, "vm", {
@@ -75,7 +46,10 @@ describe("Example of deploying a Linux Virtual Machine", () => {
       adminPassword: "Password1234!",
       osDisk: {
         caching: "ReadWrite",
-        storageAccountType: "Standard_LRS",
+        createOption: "FromImage",
+        managedDisk: {
+          storageAccountType: "Standard_LRS",
+        },
       },
       sourceImageReference: {
         publisher: "Canonical",
@@ -83,32 +57,17 @@ describe("Example of deploying a Linux Virtual Machine", () => {
         sku: "22_04-lts-gen2",
         version: "latest",
       },
-      subnet: subnet,
-      publicIPAllocationMethod: "Static",
+      subnet: network.subnets.default,
+      enablePublicIp: true,
       userData: "#!/bin/bash\nsudo apt-get install -y apache2",
       enableSshAzureADLogin: true,
       identity: {
         type: "SystemAssigned",
       },
-      bootDiagnosticsStorageURI: storage.primaryBlobEndpoint,
       lifecycle: {
         ignoreChanges: ["tags", "identity"],
       },
     });
-
-    // Diag Settings
-    linuxVm.addDiagSettings({
-      name: "diagsettings",
-      storageAccountId: storage.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
-    });
-
-    // RBAC
-    linuxVm.addAccess(clientConfig.objectId, "Contributor");
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

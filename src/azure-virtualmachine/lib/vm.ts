@@ -1,28 +1,63 @@
-import {
-  LinuxVirtualMachine,
-  LinuxVirtualMachineSourceImageReference,
-  LinuxVirtualMachineOsDisk,
-  LinuxVirtualMachineAdminSshKey,
-  LinuxVirtualMachineIdentity,
-  LinuxVirtualMachineSecret,
-  LinuxVirtualMachineAdditionalCapabilities,
-} from "@cdktf/provider-azurerm/lib/linux-virtual-machine";
-import { NetworkInterface } from "@cdktf/provider-azurerm/lib/network-interface";
-import { PublicIp } from "@cdktf/provider-azurerm/lib/public-ip";
-import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
-import { VirtualMachineExtension } from "@cdktf/provider-azurerm/lib/virtual-machine-extension";
-import {
-  WindowsVirtualMachine,
-  WindowsVirtualMachineOsDisk,
-  WindowsVirtualMachineSourceImageReference,
-} from "@cdktf/provider-azurerm/lib/windows-virtual-machine";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
+import {
+  WindowsImageReferences,
+  LinuxImageReferences,
+  ImageReference,
+} from "./image-references";
+import * as resource from "../../../.gen/providers/azapi/resource";
 
-import { WindowsImageReferences } from "./image-references";
 import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { Network } from "../../azure-virtualnetwork/lib/network";
 import { AzureResource } from "../../core-azure/lib";
+
+export interface OsDisk {
+  caching?: string;
+  createOption: string;
+  deleteOption?: string;
+  diskSizeGB?: number;
+  name?: string;
+  osType?: string;
+  writeAcceleratorEnabled?: boolean;
+  managedDisk?: {
+    id?: string;
+    storageAccountType?: string;
+  };
+}
+
+export interface DataDisk {
+  lun: number;
+  createOption: string;
+  caching?: string;
+  deleteOption?: string;
+  diskSizeGB?: number;
+  name?: string;
+  writeAcceleratorEnabled?: boolean;
+  managedDisk?: {
+    id?: string;
+    storageAccountType?: string;
+  };
+}
+
+export interface AdminSshKey {
+  publicKey: string;
+  username?: string;
+}
+
+export interface NetworkInterfaceConfiguration {
+  name: string;
+  primary?: boolean;
+  ipConfigurations?: Array<{
+    name: string;
+    primary?: boolean;
+    subnet?: {
+      id: string;
+    };
+    publicIpAddress?: {
+      id: string;
+    };
+  }>;
+}
 
 export interface WindowsVMProps {
   /**
@@ -63,7 +98,7 @@ export interface WindowsVMProps {
    * The source image reference for the virtual machine.
    * @default - Uses WindowsServer2022DatacenterCore.
    */
-  readonly sourceImageReference?: WindowsVirtualMachineSourceImageReference;
+  readonly sourceImageReference?: ImageReference;
 
   /**
    * The ID of the source image for the virtual machine.
@@ -79,18 +114,23 @@ export interface WindowsVMProps {
    * The OS disk configuration for the virtual machine.
    * @default - Uses a disk with caching set to "ReadWrite" and storage account type "Standard_LRS".
    */
-  readonly osDisk?: WindowsVirtualMachineOsDisk;
+  readonly osDisk?: OsDisk;
 
   /**
-   * The subnet in which the virtual machine will be placed.
+   * Data disks to attach to the virtual machine.
+   */
+  readonly dataDisks?: DataDisk[];
+
+  /**
+   * The subnet resource where the virtual machine will be placed.
    * @default - Uses the default subnet from a new virtual network.
    */
-  readonly subnet?: Subnet;
+  readonly subnet?: resource.Resource;
 
   /**
-   * The allocation method for the public IP.
+   * Enable automatic public IP allocation.
    */
-  readonly publicIPAllocationMethod?: string;
+  readonly enablePublicIp?: boolean;
 
   /**
    * Custom data to pass to the virtual machine upon creation.
@@ -108,14 +148,12 @@ export interface WindowsVMProps {
   readonly bootDiagnosticsStorageURI?: string;
 
   /**
+   * Virtual machine zones.
+   */
+  readonly zones?: string[];
+
+  /**
    * Lifecycle settings for the Terraform resource.
-   *
-   * @remarks
-   * This property specifies the lifecycle customizations for the Terraform resource,
-   * allowing you to define specific actions to be taken during the lifecycle of the
-   * resource. It can include settings such as create before destroy, prevent destroy,
-   * ignore changes, etc.
-   *
    */
   readonly lifecycle?: cdktf.TerraformMetaArguments["lifecycle"];
 }
@@ -125,50 +163,14 @@ export class WindowsVM extends AzureResource {
   public resourceGroup: ResourceGroup;
   public id: string;
   public readonly name: string;
-  public readonly publicIp?: string;
+  public readonly vm: resource.Resource;
+  public readonly publicIp?: resource.Resource;
+  public readonly networkInterface: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
 
   /**
-   * Represents a Windows-based Virtual Machine (VM) within Microsoft Azure.
-   *
-   * This class is designed to provision and manage a Windows VM in Azure, allowing for detailed configuration including
-   * the VM's size, the operating system image, network settings, and administrative credentials. It supports customization
-   * of the OS disk, networking setup, and optional features like custom data scripts and boot diagnostics.
-   *
-   * @param scope - The scope in which to define this construct, typically representing the Cloud Development Kit (CDK) application.
-   * @param id - The unique identifier for this instance of the Windows VM, used within the scope for reference.
-   * @param props - Configuration properties for the Windows Virtual Machine, derived from the WindowsVMProps interface. These include:
-   *                - `location`: The geographic location where the VM will be hosted (e.g., "eastus").
-   *                - `name`: The name of the VM, which must be unique within the resource group.
-   *                - `resourceGroup`: Optional. Reference to the resource group for deployment.
-   *                - `size`: The size specification of the VM (e.g., "Standard_B2s").
-   *                - `adminUsername`: The administrator username for accessing the VM.
-   *                - `adminPassword`: The administrator password for accessing the VM.
-   *                - `sourceImageReference`: A reference to the specific Windows image to be used for the VM.
-   *                - `sourceImageId`: The identifier for a custom image to use for the VM.
-   *                - `tags`: Key-value pairs for resource tagging.
-   *                - `osDisk`: Configuration for the VM's operating system disk.
-   *                - `subnet`: Specifies the subnet within which the VM will be placed.
-   *                - `publicIPAllocationMethod`: The method used to allocate a public IP address to the VM.
-   *                - `customData`: Scripts or commands passed to the VM at startup.
-   *                - `bootstrapCustomData`: Custom data used to trigger the Azure Custom Script Extension for VM setup tasks.
-   *                - `bootDiagnosticsStorageURI`: URI for storage where VM boot diagnostics are collected.
-   *
-   * Example usage:
-   * ```typescript
-   * const vm = new WindowsVM(this, 'MyWindowsVM', {
-   *   resourceGroup: myResourceGroup,
-   *   name: 'myVM',
-   *   size: 'Standard_DS1_v2',
-   *   adminUsername: 'adminuser',
-   *   adminPassword: 'securepassword123',
-   *   sourceImageReference: { publisher: 'MicrosoftWindowsServer', offer: 'WindowsServer', sku: '2019-Datacenter', version: 'latest' },
-   *   osDisk: { caching: 'ReadWrite', storageAccountType: 'Standard_LRS' },
-   *   subnet: mySubnet,
-   *   tags: { environment: 'production' }
-   * });
-   * ```
-   * This class initializes a Windows VM with the specified configurations, handling details like network setup, OS installation,
-   * and security settings, thus providing a robust infrastructure for hosting applications on Windows Server environments.
+   * Represents a Windows-based Virtual Machine (VM) within Microsoft Azure using AzAPI.
    */
   constructor(scope: Construct, id: string, props: WindowsVMProps) {
     super(scope, id);
@@ -188,7 +190,10 @@ export class WindowsVM extends AzureResource {
       size: props.size || "Standard_B2s",
       osDisk: props.osDisk || {
         caching: "ReadWrite",
-        storageAccountType: "Standard_LRS",
+        createOption: "FromImage",
+        managedDisk: {
+          storageAccountType: "Standard_LRS",
+        },
       },
       sourceImageReference:
         props.sourceImageReference ||
@@ -201,33 +206,47 @@ export class WindowsVM extends AzureResource {
     };
 
     // Create Public IP if specified.
-    let publicIpId: string | undefined;
-    if (props.publicIPAllocationMethod) {
-      const azurermPublicIp = new PublicIp(this, "public-ip", {
+    if (props.enablePublicIp) {
+      this.publicIp = new resource.Resource(this, "public-ip", {
         name: `pip-${defaults.name}`,
-        resourceGroupName: this.resourceGroup.resourceGroup.name,
         location: defaults.location,
-        allocationMethod: props.publicIPAllocationMethod,
+        parentId: this.resourceGroup.resourceGroup.id,
+        type: "Microsoft.Network/publicIPAddresses@2023-09-01",
+        body: {
+          properties: {
+            publicIPAllocationMethod: "Dynamic",
+          },
+        },
         tags: props.tags,
       });
-
-      publicIpId = azurermPublicIp.id;
-      this.publicIp = azurermPublicIp.ipAddress;
     }
 
     // Create the Network Interface.
-    const azurermNetworkInterface = new NetworkInterface(this, "nic", {
-      ...defaults,
+    this.networkInterface = new resource.Resource(this, "nic", {
       name: `nic-${defaults.name}`,
-      resourceGroupName: this.resourceGroup.resourceGroup.name,
-      ipConfiguration: [
-        {
-          name: "internal",
-          subnetId: defaults.subnet.id,
-          privateIpAddressAllocation: "Dynamic",
-          publicIpAddressId: publicIpId,
+      location: defaults.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Network/networkInterfaces@2023-09-01",
+      body: {
+        properties: {
+          ipConfigurations: [
+            {
+              name: "internal",
+              properties: {
+                subnet: {
+                  id: defaults.subnet.id,
+                },
+                privateIPAllocationMethod: "Dynamic",
+                ...(this.publicIp && {
+                  publicIPAddress: {
+                    id: this.publicIp.id,
+                  },
+                }),
+              },
+            },
+          ],
         },
-      ],
+      },
       tags: props.tags,
     });
 
@@ -237,35 +256,101 @@ export class WindowsVM extends AzureResource {
       ? Buffer.from(customData).toString("base64")
       : undefined;
 
-    // Create the Windows Virtual Machine.
-    const azurermWindowsVirtualMachine = new WindowsVirtualMachine(this, "vm", {
-      ...defaults,
-      resourceGroupName: this.resourceGroup.resourceGroup.name,
-      adminUsername: props.adminUsername,
-      adminPassword: props.adminPassword,
+    // Create the Windows Virtual Machine using AzAPI
+    this.vm = new resource.Resource(this, "vm", {
+      name: defaults.name,
+      location: defaults.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Compute/virtualMachines@2023-09-01",
+      body: {
+        properties: {
+          hardwareProfile: {
+            vmSize: defaults.size,
+          },
+          storageProfile: {
+            imageReference: props.sourceImageId
+              ? {
+                  id: props.sourceImageId,
+                }
+              : defaults.sourceImageReference,
+            osDisk: {
+              caching: defaults.osDisk.caching,
+              createOption: defaults.osDisk.createOption,
+              managedDisk: defaults.osDisk.managedDisk,
+              ...(defaults.osDisk.diskSizeGB && {
+                diskSizeGB: defaults.osDisk.diskSizeGB,
+              }),
+              ...(defaults.osDisk.name && { name: defaults.osDisk.name }),
+              ...(defaults.osDisk.writeAcceleratorEnabled !== undefined && {
+                writeAcceleratorEnabled:
+                  defaults.osDisk.writeAcceleratorEnabled,
+              }),
+            },
+            ...(props.dataDisks && { dataDisks: props.dataDisks }),
+          },
+          osProfile: {
+            computerName: defaults.name,
+            adminUsername: props.adminUsername,
+            adminPassword: props.adminPassword,
+            ...(base64CustomData && { customData: base64CustomData }),
+          },
+          networkProfile: {
+            networkInterfaces: [
+              {
+                id: this.networkInterface.id,
+                properties: {
+                  primary: true,
+                },
+              },
+            ],
+          },
+          ...(props.bootDiagnosticsStorageURI && {
+            diagnosticsProfile: {
+              bootDiagnostics: {
+                enabled: true,
+                storageUri: props.bootDiagnosticsStorageURI,
+              },
+            },
+          }),
+        },
+        ...(props.zones && { zones: props.zones }),
+      },
       tags: props.tags,
-      networkInterfaceIds: [azurermNetworkInterface.id],
-      sourceImageId: props.sourceImageId,
-      customData: base64CustomData,
-      bootDiagnostics: { storageAccountUri: props.bootDiagnosticsStorageURI },
-      lifecycle: props.lifecycle,
     });
 
-    this.id = azurermWindowsVirtualMachine.id;
-    this.name = azurermWindowsVirtualMachine.name;
+    this.id = this.vm.id;
+    this.name = this.vm.name;
 
     // Bootstrap VM with custom script extension if bootstrap custom data is provided.
     if (props.boostrapCustomData) {
-      new VirtualMachineExtension(this, "script-ext", {
+      new resource.Resource(this, "script-ext", {
         name: `${this.name}-script-ext`,
-        virtualMachineId: this.id,
-        publisher: "Microsoft.Compute",
-        type: "CustomScriptExtension",
-        typeHandlerVersion: "1.10",
-        protectedSettings:
-          '{"commandToExecute": "rename  C:\\\\AzureData\\\\CustomData.bin  postdeploy.ps1 & powershell -ExecutionPolicy Unrestricted -File C:\\\\AzureData\\\\postdeploy.ps1"}',
+        parentId: this.vm.id,
+        type: "Microsoft.Compute/virtualMachines/extensions@2023-09-01",
+        body: {
+          properties: {
+            publisher: "Microsoft.Compute",
+            type: "CustomScriptExtension",
+            typeHandlerVersion: "1.10",
+            protectedSettings: {
+              commandToExecute:
+                "rename  C:\\\\AzureData\\\\CustomData.bin  postdeploy.ps1 & powershell -ExecutionPolicy Unrestricted -File C:\\\\AzureData\\\\postdeploy.ps1",
+            },
+          },
+        },
       });
     }
+
+    // Terraform Outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.vm.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.vm.name,
+    });
+
+    this.idOutput.overrideLogicalId("id");
+    this.nameOutput.overrideLogicalId("name");
   }
 }
 
@@ -307,7 +392,7 @@ export interface LinuxVMProps {
   /**
    * An array of SSH keys for the admin user.
    */
-  readonly adminSshKey?: LinuxVirtualMachineAdminSshKey[] | cdktf.IResolvable;
+  readonly adminSshKey?: AdminSshKey[];
 
   /**
    * The availability zone in which the VM should be placed.
@@ -317,17 +402,18 @@ export interface LinuxVMProps {
   /**
    * Managed identity settings for the VM.
    */
-  readonly identity?: LinuxVirtualMachineIdentity;
+  readonly identity?: {
+    type?: string;
+    userAssignedIdentities?: { [key: string]: any };
+  };
 
   /**
    * Additional capabilities like Ultra Disk compatibility.
    */
-  readonly additionalCapabilities?: LinuxVirtualMachineAdditionalCapabilities;
-
-  /**
-   * An array of secrets to be passed to the VM.
-   */
-  readonly secret?: LinuxVirtualMachineSecret[];
+  readonly additionalCapabilities?: {
+    ultraSSDEnabled?: boolean;
+    hibernationEnabled?: boolean;
+  };
 
   /**
    * The admin username for the virtual machine.
@@ -341,9 +427,9 @@ export interface LinuxVMProps {
 
   /**
    * The source image reference for the virtual machine.
-   * @default - Uses WindowsServer2022DatacenterCore.
+   * @default - Uses Ubuntu 22.04 LTS.
    */
-  readonly sourceImageReference?: LinuxVirtualMachineSourceImageReference;
+  readonly sourceImageReference?: ImageReference;
 
   /**
    * The ID of the source image for the virtual machine.
@@ -359,18 +445,23 @@ export interface LinuxVMProps {
    * The OS disk configuration for the virtual machine.
    * @default - Uses a disk with caching set to "ReadWrite" and storage account type "Standard_LRS".
    */
-  readonly osDisk?: LinuxVirtualMachineOsDisk;
+  readonly osDisk?: OsDisk;
 
   /**
-   * The subnet in which the virtual machine will be placed.
+   * Data disks to attach to the virtual machine.
+   */
+  readonly dataDisks?: DataDisk[];
+
+  /**
+   * The subnet resource where the virtual machine will be placed.
    * @default - Uses the default subnet from a new virtual network.
    */
-  readonly subnet?: Subnet;
+  readonly subnet?: resource.Resource;
 
   /**
-   * The allocation method for the public IP.
+   * Enable automatic public IP allocation.
    */
-  readonly publicIPAllocationMethod?: string;
+  readonly enablePublicIp?: boolean;
 
   /**
    * Custom data to pass to the virtual machine upon creation.
@@ -388,13 +479,12 @@ export interface LinuxVMProps {
   readonly bootDiagnosticsStorageURI?: string;
 
   /**
+   * Virtual machine zones.
+   */
+  readonly zones?: string[];
+
+  /**
    * Lifecycle settings for the Terraform resource.
-   *
-   * @remarks
-   * This property specifies the lifecycle customizations for the Terraform resource,
-   * allowing you to define specific actions to be taken during the lifecycle of the
-   * resource. It can include settings such as create before destroy, prevent destroy,
-   * ignore changes, etc.
    */
   readonly lifecycle?: cdktf.TerraformMetaArguments["lifecycle"];
 }
@@ -405,56 +495,16 @@ export class LinuxVM extends AzureResource {
   public resourceGroup: ResourceGroup;
   public id: string;
   public readonly name: string;
-  public readonly publicIp?: string;
+  public readonly vm: resource.Resource;
+  public readonly publicIp?: resource.Resource;
+  public readonly networkInterface: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
 
   /**
-   * Represents a Linux-based Virtual Machine (VM) within Microsoft Azure.
-   *
-   * This class is designed to provision and manage a Linux VM in Azure, facilitating detailed configuration including
-   * VM size, the operating system image, network settings, and administrative credentials. It supports custom data scripts,
-   * SSH configurations, and optional features like managed identity and boot diagnostics.
-   *
-   * @param scope - The scope in which to define this construct, typically representing the Cloud Development Kit (CDK) application.
-   * @param id - The unique identifier for this instance of the Linux VM, used within the scope for reference.
-   * @param props - Configuration properties for the Linux Virtual Machine, derived from the LinuxVMProps interface. These include:
-   *                - `location`: The geographic location where the VM will be hosted (e.g., "eastus").
-   *                - `name`: The name of the VM, which must be unique within the resource group.
-   *                - `resourceGroup`: Optional. Reference to the resource group for deployment.
-   *                - `size`: The size specification of the VM (e.g., "Standard_B2s").
-   *                - `availabilitySetId`: The ID of the availability set in which to include the VM.
-   *                - `userData`: Custom data scripts to pass to the VM upon creation.
-   *                - `adminSshKey`: SSH keys for secure access to the VM.
-   *                - `zone`: The availability zone for deploying the VM.
-   *                - `identity`: Managed identity settings for accessing other Azure services.
-   *                - `additionalCapabilities`: Special capabilities like Ultra Disk support.
-   *                - `sourceImageReference`: A reference to the specific Linux image to be used for the VM.
-   *                - `sourceImageId`: The identifier for a custom image to use for the VM.
-   *                - `tags`: Key-value pairs for resource tagging.
-   *                - `osDisk`: Configuration for the VM's operating system disk.
-   *                - `subnet`: Specifies the subnet within which the VM will be placed.
-   *                - `publicIPAllocationMethod`: Method used to allocate a public IP address.
-   *                - `customData`: Additional scripts or commands passed to the VM at startup.
-   *                - `enableSshAzureADLogin`: Option to enable Azure AD login for SSH.
-   *                - `bootDiagnosticsStorageURI`: URI for storage where VM boot diagnostics are collected.
-   *
-   * Example usage:
-   * ```typescript
-   * const linuxVM = new LinuxVM(this, 'MyLinuxVM', {
-   *   resourceGroup: myResourceGroup,
-   *   name: 'myVM',
-   *   size: 'Standard_DS1_v2',
-   *   adminUsername: 'adminuser',
-   *   adminSshKey: [{ publicKey: 'ssh-rsa AAAAB...' }],
-   *   sourceImageReference: { publisher: 'Canonical', offer: 'UbuntuServer', sku: '18.04-LTS', version: 'latest' },
-   *   osDisk: { caching: 'ReadWrite', storageAccountType: 'Standard_LRS' },
-   *   subnet: mySubnet,
-   *   tags: { environment: 'production' }
-   * });
-   * ```
-   * This class initializes a Linux VM with the specified configurations, handling details like network setup, OS installation,
-   * and security settings, thus providing a robust infrastructure for hosting applications on Linux environments.
+   * Represents a Linux-based Virtual Machine (VM) within Microsoft Azure using AzAPI.
    */
-  constructor(scope: Construct, id: string, props: LinuxVMProps) {
+  constructor(scope: Construct, id: string, props: LinuxVMProps = {}) {
     super(scope, id);
 
     // Assigning the properties
@@ -477,11 +527,13 @@ export class LinuxVM extends AzureResource {
       size: props.size || "Standard_B2s",
       osDisk: props.osDisk || {
         caching: "ReadWrite",
-        storageAccountType: "Standard_LRS",
+        createOption: "FromImage",
+        managedDisk: {
+          storageAccountType: "Standard_LRS",
+        },
       },
       sourceImageReference:
-        props.sourceImageReference ||
-        WindowsImageReferences.windowsServer2022DatacenterCore,
+        props.sourceImageReference || LinuxImageReferences.ubuntuServer2204LTS,
       subnet:
         props.subnet ||
         new Network(this, "vnet", {
@@ -490,75 +542,167 @@ export class LinuxVM extends AzureResource {
     };
 
     // Create Public IP if specified
-    let publicIpId: string | undefined;
-    if (props.publicIPAllocationMethod) {
-      const azurermPublicIp = new PublicIp(this, "public-ip", {
+    if (props.enablePublicIp) {
+      this.publicIp = new resource.Resource(this, "public-ip", {
         name: `pip-${defaults.name}`,
-        resourceGroupName: this.resourceGroup.resourceGroup.name,
         location: defaults.location,
-        allocationMethod: props.publicIPAllocationMethod,
+        parentId: this.resourceGroup.resourceGroup.id,
+        type: "Microsoft.Network/publicIPAddresses@2023-09-01",
+        body: {
+          properties: {
+            publicIPAllocationMethod: "Dynamic",
+          },
+        },
         tags: props.tags,
       });
-
-      publicIpId = azurermPublicIp.id;
-      this.publicIp = azurermPublicIp.ipAddress;
     }
 
     // Create the Network Interface
-    const azurermNetworkInterface = new NetworkInterface(this, "nic", {
-      ...defaults,
+    this.networkInterface = new resource.Resource(this, "nic", {
       name: `nic-${defaults.name}`,
-      resourceGroupName: this.resourceGroup.resourceGroup.name,
-      ipConfiguration: [
-        {
-          name: "internal",
-          subnetId: defaults.subnet.id,
-          privateIpAddressAllocation: "Dynamic",
-          publicIpAddressId: publicIpId,
+      location: defaults.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Network/networkInterfaces@2023-09-01",
+      body: {
+        properties: {
+          ipConfigurations: [
+            {
+              name: "internal",
+              properties: {
+                subnet: {
+                  id: defaults.subnet.id,
+                },
+                privateIPAllocationMethod: "Dynamic",
+                ...(this.publicIp && {
+                  publicIPAddress: {
+                    id: this.publicIp.id,
+                  },
+                }),
+              },
+            },
+          ],
         },
-      ],
+      },
       tags: props.tags,
     });
 
-    // Create the Linux Virtual Machine
-    const azurermLinuxVirtualMachine = new LinuxVirtualMachine(this, "vm", {
-      ...defaults,
-      resourceGroupName: this.resourceGroup.resourceGroup.name,
-      adminPassword: props.adminPassword,
+    // Create the Linux Virtual Machine using AzAPI
+    this.vm = new resource.Resource(this, "vm", {
+      name: defaults.name,
+      location: defaults.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Compute/virtualMachines@2023-09-01",
+      body: {
+        properties: {
+          hardwareProfile: {
+            vmSize: defaults.size,
+          },
+          storageProfile: {
+            imageReference: props.sourceImageId
+              ? {
+                  id: props.sourceImageId,
+                }
+              : defaults.sourceImageReference,
+            osDisk: {
+              caching: defaults.osDisk.caching,
+              createOption: defaults.osDisk.createOption,
+              managedDisk: defaults.osDisk.managedDisk,
+              ...(defaults.osDisk.diskSizeGB && {
+                diskSizeGB: defaults.osDisk.diskSizeGB,
+              }),
+              ...(defaults.osDisk.name && { name: defaults.osDisk.name }),
+              ...(defaults.osDisk.writeAcceleratorEnabled !== undefined && {
+                writeAcceleratorEnabled:
+                  defaults.osDisk.writeAcceleratorEnabled,
+              }),
+            },
+            ...(props.dataDisks && { dataDisks: props.dataDisks }),
+          },
+          osProfile: {
+            computerName: defaults.name,
+            adminUsername: defaults.adminUsername,
+            ...(props.adminPassword && { adminPassword: props.adminPassword }),
+            ...(props.customData && {
+              customData: Buffer.from(props.customData).toString("base64"),
+            }),
+            ...(props.userData && {
+              customData: Buffer.from(props.userData).toString("base64"),
+            }),
+            linuxConfiguration: {
+              disablePasswordAuthentication: props.adminPassword ? false : true,
+              ...(props.adminSshKey && {
+                ssh: {
+                  publicKeys: props.adminSshKey.map((key) => ({
+                    path: `/home/${defaults.adminUsername}/.ssh/authorized_keys`,
+                    keyData: key.publicKey,
+                  })),
+                },
+              }),
+            },
+          },
+          networkProfile: {
+            networkInterfaces: [
+              {
+                id: this.networkInterface.id,
+                properties: {
+                  primary: true,
+                },
+              },
+            ],
+          },
+          ...(props.availabilitySetId && {
+            availabilitySet: {
+              id: props.availabilitySetId,
+            },
+          }),
+          ...(props.identity && { identity: props.identity }),
+          ...(props.additionalCapabilities && {
+            additionalCapabilities: props.additionalCapabilities,
+          }),
+          ...(props.bootDiagnosticsStorageURI && {
+            diagnosticsProfile: {
+              bootDiagnostics: {
+                enabled: true,
+                storageUri: props.bootDiagnosticsStorageURI,
+              },
+            },
+          }),
+        },
+        ...(props.zones && { zones: props.zones }),
+      },
       tags: props.tags,
-      networkInterfaceIds: [azurermNetworkInterface.id],
-      sourceImageId: props.sourceImageId,
-      customData: props.customData
-        ? Buffer.from(props.customData).toString("base64")
-        : undefined,
-      userData: props.userData
-        ? Buffer.from(props.userData).toString("base64")
-        : undefined,
-      availabilitySetId: props.availabilitySetId,
-      adminSshKey: props.adminSshKey,
-      bootDiagnostics: { storageAccountUri: props.bootDiagnosticsStorageURI },
-      zone: props.zone,
-      identity: props.identity,
-      additionalCapabilities: props.additionalCapabilities,
-      secret: props.secret,
-      disablePasswordAuthentication: props.adminPassword ? false : true,
-      lifecycle: props.lifecycle,
     });
 
     // Assigning the VM's ID and name to the class properties
-    this.id = azurermLinuxVirtualMachine.id;
-    this.name = azurermLinuxVirtualMachine.name;
+    this.id = this.vm.id;
+    this.name = this.vm.name;
 
     // Enable SSH Azure AD Login if specified
     if (props.enableSshAzureADLogin) {
-      new VirtualMachineExtension(this, "AADSSHlogin", {
+      new resource.Resource(this, "AADSSHlogin", {
         name: "AADSSHLoginForLinux",
-        virtualMachineId: this.id,
-        publisher: "Microsoft.Azure.ActiveDirectory",
-        type: "AADSSHLoginForLinux",
-        typeHandlerVersion: "1.0",
+        parentId: this.vm.id,
+        type: "Microsoft.Compute/virtualMachines/extensions@2023-09-01",
+        body: {
+          properties: {
+            publisher: "Microsoft.Azure.ActiveDirectory",
+            type: "AADSSHLoginForLinux",
+            typeHandlerVersion: "1.0",
+          },
+        },
         tags: props.tags,
       });
     }
+
+    // Terraform Outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.vm.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.vm.name,
+    });
+
+    this.idOutput.overrideLogicalId("id");
+    this.nameOutput.overrideLogicalId("name");
   }
 }
