@@ -1,8 +1,8 @@
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import * as resource from "../../../.gen/providers/azapi/resource";
 import * as metricalert from "../../azure-metricalert";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 
 import {
   TerraformApplyAndCheckIdempotency,
@@ -21,18 +21,28 @@ describe("Example of deploying a Metric Alert", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azureFeature", {});
 
-    // Create a resource group
+    // Create a resource group using our AzAPI ResourceGroup
     const resourceGroup = new ResourceGroup(stack, "rg", {
       name: `rg-${randomName}`,
       location: "eastus",
     });
 
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(stack, "la", {
-      location: "eastus",
+    // Create a Log Analytics Workspace using AzAPI
+    const logAnalyticsWorkspace = new resource.Resource(stack, "la", {
       name: `la-${randomName}`,
-      resourceGroupName: resourceGroup.name,
+      location: "eastus",
+      parentId: resourceGroup.resourceGroup.id,
+      type: "Microsoft.OperationalInsights/workspaces@2021-06-01",
+      body: {
+        properties: {
+          sku: {
+            name: "pergb2018",
+          },
+          retentionInDays: 30,
+        },
+      },
     });
 
     // Create Metric Alert

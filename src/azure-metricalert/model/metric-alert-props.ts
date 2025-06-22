@@ -1,7 +1,7 @@
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import * as actionProps from "./action-props";
 import * as criteriaProps from "./criteria-props";
 import * as dynamicCriteriaProps from "./dynamic-criteria-props";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 
 export interface IBaseMetricAlertProps {
   /**

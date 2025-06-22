@@ -1,9 +1,10 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import * as metricalert from "../../azure-metricalert";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { TerraformPlan } from "../../testing";
-import "cdktf/lib/testing/adapters/jest";
+setupJest();
 
 describe("Azure Metric Alert With Defaults", () => {
   let stack: TerraformStack;
@@ -13,7 +14,7 @@ describe("Azure Metric Alert With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureQueryRuleAlert", { features: {} });
+    new AzapiProvider(stack, "azureQueryRuleAlert", {});
 
     const rg = new ResourceGroup(stack, "MyResourceGroup", {
       name: "rg-test",

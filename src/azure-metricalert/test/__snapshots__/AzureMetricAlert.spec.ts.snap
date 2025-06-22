@@ -4,54 +4,72 @@ exports[`Azure Metric Alert With Defaults renders an Azure Metric Alert with def
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_monitor_metric_alert.testAzureQueryRuleAlert_metricAlert_7716E17C.id}"
+      "value": "\${azapi_resource.testAzureQueryRuleAlert_metricAlert_7716E17C.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.MyResourceGroup-resource.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.MyResourceGroup-resource.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_monitor_metric_alert": {
-      "testAzureQueryRuleAlert_metricAlert_7716E17C": {
-        "auto_mitigate": true,
-        "criteria": [
+    "azapi_resource": {
+      "MyResourceGroup-resource": {
+        "lifecycle": [
           {
-            "aggregation": "Average",
-            "metric_name": "Heartbeat",
-            "metric_namespace": "Microsoft.operationalinsights/workspaces",
-            "operator": "LessThan",
-            "skip_metric_validation": false,
-            "threshold": 0
+            "ignore_changes": [
+            ]
           }
         ],
-        "enabled": true,
-        "frequency": "PT5M",
-        "name": "metric alert test",
-        "resource_group_name": "\${azurerm_resource_group.MyResourceGroup.name}",
-        "scopes": [
-          "/subscriptions/00000000-0000-0000-0000-000000000000"
-        ],
-        "severity": 3,
-        "window_size": "PT5M"
-      }
-    },
-    "azurerm_resource_group": {
-      "MyResourceGroup": {
         "location": "eastus",
-        "name": "rg-test"
+        "name": "rg-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      },
+      "testAzureQueryRuleAlert_metricAlert_7716E17C": {
+        "body": {
+          "properties": {
+            "autoMitigate": true,
+            "criteria": [
+              {
+                "criterionType": "StaticThresholdCriterion",
+                "dimensions": [
+                ],
+                "metricName": "Heartbeat",
+                "metricNamespace": "Microsoft.operationalinsights/workspaces",
+                "name": "Heartbeat",
+                "operator": "LessThan",
+                "threshold": 0,
+                "timeAggregation": "Average"
+              }
+            ],
+            "enabled": true,
+            "evaluationFrequency": "PT5M",
+            "scopes": [
+              "/subscriptions/00000000-0000-0000-0000-000000000000"
+            ],
+            "severity": 3,
+            "windowSize": "PT5M"
+          }
+        },
+        "location": "\${azapi_resource.MyResourceGroup-resource.location}",
+        "name": "metric alert test",
+        "parent_id": "\${azapi_resource.MyResourceGroup-resource.id}",
+        "type": "Microsoft.Insights/metricAlerts@2018-03-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

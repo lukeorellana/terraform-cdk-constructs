@@ -1,12 +1,15 @@
-import { MonitorMetricAlert } from "@cdktf/provider-azurerm/lib/monitor-metric-alert";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import * as moment from "moment";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
+import { AzureResource } from "../../core-azure/lib";
 import * as model from "../model";
 
-export class MetricAlert extends Construct {
+export class MetricAlert extends AzureResource {
   readonly props: model.IMetricAlertProps;
-  public readonly id: string;
+  public id: string;
+  public resourceGroup: ResourceGroup;
 
   /**
    * Represents a Metric Alert in Azure Monitor, which is used to automatically monitor metrics across Azure services and trigger actions when certain conditions are met.
@@ -58,6 +61,18 @@ export class MetricAlert extends Construct {
     super(scope, id);
 
     this.props = props;
+    
+    // Handle resource group setup
+    if (props.resourceGroup) {
+      this.resourceGroup = props.resourceGroup;
+    } else {
+      // Create a new resource group using our ResourceGroup class
+      this.resourceGroup = new ResourceGroup(this, "rg", {
+        name: `rg-${props.name}`,
+        location: props.targetResourceLocation || "eastus",
+        tags: props.tags,
+      });
+    }
 
     // Setup default values
     this.props.enabled = props.enabled ?? true;
@@ -71,36 +86,89 @@ export class MetricAlert extends Construct {
     this.ValidatePropsWindowSize();
     this.ValidatePropsWindowSizeGreaterThanFrequency();
 
-    // Create Metric Alert
-    const metricAlert = new MonitorMetricAlert(this, "metricAlert", {
-      name: props.name,
-      resourceGroupName: props.resourceGroup.name,
+    // Create Metric Alert using AzAPI
+    const metricAlertProperties: any = {
+      enabled: this.props.enabled,
+      autoMitigate: this.props.automitigate,
+      evaluationFrequency: this.props.frequency,
+      severity: this.props.severity,
+      windowSize: this.props.windowSize,
       scopes: props.scopes,
       description: props.description,
       targetResourceType: props.targetResourceType,
-      targetResourceLocation: props.targetResourceLocation,
-      action: cdktf.listMapper(
-        model.monitorMetricAlertActionToTerraform,
-        true,
-      )(this.props.action),
+      targetResourceRegion: props.targetResourceLocation,
+    };
+
+    // Add criteria if provided
+    if (props.criteria && props.criteria.length > 0) {
+      metricAlertProperties.criteria = props.criteria.map((criterion: any) => ({
+        criterionType: "StaticThresholdCriterion",
+        name: criterion.name || criterion.metricName,
+        metricName: criterion.metricName,
+        metricNamespace: criterion.metricNamespace,
+        operator: criterion.operator,
+        threshold: criterion.threshold,
+        timeAggregation: criterion.aggregation,
+        dimensions:
+          criterion.dimension?.map((dim: any) => ({
+            name: dim.name,
+            operator: dim.operator,
+            values: dim.values,
+          })) || [],
+      }));
+    }
+
+    // Add dynamic criteria if provided
+    if (props.dynamicCriteria && props.dynamicCriteria.length > 0) {
+      metricAlertProperties.criteria = props.dynamicCriteria.map(
+        (criterion: any) => ({
+          criterionType: "DynamicThresholdCriterion",
+          name: criterion.name || criterion.metricName,
+          metricName: criterion.metricName,
+          metricNamespace: criterion.metricNamespace,
+          operator: criterion.operator,
+          alertSensitivity: criterion.alertSensitivity,
+          timeAggregation: criterion.aggregation,
+          dimensions:
+            criterion.dimension?.map((dim: any) => ({
+              name: dim.name,
+              operator: dim.operator,
+              values: dim.values,
+            })) || [],
+          failingPeriods: {
+            numberOfEvaluationPeriods:
+              criterion.failingPeriods?.numberOfEvaluationPeriods || 4,
+            minFailingPeriodsToAlert:
+              criterion.failingPeriods?.minFailingPeriodsToAlert || 3,
+          },
+        }),
+      );
+    }
+
+    // Add actions if provided
+    if (props.action && props.action.length > 0) {
+      metricAlertProperties.actions = props.action.map((action: any) => ({
+        actionGroupId: action.actionGroupId,
+        webhookProperties: action.webhookProperties,
+      }));
+    }
+
+    const metricAlert = new resource.Resource(this, "metricAlert", {
+      name: props.name,
+      location:
+        props.targetResourceLocation ||
+        this.resourceGroup.resourceGroup.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Insights/metricAlerts@2018-03-01",
       tags: props.tags,
-      enabled: this.props.enabled,
-      autoMitigate: this.props.automitigate,
-      frequency: this.props.frequency,
-      severity: this.props.severity,
-      windowSize: this.props.windowSize,
-      criteria: cdktf.listMapper(
-        model.monitorMetricAlertCriteriaToTerraform,
-        true,
-      )(this.props.criteria),
-      dynamicCriteria: cdktf.listMapper(
-        model.monitorMetricAlertDynamicCriteriaToTerraform,
-        true,
-      )(this.props.dynamicCriteria),
+      body: {
+        properties: metricAlertProperties,
+      },
     });
 
-    // Output properties
     this.id = metricAlert.id;
+
+    // Output properties
     const cdktfTerraformOutputMetricAlertId = new cdktf.TerraformOutput(
       this,
       "id",
