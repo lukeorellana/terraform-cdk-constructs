@@ -1,14 +1,152 @@
-import { KustoCluster } from "@cdktf/provider-azurerm/lib/kusto-cluster";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
+import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import {
   ComputeSpecification,
   IComputeSpecification,
 } from "./compute-specification";
-import { Database, DatabaseProps } from "./database";
-import { AzureResource } from "../../core-azure/lib/index";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup";
+import { AzureResource } from "../../core-azure";
+
+/**
+ * Properties for the Kusto cluster SKU (AzAPI schema).
+ */
+export interface AzureSku {
+  /**
+   * The number of instances of the cluster.
+   */
+  capacity?: number;
+  /**
+   * SKU name.
+   */
+  name: string;
+  /**
+   * SKU tier.
+   */
+  tier: string;
+}
+
+/**
+ * Properties for optimized autoscale.
+ */
+export interface OptimizedAutoscale {
+  /**
+   * A boolean value that indicate if the optimized autoscale feature is enabled or not.
+   */
+  isEnabled: boolean;
+  /**
+   * Maximum allowed instances count.
+   */
+  maximum: number;
+  /**
+   * Minimum allowed instances count.
+   */
+  minimum: number;
+  /**
+   * The version of the template defined, for instance 1.
+   */
+  version: number;
+}
+
+/**
+ * Properties for virtual network configuration.
+ */
+export interface VirtualNetworkConfiguration {
+  /**
+   * Data management's service public IP address resource id.
+   */
+  dataManagementPublicIpId: string;
+  /**
+   * Engine service's public IP address resource id.
+   */
+  enginePublicIpId: string;
+  /**
+   * When enabled, the cluster is deployed into the configured subnet, when disabled it will be removed from the subnet.
+   */
+  state?: string;
+  /**
+   * The subnet resource id.
+   */
+  subnetId: string;
+}
+
+/**
+ * Properties for trusted external tenants.
+ */
+export interface TrustedExternalTenant {
+  /**
+   * GUID representing an external tenant.
+   */
+  value?: string;
+}
+
+/**
+ * Properties for the Kusto cluster (AzAPI schema).
+ */
+export interface ClusterProperties {
+  /**
+   * List of allowed FQDNs(Fully Qualified Domain Name) for egress from Cluster.
+   */
+  allowedFqdnList?: string[];
+  /**
+   * The list of ips in the format of CIDR allowed to connect to the cluster.
+   */
+  allowedIpRangeList?: string[];
+  /**
+   * A boolean value that indicates if the cluster could be automatically stopped (due to lack of data or no activity for many days).
+   */
+  enableAutoStop?: boolean;
+  /**
+   * A boolean value that indicates if the cluster's disks are encrypted.
+   */
+  enableDiskEncryption?: boolean;
+  /**
+   * A boolean value that indicates if double encryption is enabled.
+   */
+  enableDoubleEncryption?: boolean;
+  /**
+   * A boolean value that indicates if the purge operations are enabled.
+   */
+  enablePurge?: boolean;
+  /**
+   * A boolean value that indicates if the streaming ingest is enabled.
+   */
+  enableStreamingIngest?: boolean;
+  /**
+   * The engine type
+   */
+  engineType?: string;
+  /**
+   * Optimized auto scale definition.
+   */
+  optimizedAutoscale?: OptimizedAutoscale;
+  /**
+   * Indicates what public IP type to create - IPv4 (default), or DualStack (both IPv4 and IPv6)
+   */
+  publicIPType?: string;
+  /**
+   * Public network access to the cluster is enabled by default. When disabled, only private endpoint connection to the cluster is allowed
+   */
+  publicNetworkAccess?: string;
+  /**
+   * Whether or not to restrict outbound network access.  Value is optional but if passed in, must be 'Enabled' or 'Disabled'
+   */
+  restrictOutboundNetworkAccess?: string;
+  /**
+   * The cluster's external tenants.
+   */
+  trustedExternalTenants?: TrustedExternalTenant[];
+  /**
+   * Virtual network definition.
+   */
+  virtualNetworkConfiguration?: VirtualNetworkConfiguration;
+}
 
 export interface ClusterProps {
+  /**
+   * The Azure Region to deploy.
+   */
+  readonly location?: string;
   /**
    * An optional reference to the resource group in which to deploy the Kusto Cluster.
    * If not provided, the Kusto Cluster will be deployed in the default resource group.
@@ -18,15 +156,21 @@ export interface ClusterProps {
    * The name of the Kusto Cluster to create.
    * Only 4-22 lowercase alphanumeric characters allowed, starting with a letter.
    */
-  readonly name: string;
+  readonly name?: string;
   /**
    * The SKU of the Kusto Cluster. All the allowed values are defined in the ComputeSpecification class.
    * @default devtestExtraSmallDv2
+   * @deprecated Use azureSku instead for AzAPI compatibility
    */
   readonly sku?: IComputeSpecification;
   /**
+   * The AzAPI SKU of the Kusto Cluster.
+   */
+  readonly azureSku?: AzureSku;
+  /**
    * The node count for the cluster.
    * @default 2
+   * @deprecated Use azureSku.capacity instead
    */
   readonly capacity?: number;
   /**
@@ -41,22 +185,26 @@ export interface ClusterProps {
   /**
    * Is the public network access enabled?
    * @default true
+   * @deprecated Use properties.publicNetworkAccess instead
    */
   readonly publicNetworkAccessEnabled?: boolean;
   /**
    * Specifies if the cluster could be automatically stopped.
    * (due to lack of data or no activity for many days).
    * @default true
+   * @deprecated Use properties.enableAutoStop instead
    */
   readonly autoStopEnabled?: boolean;
   /**
    * Specifies if the streaming ingest is enabled.
    * @default true
+   * @deprecated Use properties.enableStreamingIngest instead
    */
   readonly streamingIngestionEnabled?: boolean;
   /**
    * Specifies if the purge operations are enabled.
    * @default false
+   * @deprecated Use properties.enablePurge instead
    */
   readonly purgeEnabled?: boolean;
   /**
@@ -66,25 +214,39 @@ export interface ClusterProps {
   readonly enableZones?: boolean;
   /**
    * The minimum number of allowed instances. Must between 0 and 1000.
+   * @deprecated Use properties.optimizedAutoscale.minimum instead
    */
   readonly minimumInstances?: number;
   /**
    * The maximum number of allowed instances. Must between 0 and 1000.
+   * @deprecated Use properties.optimizedAutoscale.maximum instead
    */
   readonly maximumInstances?: number;
   /**
    * A mapping of tags to assign to the Kusto.
    */
   readonly tags?: { [key: string]: string };
+  /**
+   * The availability zones of the cluster.
+   */
+  readonly zones?: string[];
+  /**
+   * The cluster properties using AzAPI schema.
+   */
+  readonly properties?: ClusterProperties;
 }
 
 export class Cluster extends AzureResource {
   readonly props: ClusterProps;
-  public kustoCluster: KustoCluster;
+  public readonly resource: resource.Resource;
   public id: string;
   public resourceGroup: ResourceGroup;
   public name: string;
-  public readonly uri: string;
+  public readonly fqdn: string;
+  public readonly dataIngestionUri: string;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
+  public readonly fqdnOutput: cdktf.TerraformOutput;
 
   /**
    * Represents a Kusto (Azure Data Explorer) cluster in Azure.
@@ -110,142 +272,125 @@ export class Cluster extends AzureResource {
    * });
    * ```
    */
-  constructor(scope: Construct, id: string, props: ClusterProps) {
+  constructor(scope: Construct, id: string, props: ClusterProps = {}) {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location || "eastus",
+        name: props.name ? `rg-${props.name}` : undefined,
+      });
 
-    /**
-     * Define default values.
-     */
-    const sku = props.sku || ComputeSpecification.devtestExtraSmallDv2;
-    const enableZones = props.enableZones || true;
-
+    // Default values
     const defaults = {
-      publicNetworkAccessEnabled: props.publicNetworkAccessEnabled || true,
-      autoStopEnabled: props.autoStopEnabled || true,
-      streamingIngestionEnabled: props.streamingIngestionEnabled || true,
-      purgeEnabled: props.purgeEnabled || false,
-      zones: enableZones ? sku.availibleZones : [],
-      sku: {
-        name: sku.skuName,
-        capacity: props.capacity || 2,
-      },
-      identity: {
-        type: "SystemAssigned",
-        identityIds: [],
-      },
+      name: props.name || `kusto-${this.node.path.split("/")[0]}`,
+      location: props.location || "eastus",
     };
 
+    // Handle legacy vs new SKU props - support backward compatibility
+    let azureSku: AzureSku;
+    if (props.azureSku) {
+      azureSku = props.azureSku;
+    } else {
+      const sku = props.sku || ComputeSpecification.devtestExtraSmallDv2;
+      azureSku = {
+        name: sku.skuName,
+        tier: sku.workload.includes("dev") ? "Basic" : "Standard",
+        capacity: props.capacity || 2,
+      };
+    }
+
+    // Build cluster properties, supporting both new and legacy prop patterns
+    const clusterProperties: ClusterProperties = {
+      ...props.properties,
+      enableAutoStop:
+        props.properties?.enableAutoStop ?? props.autoStopEnabled ?? true,
+      enableStreamingIngest:
+        props.properties?.enableStreamingIngest ??
+        props.streamingIngestionEnabled ??
+        true,
+      enablePurge: props.properties?.enablePurge ?? props.purgeEnabled ?? false,
+      publicNetworkAccess:
+        props.properties?.publicNetworkAccess ??
+        (props.publicNetworkAccessEnabled !== false ? "Enabled" : "Disabled"),
+    };
+
+    // Handle autoscale if minimum and maximum instances are provided
+    if (
+      props.minimumInstances &&
+      props.maximumInstances &&
+      !props.properties?.optimizedAutoscale
+    ) {
+      clusterProperties.optimizedAutoscale = {
+        isEnabled: true,
+        minimum: props.minimumInstances,
+        maximum: props.maximumInstances,
+        version: 1,
+      };
+    }
+
+    // Determine zones
+    const zones =
+      props.zones ||
+      (props.enableZones && props.sku ? props.sku.availibleZones : undefined);
+
     /**
-     * Create Kusto Cluster resource.
+     * Create Kusto Cluster resource using AzAPI.
      */
-    const azurermKustoCluster = new KustoCluster(this, "Kusto", {
-      ...defaults,
-      name: props.name,
-      location: this.resourceGroup.location,
-      resourceGroupName: this.resourceGroup.name,
+    const azapiKustoCluster = new resource.Resource(this, "kusto", {
+      type: "Microsoft.Kusto/clusters@2023-08-15",
+      name: defaults.name,
+      location: defaults.location,
+      parentId: this.resourceGroup.id,
+      body: {
+        sku: azureSku,
+        properties: clusterProperties,
+        zones: zones,
+      },
       tags: props.tags,
     });
+
+    // Handle identity if specified
     if (props.identityType) {
-      azurermKustoCluster.addOverride("identity", {
+      azapiKustoCluster.addOverride("body.identity", {
         type: props.identityType,
-        identityIds: props.identityIds,
+        userAssignedIdentities: props.identityIds?.reduce(
+          (acc, identityId) => {
+            acc[identityId] = {};
+            return acc;
+          },
+          {} as { [key: string]: {} },
+        ),
       });
     }
 
-    if (props.minimumInstances && props.maximumInstances) {
-      azurermKustoCluster.addOverride(
-        "minimum_instances",
-        props.minimumInstances,
-      );
-      azurermKustoCluster.addOverride(
-        "maximum_instances",
-        props.maximumInstances,
-      );
-    }
-
-    this.id = azurermKustoCluster.id;
-    this.name = azurermKustoCluster.name;
-    this.uri = azurermKustoCluster.uri;
-    this.kustoCluster = azurermKustoCluster;
+    this.resource = azapiKustoCluster;
+    this.id = azapiKustoCluster.id;
+    this.name = azapiKustoCluster.name;
+    this.fqdn = `\${jsondecode(${azapiKustoCluster.fqn}.output).properties.uri}`;
+    this.dataIngestionUri = `\${jsondecode(${azapiKustoCluster.fqn}.output).properties.dataIngestionUri}`;
 
     // Outputs
-    // const cdktfTerraformOutputKustoId = new cdktf.TerraformOutput(
-    //   this,
-    //   "Kusto_id",
-    //   {
-    //     value: azurermKustoCluster.id,
-    //   },
-    // );
-    // const cdktfTerraformOutputKustoUri = new cdktf.TerraformOutput(
-    //   this,
-    //   "Kusto_uri",
-    //   {
-    //     value: azurermKustoCluster.uri,
-    //   },
-    // );
-    // const cdktfTerraformOutputDataIngestionUri = new cdktf.TerraformOutput(
-    //   this,
-    //   "Kusto_data_ingestion_uri",
-    //   {
-    //     value: azurermKustoCluster.dataIngestionUri,
-    //   },
-    // );
-    // const cdktfTerraformOutputKustoIdentity = new cdktf.TerraformOutput(
-    //   this,
-    //   "Kusto_identity",
-    //   {
-    //     value: azurermKustoCluster.identity,
-    //     sensitive: true,
-    //   },
-    // );
-
-    /*This allows the Terraform resource name to match the original name. You can remove the call if you don't need them to match.*/
-    // cdktfTerraformOutputKustoId.overrideLogicalId("Kusto_id");
-    // cdktfTerraformOutputKustoUri.overrideLogicalId("Kusto_uri");
-    // cdktfTerraformOutputDataIngestionUri.overrideLogicalId(
-    //   "Kusto_data_ingestion_uri",
-    // );
-    // cdktfTerraformOutputKustoIdentity.overrideLogicalId("Kusto_identity");
-  }
-
-  /**
-   * Adds a new database to the Azure Kusto Cluster.
-   *
-   * This method creates a database within the Azure Data Explorer (Kusto) cluster, defined by the properties provided.
-   * A database in Kusto serves as a logical group to manage various tables and store data. It is essential for performing
-   * data analytics and running queries. The database configuration can include settings like hot cache and soft delete periods,
-   * which optimize query performance and manage data lifecycle according to specific requirements.
-   *
-   * @param databaseProps - The properties required to create the database. These properties should include:
-   *                        - `kusto`: Reference to the Kusto cluster to which the database will be added.
-   *                        - `name`: The name of the database, which must be unique within the cluster.
-   *                        - `hotCachePeriod`: Optional. Specifies the duration that data should be kept in cache for faster query access.
-   *                        - `softDeletePeriod`: Optional. Specifies the duration that data should be retained before it stops being accessible to queries.
-   *                          Both the hot cache and soft delete periods should be specified in ISO 8601 duration format.
-   *
-   * @returns A `Database` object representing the newly created database within the Kusto cluster.
-   *
-   * Example usage:
-   * ```typescript
-   * const myDatabase = myCluster.addDatabase({
-   *   kusto: myKustoCluster,
-   *   name: 'OperationalData',
-   *   hotCachePeriod: 'P14D', // 14 days
-   *   softDeletePeriod: 'P365D' // 1 year
-   * });
-   * ```
-   * This method facilitates the efficient setup and scaling of databases within an Azure Kusto cluster, allowing
-   * for complex data analytics operations across large datasets.
-   */
-  public addDatabase(databaseProps: DatabaseProps) {
-    return new Database(this, databaseProps.name, {
-      kustoCluster: this.kustoCluster,
-      name: databaseProps.name,
-      hotCachePeriod: databaseProps.hotCachePeriod,
-      softDeletePeriod: databaseProps.softDeletePeriod,
+    this.idOutput = new cdktf.TerraformOutput(this, "kusto_id", {
+      value: this.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "kusto_name", {
+      value: this.name,
+    });
+    this.fqdnOutput = new cdktf.TerraformOutput(this, "kusto_fqdn", {
+      value: this.fqdn,
     });
   }
+
+  // TODO: Update addDatabase method to work with AzAPI resources
+  // public addDatabase(databaseProps: DatabaseProps) {
+  //   return new Database(this, databaseProps.name, {
+  //     kustoCluster: this.resource,
+  //     name: databaseProps.name,
+  //     hotCachePeriod: databaseProps.hotCachePeriod,
+  //     softDeletePeriod: databaseProps.softDeletePeriod,
+  //   });
+  // }
 }

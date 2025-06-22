@@ -1,16 +1,13 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import "cdktf/lib/testing/adapters/jest";
 import * as kusto from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
 import { generateRandomName } from "../../util/randomName";
-import "cdktf/lib/testing/adapters/jest";
-
-import { ComputeSpecification } from "../lib/compute-specification";
 
 describe("Example of deploying a Kusto Cluster", () => {
   let stack: TerraformStack;
@@ -22,13 +19,7 @@ describe("Example of deploying a Kusto Cluster", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    const clientConfig = new DataAzurermClientConfig(
-      stack,
-      "CurrentClientConfig",
-      {},
-    );
-
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {
@@ -36,46 +27,54 @@ describe("Example of deploying a Kusto Cluster", () => {
       location: "eastus",
     });
 
-    // Create Kusto Cluster
+    // Create Kusto Cluster using AzAPI
     const kustoCluster = new kusto.Cluster(stack, "kusto", {
       resourceGroup: resourceGroup,
       name: `kusto${randomName}`, // Only lowercase Alphanumeric characters allowed.
-      sku: ComputeSpecification.devtestExtraSmallEav4,
-      identityIds: [],
-      capacity: 1,
+      azureSku: {
+        name: "Dev(No SLA)_Standard_E2a_v4",
+        tier: "Basic",
+        capacity: 1,
+      },
+      properties: {
+        enableAutoStop: true,
+        enableStreamingIngest: true,
+        enablePurge: false,
+        publicNetworkAccess: "Enabled",
+      },
     });
 
-    // Add RBAC to Kusto Cluster
-    kustoCluster.addAccess(clientConfig.objectId, "Contributor");
+    // TODO: Re-enable these features once they are migrated to AzAPI
+    // // Add RBAC to Kusto Cluster
+    // kustoCluster.addAccess(clientConfig.objectId, "Contributor");
 
-    // Create Database
-    const testDB1 = kustoCluster.addDatabase({
-      kustoCluster: kustoCluster.kustoCluster,
-      name: "testDB1",
-      hotCachePeriod: "P7D",
-      softDeletePeriod: "P31D",
-    });
+    // // Create Database
+    // const testDB1 = kustoCluster.addDatabase({
+    //   name: "testDB1",
+    //   hotCachePeriod: "P7D",
+    //   softDeletePeriod: "P31D",
+    // });
 
-    // Create Table in Kusto Database
-    testDB1.addTable("MyTestTable", [
-      {
-        columnName: "Timestamp",
-        columnType: "datetime",
-      },
-      {
-        columnName: "User",
-        columnType: "string",
-      },
-      {
-        columnName: "Value",
-        columnType: "int32",
-      },
-    ]);
+    // // Create Table in Kusto Database
+    // testDB1.addTable("MyTestTable", [
+    //   {
+    //     columnName: "Timestamp",
+    //     columnType: "datetime",
+    //   },
+    //   {
+    //     columnName: "User",
+    //     columnType: "string",
+    //   },
+    //   {
+    //     columnName: "Value",
+    //     columnType: "int32",
+    //   },
+    // ]);
 
-    testDB1.addScript(
-      "MyTestScript",
-      ".create table MyTestTable2 ( Timestamp:datetime, User:string, Value:int32 )",
-    );
+    // testDB1.addScript(
+    //   "MyTestScript",
+    //   ".create table MyTestTable2 ( Timestamp:datetime, User:string, Value:int32 )",
+    // );
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

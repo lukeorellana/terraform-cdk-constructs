@@ -1,8 +1,10 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
-import "cdktf/lib/testing/adapters/jest";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as kusto from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
+
+setupJest();
 
 describe("Kusto With Defaults", () => {
   let stack: TerraformStack;
@@ -12,11 +14,15 @@ describe("Kusto With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     new kusto.Cluster(stack, "testAzureKustoDefaults", {
       name: "kustotest",
-      sku: kusto.ComputeSpecification.devtestExtraSmallEav4,
+      azureSku: {
+        name: "Dev(No SLA)_Standard_E2a_v4",
+        tier: "Basic",
+        capacity: 1,
+      },
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse

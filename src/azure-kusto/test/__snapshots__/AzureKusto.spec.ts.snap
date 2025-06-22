@@ -2,52 +2,71 @@
 
 exports[`Kusto With Defaults renders an Kusto with defaults and checks snapshot 1`] = `
 "{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testAzureKustoDefaults_resource-group-resource_E398A31D.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureKustoDefaults_resource-group-resource_E398A31D.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureKustoDefaults_resource-group-resource_E398A31D.name}"
+    },
+    "testAzureKustoDefaults_kusto_fqdn_343F4FF5": {
+      "value": "\${jsondecode(azapi_resource.testAzureKustoDefaults_kusto_F8D524E9.output).properties.uri}"
+    },
+    "testAzureKustoDefaults_kusto_id_99AAD329": {
+      "value": "\${azapi_resource.testAzureKustoDefaults_kusto_F8D524E9.id}"
+    },
+    "testAzureKustoDefaults_kusto_name_B3FC6B07": {
+      "value": "\${azapi_resource.testAzureKustoDefaults_kusto_F8D524E9.name}"
+    }
+  },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_kusto_cluster": {
-      "testAzureKustoDefaults_Kusto_4306B42C": {
-        "auto_stop_enabled": true,
-        "identity": {
-          "identity_ids": [
-          ],
-          "type": "SystemAssigned"
+    "azapi_resource": {
+      "testAzureKustoDefaults_kusto_F8D524E9": {
+        "body": {
+          "properties": {
+            "enableAutoStop": true,
+            "enablePurge": false,
+            "enableStreamingIngest": true,
+            "publicNetworkAccess": "Enabled"
+          },
+          "sku": {
+            "capacity": 1,
+            "name": "Dev(No SLA)_Standard_E2a_v4",
+            "tier": "Basic"
+          }
         },
-        "location": "\${azurerm_resource_group.testAzureKustoDefaults_rg_D07F28C5.location}",
-        "name": "kustotest",
-        "public_network_access_enabled": true,
-        "purge_enabled": false,
-        "resource_group_name": "\${azurerm_resource_group.testAzureKustoDefaults_rg_D07F28C5.name}",
-        "sku": {
-          "capacity": 2,
-          "name": "Dev(No SLA)_Standard_E2a_v4"
-        },
-        "streaming_ingestion_enabled": true,
-        "zones": [
-          "1",
-          "2",
-          "3"
-        ]
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureKustoDefaults_rg_D07F28C5": {
         "location": "eastus",
-        "name": "rg-kustotest"
+        "name": "kustotest",
+        "parent_id": "resource-group",
+        "type": "Microsoft.Kusto/clusters@2023-08-15"
+      },
+      "testAzureKustoDefaults_resource-group-resource_E398A31D": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-kustotest",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }
