@@ -3,47 +3,69 @@
 exports[`Log Analytics Workspace With Defaults renders a Log Analytics Workspace with defaults and checks snapshot 1`] = `
 "{
   "output": {
+    "id": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsDefaults_resource-group-resource_9EFE5F63.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsDefaults_resource-group-resource_9EFE5F63.location}"
+    },
     "log_analytics_id": {
-      "value": "\${azurerm_log_analytics_workspace.testAzureLogAnalyticsDefaults_log_analytics_A4DF54D3.id}"
+      "value": "\${azapi_resource.testAzureLogAnalyticsDefaults_workspace_EA3D86EE.id}"
+    },
+    "log_analytics_name": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsDefaults_workspace_EA3D86EE.name}"
     },
     "log_analytics_primary_shared_key": {
       "sensitive": true,
-      "value": "\${azurerm_log_analytics_workspace.testAzureLogAnalyticsDefaults_log_analytics_A4DF54D3.primary_shared_key}"
+      "value": "\${jsondecode(azapi_resource.testAzureLogAnalyticsDefaults_workspace_EA3D86EE.output).properties.primarySharedKey}"
     },
     "log_analytics_workspace_id": {
-      "value": "\${azurerm_log_analytics_workspace.testAzureLogAnalyticsDefaults_log_analytics_A4DF54D3.workspace_id}"
+      "value": "\${jsondecode(azapi_resource.testAzureLogAnalyticsDefaults_workspace_EA3D86EE.output).properties.customerId}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsDefaults_resource-group-resource_9EFE5F63.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_log_analytics_workspace": {
-      "testAzureLogAnalyticsDefaults_log_analytics_A4DF54D3": {
+    "azapi_resource": {
+      "testAzureLogAnalyticsDefaults_resource-group-resource_9EFE5F63": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-la-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      },
+      "testAzureLogAnalyticsDefaults_workspace_EA3D86EE": {
+        "body": {
+          "properties": {
+            "retentionInDays": 30,
+            "sku": {
+              "name": "PerGB2018"
+            }
+          }
+        },
         "location": "eastus",
         "name": "la-test",
-        "resource_group_name": "\${azurerm_resource_group.testAzureLogAnalyticsDefaults_rg_72C25C7A.name}",
-        "retention_in_days": 30,
-        "sku": "PerGB2018"
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureLogAnalyticsDefaults_rg_72C25C7A": {
-        "location": "eastus",
-        "name": "rg-la-test"
+        "parent_id": "\${azapi_resource.testAzureLogAnalyticsDefaults_resource-group-resource_9EFE5F63.id}",
+        "type": "Microsoft.OperationalInsights/workspaces@2023-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

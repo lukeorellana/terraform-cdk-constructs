@@ -61,7 +61,7 @@ export class MetricAlert extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    
+
     // Handle resource group setup
     if (props.resourceGroup) {
       this.resourceGroup = props.resourceGroup;

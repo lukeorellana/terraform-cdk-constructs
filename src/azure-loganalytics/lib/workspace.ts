@@ -1,100 +1,106 @@
-import { LogAnalyticsDataExportRule } from "@cdktf/provider-azurerm/lib/log-analytics-data-export-rule";
-import { LogAnalyticsSavedSearch } from "@cdktf/provider-azurerm/lib/log-analytics-saved-search";
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
-import { AzureResourceWithAlert } from "../../core-azure/lib";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
+import { AzureResource } from "../../core-azure/lib";
 
 /**
- * Properties for defining a data export in a Log Analytics Workspace.
+ * Properties for the Log Analytics Workspace SKU.
  */
-export interface DataExport {
+export interface WorkspaceSku {
   /**
-   * The name of the data export.
+   * The capacity reservation level in GB for this workspace, when CapacityReservation sku is selected.
    */
-  readonly name: string;
-
+  capacityReservationLevel?: string;
   /**
-   * The ID of the destination resource for the export.
+   * The name of the SKU.
    */
-  readonly exportDestinationId: string;
-
-  /**
-   * An array of table names to be included in the data export.
-   */
-  readonly tableNames: string[];
-
-  /**
-   * Indicates whether the data export is enabled.
-   */
-  readonly enabled: boolean;
+  name: string;
 }
 
 /**
- * Properties for defining a Log Analytics function.
+ * Properties for workspace capping.
  */
-export interface LAFunctions {
+export interface WorkspaceCapping {
   /**
-   * The name of the function.
+   * The workspace daily quota for ingestion.
    */
-  readonly name: string;
-
-  /**
-   * The display name for the function.
-   */
-  readonly displayName: string;
-
-  /**
-   * The query that the function will execute.
-   */
-  readonly query: string;
-
-  /**
-   * The alias to be used for the function.
-   */
-  readonly functionAlias: string;
-
-  /**
-   * A list of parameters for the function.
-   */
-  readonly functionParameters: string[];
+  dailyQuotaGb?: number;
 }
 
 /**
- * Properties for defining a saved query in a Log Analytics Workspace.
+ * Properties for workspace features.
  */
-export interface Queries {
+export interface WorkspaceFeatures {
   /**
-   * The name of the saved query.
+   * Dedicated LA cluster resourceId that is linked to the workspaces.
    */
-  readonly name: string;
+  clusterResourceId?: string;
+  /**
+   * Disable Non-AAD based Auth.
+   */
+  disableLocalAuth?: boolean;
+  /**
+   * Flag that indicate if data should be exported.
+   */
+  enableDataExport?: boolean;
+  /**
+   * Flag that indicate which permission to use - resource or workspace or both.
+   */
+  enableLogAccessUsingOnlyResourcePermissions?: boolean;
+  /**
+   * Flag that describes if we want to remove the data after 30 days.
+   */
+  immediatePurgeDataOn30Days?: boolean;
+}
 
+/**
+ * Properties for the Log Analytics Workspace.
+ */
+export interface WorkspaceProperties {
   /**
-   * The category of the saved query.
+   * The resource ID of the default Data Collection Rule to use for this workspace.
    */
-  readonly category: string;
-
+  defaultDataCollectionRuleResourceId?: string;
   /**
-   * The display name for the saved query.
+   * Workspace features.
    */
-  readonly displayName: string;
-
+  features?: WorkspaceFeatures;
   /**
-   * The query string.
+   * Indicates whether customer managed storage is mandatory for query management.
    */
-  readonly query: string;
+  forceCmkForQuery?: boolean;
+  /**
+   * The network access type for accessing Log Analytics ingestion.
+   */
+  publicNetworkAccessForIngestion?: string;
+  /**
+   * The network access type for accessing Log Analytics query.
+   */
+  publicNetworkAccessForQuery?: string;
+  /**
+   * The workspace data retention in days. Allowed values are per pricing plan.
+   */
+  retentionInDays?: number;
+  /**
+   * The SKU of the workspace.
+   */
+  sku?: WorkspaceSku;
+  /**
+   * The daily volume cap for ingestion.
+   */
+  workspaceCapping?: WorkspaceCapping;
 }
 
 export interface WorkspaceProps {
   /**
    * The Azure Region to deploy.
    */
-  readonly location: string;
+  readonly location?: string;
   /**
    * The name of the Log Analytics Workspace.
    */
-  readonly name: string;
+  readonly name?: string;
   /**
    * An optional reference to the resource group in which to deploy the Workspace.
    * If not provided, the Workspace will be deployed in the default resource group.
@@ -102,174 +108,139 @@ export interface WorkspaceProps {
   readonly resourceGroup?: ResourceGroup;
   /**
    * The SKU of the Log Analytics Workspace.
+   * @deprecated Use properties.sku instead
    */
   readonly sku?: string;
   /**
    * The number of days of retention. Default is 30.
+   * @deprecated Use properties.retentionInDays instead
    */
   readonly retention?: number;
   /**
-   * The tags to assign to the Resource Group.
+   * The tags to assign to the Log Analytics Workspace.
    */
   readonly tags?: { [key: string]: string };
   /**
-   * Create a DataExport for the Log Analytics Workspace.
+   * The etag of the workspace.
    */
-  readonly dataExport?: DataExport[];
+  readonly etag?: string;
   /**
-   * A collection of Log Analytic functions.
+   * Workspace properties using AzAPI schema.
    */
-  readonly functions?: LAFunctions[];
-  /**
-   * A collection of log saved log analytics queries.
-   */
-  readonly queries?: Queries[];
+  readonly properties?: WorkspaceProperties;
 }
 
-export class Workspace extends AzureResourceWithAlert {
-  readonly props: WorkspaceProps;
+export class Workspace extends AzureResource {
+  public readonly props: WorkspaceProps;
   public resourceGroup: ResourceGroup;
-  public logAnalyticsWorkspace: LogAnalyticsWorkspace;
-  public id: string;
+  public readonly workspace: resource.Resource;
+  public readonly id: string;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
+  public readonly workspaceIdOutput: cdktf.TerraformOutput;
+  public readonly primarySharedKeyOutput: cdktf.TerraformOutput;
 
   /**
-   * Represents an Azure Log Analytics Workspace.
+   * Represents an Azure Log Analytics Workspace using AzAPI.
    *
    * This class is responsible for the creation and configuration of a Log Analytics Workspace in Azure. A Log Analytics Workspace
    * is a unique environment for Azure Monitor data, where data is collected, aggregated, and serves as the administrative boundary.
-   * Within a workspace, data is collected from various sources and is used for analysis, visualization, and alerting. Configurations
-   * can include data export rules, saved queries, and custom functions to enhance data analytics capabilities.
+   * Within a workspace, data is collected from various sources and is used for analysis, visualization, and alerting.
    *
    * @param scope - The scope in which to define this construct, typically representing the Cloud Development Kit (CDK) stack.
    * @param id - The unique identifier for this instance of the Log Analytics workspace.
-   * @param props - The properties required to configure the Log Analytics workspace, as defined in the WorkspaceProps interface. These include:
-   *                - `location`: The Azure region where the workspace will be deployed.
-   *                - `name`: The name of the workspace, which must be globally unique.
-   *                - `resourceGroup`: Optional. Reference to the resource group for deployment.
-   *                - `sku`: Optional. The SKU of the workspace, affecting pricing and features.
-   *                - `retention`: Optional. The number of days data will be retained in the workspace.
-   *                - `tags`: Optional. Tags to assign to the workspace for organizational purposes.
-   *                - `dataExport`: Optional. Configurations for exporting data to other Azure resources.
-   *                - `functions`: Optional. Custom functions defined within the workspace for query operations.
-   *                - `queries`: Optional. Saved queries that can be used for data analysis or visualizations.
+   * @param props - The properties required to configure the Log Analytics workspace, as defined in the WorkspaceProps interface.
    *
    * Example usage:
    * ```typescript
    * new Workspace(this, 'MyLogAnalyticsWorkspace', {
    *   location: 'East US',
    *   name: 'myWorkspace',
-   *   resourceGroup: myResourceGroup,
-   *   sku: 'PerGB2018',
-   *   retention: 60,
-   *   tags: { department: 'IT' },
-   *   functions: [{
-   *     name: 'ErrorCount',
-   *     displayName: 'Error Count',
-   *     query: 'AzureActivity | summarize count() by bin(timestamp, 1h), type',
-   *     functionAlias: 'error_count',
-   *     functionParameters: 'timestamp, type'
-   *   }],
-   *   queries: [{
-   *     name: 'HighCPUUsage',
-   *     category: 'Performance',
-   *     displayName: 'High CPU Usage',
-   *     query: 'Perf | where CounterName == "% Processor Time" and CounterValue > 80'
-   *   }]
+   *   properties: {
+   *     sku: { name: 'PerGB2018' },
+   *     retentionInDays: 60,
+   *     features: {
+   *       enableDataExport: true
+   *     }
+   *   },
+   *   tags: { department: 'IT' }
    * });
    * ```
-   * This class sets up the workspace and applies configurations, providing a centralized environment for monitoring and analytics.
    */
-  constructor(scope: Construct, id: string, props: WorkspaceProps) {
+  constructor(scope: Construct, id: string, props: WorkspaceProps = {}) {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location || "eastus",
+        name: props.name ? `rg-${props.name}` : undefined,
+      });
 
-    // Provide default values
-    const sku = props.sku ?? "PerGB2018";
-    const retention = props.retention ?? 30;
+    // Default values
+    const defaults = {
+      name: props.name || `law-${this.node.path.split("/")[0]}`,
+      location: props.location || "eastus",
+    };
 
-    const azurermLogAnalyticsWorkspaceLogAnalytics = new LogAnalyticsWorkspace(
-      this,
-      "log_analytics",
-      {
-        location: props.location,
-        name: props.name,
-        resourceGroupName: this.resourceGroup.name,
-        retentionInDays: retention,
-        sku: sku,
-        tags: props.tags,
+    // Build workspace properties, supporting both new and legacy prop patterns
+    const workspaceProperties: WorkspaceProperties = {
+      ...props.properties,
+      sku:
+        props.properties?.sku ||
+        (props.sku ? { name: props.sku } : { name: "PerGB2018" }),
+      retentionInDays:
+        props.properties?.retentionInDays || props.retention || 30,
+    };
+
+    // Create the Log Analytics Workspace using AzAPI
+    this.workspace = new resource.Resource(this, "workspace", {
+      name: defaults.name,
+      location: defaults.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.OperationalInsights/workspaces@2023-09-01",
+      body: {
+        etag: props.etag,
+        properties: workspaceProperties,
       },
-    );
-
-    this.id = azurermLogAnalyticsWorkspaceLogAnalytics.id;
-    this.logAnalyticsWorkspace = azurermLogAnalyticsWorkspaceLogAnalytics;
-
-    props.dataExport?.forEach((v, k) => {
-      new LogAnalyticsDataExportRule(this, `export-${k}`, {
-        destinationResourceId: v.exportDestinationId,
-        enabled: v.enabled,
-        name: v.name,
-        resourceGroupName: this.resourceGroup.name,
-        tableNames: v.tableNames,
-        workspaceResourceId: azurermLogAnalyticsWorkspaceLogAnalytics.id,
-      });
+      tags: props.tags,
     });
 
-    props.functions?.forEach((v, k) => {
-      new LogAnalyticsSavedSearch(this, `function-${k}`, {
-        category: "Function",
-        displayName: v.displayName,
-        functionAlias: v.functionAlias,
-        functionParameters: v.functionParameters,
-        logAnalyticsWorkspaceId: azurermLogAnalyticsWorkspaceLogAnalytics.id,
-        name: v.name,
-        query: v.query,
-      });
-    });
-
-    props.queries?.forEach((v, k) => {
-      new LogAnalyticsSavedSearch(this, `function-${k}`, {
-        category: v.category,
-        displayName: v.displayName,
-        functionParameters: [],
-        logAnalyticsWorkspaceId: azurermLogAnalyticsWorkspaceLogAnalytics.id,
-        name: v.name,
-        query: v.query,
-      });
-    });
+    this.id = this.workspace.id;
 
     // Terraform Outputs
-    const cdktfTerraformOutputLaID = new cdktf.TerraformOutput(
-      this,
-      "log_analytics_id",
-      {
-        value: azurermLogAnalyticsWorkspaceLogAnalytics.id,
-      },
-    );
-    const cdktfTerraformOutputLaSharedKey = new cdktf.TerraformOutput(
-      this,
-      "log_analytics_primary_shared_key",
-      {
-        value: azurermLogAnalyticsWorkspaceLogAnalytics.primarySharedKey,
-        sensitive: true,
-      },
-    );
-    const cdktfTerraformOutputLaWorkspaceID = new cdktf.TerraformOutput(
+    this.idOutput = new cdktf.TerraformOutput(this, "log_analytics_id", {
+      value: this.workspace.id,
+    });
+
+    this.nameOutput = new cdktf.TerraformOutput(this, "log_analytics_name", {
+      value: this.workspace.name,
+    });
+
+    this.workspaceIdOutput = new cdktf.TerraformOutput(
       this,
       "log_analytics_workspace_id",
       {
-        value: azurermLogAnalyticsWorkspaceLogAnalytics.workspaceId,
+        value: `\${jsondecode(${this.workspace.output}).properties.customerId}`,
+      },
+    );
+
+    this.primarySharedKeyOutput = new cdktf.TerraformOutput(
+      this,
+      "log_analytics_primary_shared_key",
+      {
+        value: `\${jsondecode(${this.workspace.output}).properties.primarySharedKey}`,
+        sensitive: true,
       },
     );
 
     /*This allows the Terraform resource name to match the original name. You can remove the call if you don't need them to match.*/
-    cdktfTerraformOutputLaID.overrideLogicalId("log_analytics_id");
-    cdktfTerraformOutputLaSharedKey.overrideLogicalId(
+    this.idOutput.overrideLogicalId("log_analytics_id");
+    this.nameOutput.overrideLogicalId("log_analytics_name");
+    this.workspaceIdOutput.overrideLogicalId("log_analytics_workspace_id");
+    this.primarySharedKeyOutput.overrideLogicalId(
       "log_analytics_primary_shared_key",
-    );
-    cdktfTerraformOutputLaWorkspaceID.overrideLogicalId(
-      "log_analytics_workspace_id",
     );
   }
 }

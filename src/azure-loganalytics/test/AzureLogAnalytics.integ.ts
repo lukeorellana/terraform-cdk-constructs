@@ -1,11 +1,8 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { EventhubNamespace } from "@cdktf/provider-azurerm/lib/eventhub-namespace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { StorageAccount } from "@cdktf/provider-azurerm/lib/storage-account";
 import { Testing, TerraformStack } from "cdktf";
 
 import * as la from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 
 import {
   TerraformApplyAndCheckIdempotency,
@@ -24,13 +21,7 @@ describe("Example of deploying Log Analytics", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    const clientConfig = new DataAzurermClientConfig(
-      stack,
-      "CurrentClientConfig",
-      {},
-    );
-
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azureFeature", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {
@@ -38,87 +29,24 @@ describe("Example of deploying Log Analytics", () => {
       location: "eastus",
     });
 
-    const namespace = new EventhubNamespace(stack, "ehns", {
-      name: `ehns-${randomName}`,
-      resourceGroupName: resourceGroup.name,
-      location: resourceGroup.location,
-      sku: "Standard",
-    });
-
-    const storage = new StorageAccount(stack, "storage", {
-      name: `sta${randomName}88t97`,
-      resourceGroupName: resourceGroup.name,
-      location: resourceGroup.location,
-      accountReplicationType: "LRS",
-      accountTier: "Standard",
-      minTlsVersion: "TLS1_2",
-      publicNetworkAccessEnabled: false,
-      networkRules: {
-        bypass: ["AzureServices"],
-        defaultAction: "Deny",
-      },
-    });
+    // Create Log Analytics Workspace using AzAPI
 
     const logAnalyticsWorkspace = new la.Workspace(stack, "la", {
       name: `la-${randomName}`,
       location: "eastus",
-      retention: 90,
-      sku: "PerGB2018",
       resourceGroup: resourceGroup,
-      functions: [
-        {
-          name: "function_name_1",
-          displayName: "Example function 1",
-          query:
-            "Event | where EventLevelName != 'Informational' | where TimeGenerated > ago(24h)",
-          functionAlias: "function_name_1",
-          functionParameters: [],
+      properties: {
+        sku: { name: "PerGB2018" },
+        retentionInDays: 90,
+        features: {
+          enableDataExport: true,
+          enableLogAccessUsingOnlyResourcePermissions: false,
         },
-        {
-          name: "function_name_2",
-          displayName: "Example function 2",
-          query:
-            "Event | where EventLevelName != 'Informational' | where TimeGenerated > ago(24h)",
-          functionAlias: "function_name_2",
-          functionParameters: ["typeArg:string=mail", "tagsArg:string=dc"],
-        },
-      ],
-      dataExport: [
-        {
-          name: "export-test",
-          exportDestinationId: namespace.id,
-          tableNames: ["Heartbeat"],
-          enabled: true,
-        },
-      ],
-    });
-
-    // Test RBAC
-    logAnalyticsWorkspace.addAccess(clientConfig.objectId, "Contributor");
-    logAnalyticsWorkspace.addAccess(clientConfig.objectId, "Monitoring Reader");
-
-    // Test Diag Settings
-    logAnalyticsWorkspace.addDiagSettings({
-      storageAccountId: storage.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
-    });
-
-    // Test Metric Alert
-    logAnalyticsWorkspace.addMetricAlert({
-      name: "metricAlert-test",
-      criteria: [
-        {
-          metricName: "Heartbeat",
-          metricNamespace: "Microsoft.operationalinsights/workspaces",
-          aggregation: "Average",
-          operator: "LessThan",
-          threshold: 0,
-        },
-      ],
+      },
+      tags: {
+        test: "true",
+        environment: "development",
+      },
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
