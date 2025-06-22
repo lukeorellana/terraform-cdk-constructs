@@ -1,15 +1,170 @@
-import { NetworkInterface } from "@cdktf/provider-azurerm/lib/network-interface"; // Import the NetworkInterface class
-import { NetworkInterfaceSecurityGroupAssociation } from "@cdktf/provider-azurerm/lib/network-interface-security-group-association";
-import { NetworkSecurityGroup } from "@cdktf/provider-azurerm/lib/network-security-group";
-import { NetworkSecurityRule } from "@cdktf/provider-azurerm/lib/network-security-rule";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
-import { SubnetNetworkSecurityGroupAssociation } from "@cdktf/provider-azurerm/lib/subnet-network-security-group-association";
 import { Construct } from "constructs";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { AzureResource } from "../../core-azure/lib";
 
 /**
+ * Configuration properties for defining a security rule within an Azure Network Security Group.
+ * This interface aligns with the AzAPI schema for SecurityRulePropertiesFormat.
+ */
+export interface SecurityRulePropertiesFormat {
+  /**
+   * The network traffic is allowed or denied. Possible values are 'Allow' or 'Deny'.
+   */
+  readonly access: string;
+
+  /**
+   * A description for this rule. Restricted to 140 chars.
+   */
+  readonly description?: string;
+
+  /**
+   * The destination address prefix. CIDR or destination IP range. Asterisk '*' can also be used to match all source IPs.
+   * Default tags such as 'VirtualNetwork', 'AzureLoadBalancer' and 'Internet' can also be used.
+   */
+  readonly destinationAddressPrefix?: string;
+
+  /**
+   * The destination address prefixes. CIDR or destination IP ranges.
+   */
+  readonly destinationAddressPrefixes?: string[];
+
+  /**
+   * The application security group specified as destination.
+   */
+  readonly destinationApplicationSecurityGroups?: ApplicationSecurityGroup[];
+
+  /**
+   * The destination port or range. Integer or range between 0 and 65535. Asterisk '*' can also be used to match all ports.
+   */
+  readonly destinationPortRange?: string;
+
+  /**
+   * The destination port ranges.
+   */
+  readonly destinationPortRanges?: string[];
+
+  /**
+   * The direction of the rule. The direction specifies if rule will be evaluated on incoming or outgoing traffic.
+   * Possible values are 'Inbound' or 'Outbound'.
+   */
+  readonly direction: string;
+
+  /**
+   * The priority of the rule. The value can be between 100 and 4096. The priority number must be unique for each rule in the collection.
+   * The lower the priority number, the higher the priority of the rule.
+   */
+  readonly priority: number;
+
+  /**
+   * Network protocol this rule applies to. Possible values are 'Tcp', 'Udp', '*' or 'Icmp'.
+   */
+  readonly protocol: string;
+
+  /**
+   * The CIDR or source IP range. Asterisk '*' can also be used to match all source IPs.
+   * Default tags such as 'VirtualNetwork', 'AzureLoadBalancer' and 'Internet' can also be used.
+   * If this is an ingress rule, specifies where network traffic originates from.
+   */
+  readonly sourceAddressPrefix?: string;
+
+  /**
+   * The CIDR or source IP ranges.
+   */
+  readonly sourceAddressPrefixes?: string[];
+
+  /**
+   * The application security group specified as source.
+   */
+  readonly sourceApplicationSecurityGroups?: ApplicationSecurityGroup[];
+
+  /**
+   * The source port or range. Integer or range between 0 and 65535. Asterisk '*' can also be used to match all ports.
+   */
+  readonly sourcePortRange?: string;
+
+  /**
+   * The source port ranges.
+   */
+  readonly sourcePortRanges?: string[];
+}
+
+/**
+ * Interface for Application Security Group.
+ */
+export interface ApplicationSecurityGroup {
+  /**
+   * Resource ID.
+   */
+  readonly id?: string;
+
+  /**
+   * Resource location.
+   */
+  readonly location?: string;
+
+  /**
+   * Properties of the application security group.
+   */
+  readonly properties?: ApplicationSecurityGroupPropertiesFormat;
+
+  /**
+   * Resource tags.
+   */
+  readonly tags?: { [key: string]: string };
+}
+
+/**
+ * Properties format for Application Security Group.
+ */
+export interface ApplicationSecurityGroupPropertiesFormat {
+  // Currently no specific properties defined in the schema
+}
+
+/**
+ * Interface for Security Rule aligned with AzAPI schema.
+ */
+export interface SecurityRule {
+  /**
+   * Resource ID.
+   */
+  readonly id?: string;
+
+  /**
+   * The name of the resource that is unique within a resource group. This name can be used to access the resource.
+   */
+  readonly name?: string;
+
+  /**
+   * Properties of the security rule.
+   */
+  readonly properties?: SecurityRulePropertiesFormat;
+
+  /**
+   * The type of the resource.
+   */
+  readonly type?: string;
+}
+
+/**
+ * Properties format for Network Security Group.
+ */
+export interface NetworkSecurityGroupPropertiesFormat {
+  /**
+   * When enabled, flows created from Network Security Group connections will be re-evaluated when rules are updates.
+   * Initial enablement will trigger re-evaluation.
+   */
+  readonly flushConnection?: boolean;
+
+  /**
+   * A collection of security rules of the network security group.
+   */
+  readonly securityRules?: SecurityRule[];
+}
+
+/**
  * Configuration properties for defining a rule within an Azure Network Security Group.
+ * This interface maintains backward compatibility with the existing RuleConfig interface.
  */
 export interface RuleConfig {
   /**
@@ -63,8 +218,8 @@ export interface RuleConfig {
  */
 export interface SecurityGroupProps {
   /**
-   * An optional reference to the resource group in which to deploy the Workspace.
-   * If not provided, the Workspace will be deployed in the default resource group.
+   * An optional reference to the resource group in which to deploy the Network Security Group.
+   * If not provided, the Network Security Group will be deployed in the default resource group.
    */
   readonly resourceGroup?: ResourceGroup;
 
@@ -82,6 +237,11 @@ export interface SecurityGroupProps {
    * An array of rule configurations to be applied to the network security group.
    */
   readonly rules: RuleConfig[];
+
+  /**
+   * Optional tags for the Network Security Group resource.
+   */
+  readonly tags?: { [key: string]: string };
 }
 
 export class SecurityGroup extends AzureResource {
@@ -132,34 +292,52 @@ export class SecurityGroup extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
 
-    // Create a network security group
-    const nsg = new NetworkSecurityGroup(this, "nsg", {
-      name: props.name,
-      resourceGroupName: this.resourceGroup.name,
-      location: props.location,
-    });
+    // Handle resource group setup
+    if (props.resourceGroup) {
+      this.resourceGroup = props.resourceGroup;
+    } else {
+      // Create a new resource group using our ResourceGroup class
+      this.resourceGroup = new ResourceGroup(this, "rg", {
+        name: `rg-${props.name}`,
+        location: props.location,
+        tags: props.tags,
+      });
+    }
 
-    // Create security rules within the network security group
-    for (const ruleConfig of props.rules) {
-      new NetworkSecurityRule(this, ruleConfig.name, {
-        name: ruleConfig.name,
-        resourceGroupName: this.resourceGroup.name,
-        networkSecurityGroupName: nsg.name,
-        priority: ruleConfig.priority,
-        direction: ruleConfig.direction,
+    // Convert RuleConfig array to SecurityRule array for AzAPI
+    const securityRules: SecurityRule[] = props.rules.map((ruleConfig) => ({
+      name: ruleConfig.name,
+      properties: {
         access: ruleConfig.access,
+        direction: ruleConfig.direction,
+        priority: ruleConfig.priority,
         protocol: ruleConfig.protocol,
         sourcePortRange: ruleConfig.sourcePortRange,
         destinationPortRange: ruleConfig.destinationPortRange,
         sourceAddressPrefix: ruleConfig.sourceAddressPrefix,
         destinationAddressPrefix: ruleConfig.destinationAddressPrefix,
-      });
-    }
+      },
+    }));
+
+    // Create network security group using AzAPI
+    const nsgProperties: NetworkSecurityGroupPropertiesFormat = {
+      securityRules: securityRules,
+    };
+
+    const nsg = new resource.Resource(this, "nsg", {
+      name: props.name,
+      location: props.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Network/networkSecurityGroups@2023-11-01",
+      tags: props.tags,
+      body: {
+        properties: nsgProperties,
+      },
+    });
 
     this.id = nsg.id;
-    this.name = nsg.name;
+    this.name = props.name;
   }
 
   /**
@@ -178,7 +356,7 @@ export class SecurityGroup extends AzureResource {
    * This operation ensures that the security rules defined in the network security group are enforced on all network interfaces
    * attached to the specified subnet.
    */
-  public associateToSubnet(subnet: Subnet) {
+  public associateToSubnet(subnet: { id: string; name: string }) {
     new SecurityGroupAssociations(this, subnet.name, {
       subnetId: subnet.id,
       networkSecurityGroupId: this.id,
@@ -201,7 +379,10 @@ export class SecurityGroup extends AzureResource {
    * This operation ensures that the security rules defined in the network security group are applied directly to the specified
    * network interface, controlling access in a more targeted manner.
    */
-  public associateToNetworkInterface(networkInterface: NetworkInterface) {
+  public associateToNetworkInterface(networkInterface: {
+    id: string;
+    name: string;
+  }) {
     new SecurityGroupAssociations(this, networkInterface.name, {
       networkInterfaceId: networkInterface.id,
       networkSecurityGroupId: this.id,
@@ -260,19 +441,34 @@ export class SecurityGroupAssociations extends Construct {
     props: SecurityGroupAssociationsProps,
   ) {
     super(scope, id);
-    // If subnetId is provided, create a SubnetNetworkSecurityGroupAssociation
+
+    // If subnetId is provided, create a subnet association using AzAPI
     if (props.subnetId) {
-      new SubnetNetworkSecurityGroupAssociation(this, "subassociation", {
-        subnetId: props.subnetId,
-        networkSecurityGroupId: props.networkSecurityGroupId,
+      new resource.Resource(this, "subnet-association", {
+        type: "Microsoft.Network/virtualNetworks/subnets@2023-11-01",
+        parentId: props.subnetId,
+        body: {
+          properties: {
+            networkSecurityGroup: {
+              id: props.networkSecurityGroupId,
+            },
+          },
+        },
       });
     }
 
-    // If networkInterfaceId is provided, create a NetworkInterfaceSecurityGroupAssociation
+    // If networkInterfaceId is provided, create a network interface association using AzAPI
     if (props.networkInterfaceId) {
-      new NetworkInterfaceSecurityGroupAssociation(this, "nicassociation", {
-        networkInterfaceId: props.networkInterfaceId,
-        networkSecurityGroupId: props.networkSecurityGroupId,
+      new resource.Resource(this, "nic-association", {
+        type: "Microsoft.Network/networkInterfaces@2023-11-01",
+        parentId: props.networkInterfaceId,
+        body: {
+          properties: {
+            networkSecurityGroup: {
+              id: props.networkSecurityGroupId,
+            },
+          },
+        },
       });
     }
   }
