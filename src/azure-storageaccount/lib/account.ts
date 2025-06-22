@@ -1,17 +1,12 @@
-import * as https from "https";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { StorageAccount } from "@cdktf/provider-azurerm/lib/storage-account";
-import {
-  StorageAccountNetworkRulesA,
-  StorageAccountNetworkRulesPrivateLinkAccessA,
-} from "@cdktf/provider-azurerm/lib/storage-account-network-rules";
-import { StorageTableAcl } from "@cdktf/provider-azurerm/lib/storage-table";
+import * as cdktf from "cdktf";
 import { Construct } from "constructs";
 import { Container } from "./container";
 import { FileShare, FileShareProps } from "./fileshare";
 import { Queue } from "./queue";
 import { Table } from "./table";
-import { AzureResourceWithAlert } from "../../core-azure/lib";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
+import { AzureResource } from "../../core-azure/lib";
 
 export interface NetworkRulesProps {
   /**
@@ -42,13 +37,13 @@ export interface NetworkRulesProps {
    * An array of objects representing the private link access settings. Each object in the array defines the sub-resource name
    * (e.g., 'blob', 'file') and its respective private endpoint connections for the storage account.
    */
-  readonly privateLinkAccess?: StorageAccountNetworkRulesPrivateLinkAccessA[];
+  readonly privateLinkAccess?: any[];
 }
 
 export interface AccountProps {
   /**
    * The type of replication to use for the storage account. This determines how your data is replicated across Azure's infrastructure.
-   * Example values: LRS (Locally Redundant Storage), GRS (Geo-Redundant Storage), RAGRS (Read Access Geo-Redundant Storage).
+   * Example values: Standard_LRS, Standard_GRS, Standard_RAGRS, Premium_LRS.
    */
   readonly accountReplicationType?: string;
 
@@ -57,6 +52,11 @@ export interface AccountProps {
    * Example values: Standard, Premium.
    */
   readonly accountTier?: string;
+
+  /**
+   * The storage account kind. Options: Storage, StorageV2, BlobStorage, FileStorage, BlockBlobStorage.
+   */
+  readonly kind?: string;
 
   /**
    * The Azure region in which to create the storage account.
@@ -69,7 +69,7 @@ export interface AccountProps {
   readonly name: string;
 
   /**
-   * The name of the Azure resource group in which to create the storage account.
+   * The Azure resource group in which to create the storage account.
    */
   readonly resourceGroup?: ResourceGroup;
 
@@ -83,11 +83,6 @@ export interface AccountProps {
    * A boolean flag indicating whether to enforce HTTPS for data transfer to the storage account.
    */
   readonly enableHttpsTrafficOnly?: boolean;
-
-  /**
-   * Managed Service Identity (MSI) details. Used for enabling and managing Azure Active Directory (AAD) authentication.
-   */
-  readonly identity?: any; // Replace 'any' with a more specific type if available.
 
   /**
    * The data access tier of the storage account, which impacts storage costs and data retrieval speeds.
@@ -112,19 +107,35 @@ export interface AccountProps {
   readonly publicNetworkAccessEnabled?: boolean;
 
   /**
-   * Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key. If false, then all requests, including shared access signatures, must be authorized with Azure Active Directory (Azure AD).
-   * Terraform uses Shared Key Authorisation to provision Storage Containers, Blobs and other items - when Shared Key Access is disabled, you will need to enable the storage_use_azuread flag in the Provider block to use Azure AD for authentication, however not all Azure Storage services support Active Directory authentication.
+   * Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key.
    */
   readonly sharedAccessKeyEnabled?: boolean;
 
   /**
-   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/hashicorp/azurerm/3.92.0/docs/resources/storage_account#account_kind StorageAccount#account_kind}
+   * Network access rules for the storage account.
    */
-  readonly accountKind?: string;
+  readonly networkRules?: NetworkRulesProps;
+
+  /**
+   * Identity configuration for the storage account.
+   */
+  readonly identity?: {
+    type: string;
+    userAssignedIdentities?: string[];
+  };
+
+  /**
+   * Lifecycle rules to ignore changes.
+   */
+  readonly ignoreChanges?: string[];
 }
 
-export class Account extends AzureResourceWithAlert {
+export class Account extends AzureResource {
   public readonly props: AccountProps;
+  public readonly storageAccount: resource.Resource;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
+  public readonly locationOutput: cdktf.TerraformOutput;
   public id: string;
   public readonly name: string;
   public readonly location: string;
@@ -136,7 +147,7 @@ export class Account extends AzureResourceWithAlert {
   private readonly tables: Map<string, Table>;
 
   /**
-   * Represents an Azure Storage Account within a Terraform deployment.
+   * Represents an Azure Storage Account within a Terraform deployment using AzAPI.
    *
    * This class is responsible for the creation and management of an Azure Storage Account, which is a scalable and secure service
    * for storing large amounts of unstructured data that can be accessed from anywhere in the world over HTTP or HTTPS. Common uses
@@ -145,86 +156,132 @@ export class Account extends AzureResourceWithAlert {
    *
    * @param scope - The scope in which to define this construct, typically representing the Cloud Development Kit (CDK) stack.
    * @param id - The unique identifier for this instance of the storage account.
-   * @param props - The properties required to configure the Azure Storage Account, as defined in the AccountProps interface. These include:
-   *                - `name`: The name of the storage account, which must be unique within the Azure region.
-   *                - `location`: The Azure region where the storage account will be created.
-   *                - `resourceGroup`: The Azure Resource Group under which the storage account will be deployed.
-   *                - `accountReplicationType`: The type of data replication to ensure data durability and availability.
-   *                - `accountTier`: The performance tier that affects the type of hardware used for the storage account.
-   *                - `tags`: A dictionary of tags to apply to the storage account for organizational purposes.
-   *
-   * Example usage:
-   * ```typescript
-   * const storageAccount = new Account(this, 'MyStorageAccount', {
-   *   location: 'East US',
-   *   name: 'myStorageAccount',
-   *   resourceGroup: myResourceGroup,
-   *   accountReplicationType: 'LRS',
-   *   accountTier: 'Standard',
-   *   enableHttpsTrafficOnly: true,
-   *   tags: {
-   *     environment: 'production'
-   *   }
-   * });
-   * ```
-   * This class sets up the storage account with the specified configurations, handles resource allocation, and applies security
-   * settings based on the properties provided.
+   * @param props - The properties required to configure the Azure Storage Account, as defined in the AccountProps interface.
    */
   constructor(scope: Construct, id: string, props: AccountProps) {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
     this.containers = new Map<string, Container>();
     this.shares = new Map<string, FileShare>();
     this.tables = new Map<string, Table>();
     this.name = props.name;
     this.location = props.location;
 
-    // default Storage Account Settings
+    // Set up resource group
+    if (props.resourceGroup) {
+      this.resourceGroup = props.resourceGroup;
+    } else {
+      this.resourceGroup = new ResourceGroup(this, `${id}-rg`, {
+        name: `rg-${props.name}`,
+        location: props.location,
+      });
+    }
+
+    // Default Storage Account Settings
     const defaults = {
-      accountReplicationType: "LRS",
-      accountTier: "Standard",
-      enableHttpsTrafficOnly: true,
-      accessTier: "Hot",
-      isHnsEnabled: true,
-      minTlsVersion: "TLS1_2",
-      publicnetworkAccessEnabled: false,
-      sharedAccessKeyEnabled: true,
-      ...props,
+      kind: props.kind || "StorageV2",
+      accountTier: props.accountTier || "Standard",
+      accountReplicationType: props.accountReplicationType || "LRS",
+      enableHttpsTrafficOnly: props.enableHttpsTrafficOnly !== false,
+      accessTier: props.accessTier || "Hot",
+      isHnsEnabled: props.isHnsEnabled || false,
+      minTlsVersion: props.minTlsVersion || "TLS1_2",
+      publicNetworkAccessEnabled: props.publicNetworkAccessEnabled !== false,
+      sharedAccessKeyEnabled: props.sharedAccessKeyEnabled !== false,
     };
 
-    // Create the storage account
-    const storageAccount = new StorageAccount(this, "storageaccount", {
-      ...defaults,
+    // Build the storage account SKU
+    const sku = {
+      name: `${defaults.accountTier}_${defaults.accountReplicationType}`,
+    };
+
+    // Build the storage account properties
+    const storageAccountProperties: any = {
+      accessTier: defaults.accessTier,
+      allowBlobPublicAccess: true,
+      allowCrossTenantReplication: true,
+      allowSharedKeyAccess: defaults.sharedAccessKeyEnabled,
+      supportsHttpsTrafficOnly: defaults.enableHttpsTrafficOnly,
+      isHnsEnabled: defaults.isHnsEnabled,
+      minimumTlsVersion: defaults.minTlsVersion,
+      publicNetworkAccess: defaults.publicNetworkAccessEnabled
+        ? "Enabled"
+        : "Disabled",
+    };
+
+    // Add network rules if provided
+    if (props.networkRules) {
+      storageAccountProperties.networkAcls = {
+        bypass: props.networkRules.bypass?.join(",") || "AzureServices",
+        defaultAction: props.networkRules.defaultAction,
+        ipRules: props.networkRules.ipRules?.map((ip) => ({ value: ip })) || [],
+        virtualNetworkRules:
+          props.networkRules.virtualNetworkSubnetIds?.map((subnetId) => ({
+            id: subnetId,
+          })) || [],
+      };
+    }
+
+    // Add identity if provided
+    if (props.identity) {
+      storageAccountProperties.identity = {
+        type: props.identity.type,
+        ...(props.identity.userAssignedIdentities && {
+          userAssignedIdentities: props.identity.userAssignedIdentities.reduce(
+            (acc, identityId) => {
+              acc[identityId] = {};
+              return acc;
+            },
+            {} as any,
+          ),
+        }),
+      };
+    }
+
+    // Create the storage account using AzAPI
+    this.storageAccount = new resource.Resource(this, `${id}-storage`, {
       name: props.name,
-      resourceGroupName: this.resourceGroup.name,
       location: props.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      type: "Microsoft.Storage/storageAccounts@2023-05-01",
       tags: props.tags,
+      body: {
+        kind: defaults.kind,
+        sku: sku,
+        properties: storageAccountProperties,
+      },
     });
 
-    this.id = storageAccount.id;
-    this.name = storageAccount.name;
-    this.accountKind = storageAccount.accountKind;
-    this.accountTier = storageAccount.accountTier;
-  }
+    // Add lifecycle management if specified
+    if (props.ignoreChanges) {
+      this.storageAccount.addOverride("lifecycle", [
+        {
+          ignore_changes: props.ignoreChanges,
+        },
+      ]);
+    }
 
-  /**
-   * Adds a new container to the storage account.
-   * @param name The name of the container. It must be unique within the storage account.
-   * @param containerAccessType The level of public access to the container. Defaults to 'private'.
-   * @param metadata Optional metadata for the container as key-value pairs.
-   * @returns The created Container instance.
-   * @throws Error if a container with the same name already exists within the storage account.
-   *
-   * This method creates a new container within the Azure storage account, allowing for the specification of access
-   * level and metadata. If the container already exists, it throws an error to prevent duplication.
-   *
-   * Example usage:
-   * ```typescript
-   * const container = storageAccount.addContainer('myContainer', 'private', { owner: 'IT' });
-   * ```
-   */
+    this.id = this.storageAccount.id;
+    this.accountKind = defaults.kind;
+    this.accountTier = defaults.accountTier;
+
+    // Terraform Outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.storageAccount.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.storageAccount.name,
+    });
+    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+      value: this.storageAccount.location,
+    });
+
+    // This allows the Terraform resource name to match the original name
+    this.idOutput.overrideLogicalId("id");
+    this.nameOutput.overrideLogicalId("name");
+    this.locationOutput.overrideLogicalId("location");
+  }
 
   public addContainer(
     name: string,
@@ -252,16 +309,7 @@ export class Account extends AzureResourceWithAlert {
    * @param props Optional properties for configuring the file share, such as quota and access tier.
    * @returns The created FileShare instance.
    * @throws Error if a file share with the same name already exists.
-   *
-   * This method facilitates the addition of a file share to the storage account, with optional settings for
-   * capacity (quota) and data access frequency (access tier). If a file share with the same name exists, an error is thrown.
-   *
-   * Example usage:
-   * ```typescript
-   * const fileShare = storageAccount.addFileShare('myFileShare', { quota: 1024, accessTier: 'Hot' });
-   * ```
    */
-
   public addFileShare(name: string, props?: FileShareProps): FileShare {
     if (this.shares.has(name)) {
       throw new Error(`Share '${name}' already exists.`);
@@ -291,17 +339,8 @@ export class Account extends AzureResourceWithAlert {
    * @param acl Optional access control list for the table, specifying permissions.
    * @returns The created Table instance.
    * @throws Error if a table with the same name already exists.
-   *
-   * This method creates a new table within the storage account, optionally allowing for access control configurations.
-   * It throws an error if a table with the same name already exists, ensuring uniqueness within the account.
-   *
-   * Example usage:
-   * ```typescript
-   * const table = storageAccount.addTable('myTable', [{ id: 'policy1', type: 'read' }]);
-   * ```
    */
-
-  public addTable(name: string, acl?: StorageTableAcl[]): Table {
+  public addTable(name: string, acl?: any[]): Table {
     if (this.tables.has(name)) {
       throw new Error(`Table '${name}' already exists.`);
     }
@@ -321,16 +360,7 @@ export class Account extends AzureResourceWithAlert {
    * @param name The name of the queue. Must be unique within the storage account.
    * @param metadata Optional metadata for the queue as key-value pairs.
    * @returns The created Queue instance.
-   *
-   * This method creates a new queue in the storage account, with optional metadata. It is useful for message queuing
-   * in applications, enabling asynchronous task processing and inter-service communication.
-   *
-   * Example usage:
-   * ```typescript
-   * const queue = storageAccount.addQueue('myQueue', { priority: 'high' });
-   * ```
    */
-
   public addQueue(name: string, metadata?: { [key: string]: string }): Queue {
     return new Queue(this, name, {
       name: name,
@@ -341,33 +371,14 @@ export class Account extends AzureResourceWithAlert {
 
   /**
    * Adds network rules to the storage account to control access based on IP and virtual network settings.
+   * Note: This method is deprecated in favor of specifying network rules directly in the constructor props.
    * @param props Configuration properties for the network rules, including allowed IPs and virtual network subnet IDs.
-   * @returns The configured network rules.
-   *
-   * This method configures network rules for the storage account, specifying which IPs and virtual networks can access
-   * the storage resources. It allows detailed control over data security and access management.
-   *
-   * Example usage:
-   * ```typescript
-   * storageAccount.addNetworkRules({
-   *   bypass: ['AzureServices'],
-   *   defaultAction: 'Deny',
-   *   ipRules: ['1.2.3.4/32'],
-   *   virtualNetworkSubnetIds: ['subnetId'],
-   * });
-   * ```
+   * @deprecated Use networkRules property in constructor props instead.
    */
-
-  public addNetworkRules(
-    props: NetworkRulesProps,
-  ): StorageAccountNetworkRulesA {
-    return new StorageAccountNetworkRulesA(this, "rules", {
-      storageAccountId: this.id,
-      bypass: props.bypass,
-      defaultAction: props.defaultAction,
-      ipRules: props.ipRules,
-      virtualNetworkSubnetIds: props.virtualNetworkSubnetIds,
-      privateLinkAccess: props.privateLinkAccess,
-    });
+  public addNetworkRules(_props: NetworkRulesProps): void {
+    console.warn(
+      "addNetworkRules is deprecated. Use networkRules property in constructor props instead.",
+    );
+    // This method is kept for backward compatibility but doesn't create additional resources
   }
 }

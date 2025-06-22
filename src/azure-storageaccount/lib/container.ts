@@ -66,7 +66,7 @@ export class Container extends Construct {
     });
 
     this.name = props.name;
-    this.storageAccountName = props.storageAccountName;
+    this.storageAccountName = props.storageAccountName!;
     this.storageContainerName = container.name;
   }
 

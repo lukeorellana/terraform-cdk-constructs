@@ -1,9 +1,9 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as storage from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
-
-import "cdktf/lib/testing/adapters/jest";
+setupJest();
 
 describe("Azure Storage Account With Defaults", () => {
   let stack: TerraformStack;
@@ -13,7 +13,7 @@ describe("Azure Storage Account With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azureFeature", {});
 
     // Create a Storage Account with the defined rules
     new storage.Account(stack, "storageaccount", {

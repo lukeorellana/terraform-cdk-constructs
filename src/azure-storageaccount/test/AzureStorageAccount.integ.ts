@@ -1,14 +1,14 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as storage from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
 import { generateRandomName } from "../../util/randomName";
-import "cdktf/lib/testing/adapters/jest";
+setupJest();
 
 describe("Example of deploying a Storage Account", () => {
   let stack: TerraformStack;
@@ -20,16 +20,7 @@ describe("Example of deploying a Storage Account", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    const clientConfig = new DataAzurermClientConfig(
-      stack,
-      "CurrentClientConfig",
-      {},
-    );
-
-    new AzurermProvider(stack, "azureFeature", {
-      features: {},
-      storageUseAzuread: true,
-    });
+    new AzapiProvider(stack, "azureFeature", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {
@@ -48,56 +39,20 @@ describe("Example of deploying a Storage Account", () => {
       isHnsEnabled: true,
       minTlsVersion: "TLS1_2",
       publicNetworkAccessEnabled: true,
-    });
-
-    //RBAC
-    storageAccount.addAccess(
-      clientConfig.objectId,
-      "Storage Blob Data Contributor",
-    );
-    storageAccount.addAccess(
-      clientConfig.objectId,
-      "Storage Queue Data Contributor",
-    );
-    storageAccount.addAccess(
-      clientConfig.objectId,
-      "Storage Table Data Contributor",
-    );
-    storageAccount.addAccess(
-      clientConfig.objectId,
-      "Storage File Data SMB Share Contributor",
-    );
-
-    // Metric Alert
-    storageAccount.addMetricAlert({
-      name: "testalert",
-      criteria: [
-        {
-          metricName: "Availability",
-          metricNamespace: "Microsoft.Storage/storageAccounts",
-          aggregation: "Average",
-          operator: "LessThan",
-          threshold: 0,
-        },
-      ],
-    });
-
-    storageAccount.addNetworkRules({
-      bypass: ["AzureServices"],
-      defaultAction: "Deny",
-      ipRules: ["0.0.0.0/0"],
+      networkRules: {
+        bypass: ["AzureServices"],
+        defaultAction: "Deny",
+        ipRules: ["0.0.0.0/0"],
+      },
     });
 
     // Storage Methods
     storageAccount.addContainer("testcontainer");
-
     storageAccount.addContainer("testcontainer2");
-
     storageAccount.addFileShare("testshare");
-
     storageAccount.addTable("testtable");
-
     storageAccount.addQueue("testqueue");
+
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });
 
