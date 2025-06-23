@@ -1,16 +1,15 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as kv from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
 import * as util from "../../util/azureTenantIdHelpers";
 import { generateRandomName } from "../../util/randomName";
-import "cdktf/lib/testing/adapters/jest";
+
+setupJest();
 
 describe("Example of deploying a Key Vault", () => {
   let stack: TerraformStack;

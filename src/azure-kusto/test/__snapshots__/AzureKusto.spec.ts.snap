@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Kusto With Defaults renders an Kusto with defaults and checks snapshot 1`] = `
 "{
@@ -46,7 +46,7 @@ exports[`Kusto With Defaults renders an Kusto with defaults and checks snapshot 
         },
         "location": "eastus",
         "name": "kustotest",
-        "parent_id": "resource-group",
+        "parent_id": "\${azapi_resource.testAzureKustoDefaults_resource-group-resource_E398A31D.id}",
         "type": "Microsoft.Kusto/clusters@2023-08-15"
       },
       "testAzureKustoDefaults_resource-group-resource_E398A31D": {

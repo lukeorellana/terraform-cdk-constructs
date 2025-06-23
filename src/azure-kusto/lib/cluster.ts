@@ -343,7 +343,7 @@ export class Cluster extends AzureResource {
       type: "Microsoft.Kusto/clusters@2023-08-15",
       name: defaults.name,
       location: defaults.location,
-      parentId: this.resourceGroup.id,
+      parentId: this.resourceGroup.resourceGroup.id,
       body: {
         sku: azureSku,
         properties: clusterProperties,

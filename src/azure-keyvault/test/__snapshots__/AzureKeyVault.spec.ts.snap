@@ -1,47 +1,65 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Azure Key Vault With Defaults renders an Azure Key Vault with defaults and checks snapshot 1`] = `
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_key_vault.testAzureKeyVaultDefaults_key_vault_A0C09326.id}"
+      "value": "\${azapi_resource.testAzureKeyVaultDefaults_vault_271F4362.id}"
     },
-    "key_vault_name": {
-      "value": "\${azurerm_key_vault.testAzureKeyVaultDefaults_key_vault_A0C09326.name}"
+    "location": {
+      "value": "\${azapi_resource.testAzureKeyVaultDefaults_vault_271F4362.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureKeyVaultDefaults_vault_271F4362.name}"
+    },
+    "vaultUri": {
+      "value": "\${jsondecode(azapi_resource.testAzureKeyVaultDefaults_vault_271F4362.output).properties.vaultUri}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_key_vault": {
-      "testAzureKeyVaultDefaults_key_vault_A0C09326": {
+    "azapi_resource": {
+      "testAzureKeyVaultDefaults_resource-group-resource_FF58E6F0": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      },
+      "testAzureKeyVaultDefaults_vault_271F4362": {
+        "body": {
+          "properties": {
+            "enablePurgeProtection": true,
+            "enableSoftDelete": true,
+            "sku": {
+              "family": "A",
+              "name": "standard"
+            },
+            "softDeleteRetentionInDays": 90,
+            "tenantId": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
         "location": "eastus",
         "name": "kv-test",
-        "purge_protection_enabled": true,
-        "resource_group_name": "\${azurerm_resource_group.testAzureKeyVaultDefaults_rg_8D888E30.name}",
-        "sku_name": "standard",
-        "soft_delete_retention_days": 90,
-        "tenant_id": "123e4567-e89b-12d3-a456-426614174000"
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureKeyVaultDefaults_rg_8D888E30": {
-        "location": "eastus",
-        "name": "rg-kv-test"
+        "parent_id": "\${azapi_resource.testAzureKeyVaultDefaults_resource-group-resource_FF58E6F0.id}",
+        "type": "Microsoft.KeyVault/vaults@2023-07-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

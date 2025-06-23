@@ -1,13 +1,8 @@
-import {
-  KeyVault,
-  KeyVaultNetworkAcls,
-} from "@cdktf/provider-azurerm/lib/key-vault";
-import { KeyVaultCertificate } from "@cdktf/provider-azurerm/lib/key-vault-certificate"; // Adjust the import path based on the actual module location.
-import { KeyVaultKey } from "@cdktf/provider-azurerm/lib/key-vault-key";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup";
+import { AzureResource } from "../../core-azure";
 import {
   CertificateIssuer,
   SelfSignedCertificate,
@@ -16,7 +11,176 @@ import {
 import { Key, KeyProps } from "./key";
 import { AccessPolicy, AccessPolicyProps } from "./policy";
 import { Secret, SecretProps } from "./secret";
-import { AzureResource } from "../../core-azure/lib";
+
+/**
+ * Azure Key Vault SKU configuration (AzAPI schema).
+ */
+export interface Sku {
+  /**
+   * SKU family name
+   */
+  family: string;
+  /**
+   * SKU name to specify whether the key vault is a standard vault or a premium vault.
+   */
+  name: string;
+}
+
+/**
+ * IP address rule for network access.
+ */
+export interface IpRule {
+  /**
+   * An IPv4 address range in CIDR notation, such as '124.56.78.91' (simple IP address) or '124.56.78.0/24' (all addresses that start with 124.56.78).
+   */
+  value: string;
+}
+
+/**
+ * Virtual network rule for network access.
+ */
+export interface VirtualNetworkRule {
+  /**
+   * Full resource id of a vnet subnet, such as '/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/subnet1'.
+   */
+  id: string;
+  /**
+   * Property to specify whether NRP will ignore the check if parent subnet has serviceEndpoints configured.
+   */
+  ignoreMissingVnetServiceEndpoint?: boolean;
+}
+
+/**
+ * Network rule set for Key Vault access.
+ */
+export interface NetworkRuleSet {
+  /**
+   * Tells what traffic can bypass network rules. This can be 'AzureServices' or 'None'.  If not specified the default is 'AzureServices'.
+   */
+  bypass?: string;
+  /**
+   * The default action when no rule from ipRules and from virtualNetworkRules match. This is only used after the bypass property has been evaluated.
+   */
+  defaultAction?: string;
+  /**
+   * The list of IP address rules.
+   */
+  ipRules?: IpRule[];
+  /**
+   * The list of virtual network rules.
+   */
+  virtualNetworkRules?: VirtualNetworkRule[];
+}
+
+/**
+ * Permissions for Key Vault access policies.
+ */
+export interface Permissions {
+  /**
+   * Permissions to certificates
+   */
+  certificates?: string[];
+  /**
+   * Permissions to keys
+   */
+  keys?: string[];
+  /**
+   * Permissions to secrets
+   */
+  secrets?: string[];
+  /**
+   * Permissions to storage accounts
+   */
+  storage?: string[];
+}
+
+/**
+ * Access policy entry for Key Vault.
+ */
+export interface AccessPolicyEntry {
+  /**
+   *  Application ID of the client making request on behalf of a principal
+   */
+  applicationId?: string;
+  /**
+   * The object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies.
+   */
+  objectId: string;
+  /**
+   * Permissions the identity has for keys, secrets and certificates.
+   */
+  permissions?: Permissions;
+  /**
+   * The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.
+   */
+  tenantId: string;
+}
+
+/**
+ * Properties of the Key Vault (AzAPI schema).
+ */
+export interface VaultProperties {
+  /**
+   * An array of 0 to 1024 identities that have access to the key vault. All identities in the array must use the same tenant ID as the key vault's tenant ID. When `createMode` is set to `recover`, access policies are not required. Otherwise, access policies are required.
+   */
+  accessPolicies?: AccessPolicyEntry[];
+  /**
+   * The vault's create mode to indicate whether the vault need to be recovered or not.
+   */
+  createMode?: string;
+  /**
+   * Property specifying whether protection against purge is enabled for this vault. Setting this property to true activates protection against purge for this vault and its content - only the Key Vault service may initiate a hard, irrecoverable deletion. The setting is effective only if soft delete is also enabled. Enabling this functionality is irreversible - that is, the property does not accept false as its value.
+   */
+  enablePurgeProtection?: boolean;
+  /**
+   * Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, and the access policies specified in vault properties will be  ignored. When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. If null or not specified, the vault is created with the default value of false. Note that management actions are always authorized with RBAC.
+   */
+  enableRbacAuthorization?: boolean;
+  /**
+   * Property to specify whether the 'soft delete' functionality is enabled for this key vault. If it's not set to any value(true or false) when creating new key vault, it will be set to true by default. Once set to true, it cannot be reverted to false.
+   */
+  enableSoftDelete?: boolean;
+  /**
+   * Property to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault.
+   */
+  enabledForDeployment?: boolean;
+  /**
+   * Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys.
+   */
+  enabledForDiskEncryption?: boolean;
+  /**
+   * Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault.
+   */
+  enabledForTemplateDeployment?: boolean;
+  /**
+   * Rules governing the accessibility of the key vault from specific network locations.
+   */
+  networkAcls?: NetworkRuleSet;
+  /**
+   * Provisioning state of the vault.
+   */
+  provisioningState?: string;
+  /**
+   * Property to specify whether the vault will accept traffic from public internet. If set to 'disabled' all traffic except private endpoint traffic and that that originates from trusted services will be blocked. This will override the set firewall rules, meaning that even if the firewall rules are present we will not honor the rules.
+   */
+  publicNetworkAccess?: string;
+  /**
+   * SKU details
+   */
+  sku: Sku;
+  /**
+   * softDelete data retention days. It accepts >=7 and <=90.
+   */
+  softDeleteRetentionInDays?: number;
+  /**
+   * The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.
+   */
+  tenantId: string;
+  /**
+   * The URI of the vault for performing operations on keys and secrets.
+   */
+  vaultUri?: string;
+}
 
 export interface VaultProps {
   /**
@@ -37,31 +201,58 @@ export interface VaultProps {
    */
   readonly tags?: { [key: string]: string };
   /**
-   * The tags to assign to the Key Vault.
+   * The Name of the SKU used for this Key Vault. Possible values are standard and premium.
    */
   readonly sku?: string;
   /**
-   * The Name of the SKU used for this Key Vault. Possible values are standard and premium.
+   * The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.
    */
   readonly tenantId: string;
   /**
-   * The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.
+   * Network ACL rules for the Key Vault (legacy compatibility).
+   * @deprecated Use networkRuleSet instead for AzAPI compatibility
    */
-  readonly networkAcls?: KeyVaultNetworkAcls;
+  readonly networkAcls?: any;
   /**
-   * A map of IP network ACL rules. The key is the IP or IP range in CIDR notation.
-   * The value is a description of that IP range.
+   * AzAPI-compatible network ACL rules for the Key Vault.
+   */
+  readonly networkRuleSet?: NetworkRuleSet;
+  /**
+   * Specifies whether protection against purge is enabled for this Key Vault.
    */
   readonly purgeProtection?: boolean;
   /**
-   *  Specifies whether protection against purge is enabled for this Key Vault.
-   * Setting this property to true activates protection against deletion of any active key, secret or certificate in the vault. The setting is effective only if soft delete is also enabled. The default value is false.
-   * Once activated, the property cannot be reverted to false.
+   * The number of days that items should be retained for once soft-deleted.
    */
   readonly softDeleteRetentionDays?: number;
   /**
-   * The number of days that items should be retained for once soft-deleted.
+   * Access policies for the Key Vault.
    */
+  readonly accessPolicies?: AccessPolicyEntry[];
+  /**
+   * Property to specify whether the 'soft delete' functionality is enabled for this key vault.
+   */
+  readonly enableSoftDelete?: boolean;
+  /**
+   * Property to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault.
+   */
+  readonly enabledForDeployment?: boolean;
+  /**
+   * Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys.
+   */
+  readonly enabledForDiskEncryption?: boolean;
+  /**
+   * Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault.
+   */
+  readonly enabledForTemplateDeployment?: boolean;
+  /**
+   * Property that controls how data actions are authorized.
+   */
+  readonly enableRbacAuthorization?: boolean;
+  /**
+   * AzAPI-specific properties (for advanced usage).
+   */
+  readonly properties?: VaultProperties;
 }
 
 /**
@@ -95,13 +286,18 @@ export interface GrantCustomAccessOptions {
 
 export class Vault extends AzureResource {
   readonly props: VaultProps;
-  public keyVault: KeyVault;
+  public resource: resource.Resource;
   public resourceGroup: ResourceGroup;
   public id: string;
-  private accessPolicies: AccessPolicy[] = [];
+  public name: string;
+  public location: string;
+  public readonly idOutput: cdktf.TerraformOutput;
+  public readonly nameOutput: cdktf.TerraformOutput;
+  public readonly locationOutput: cdktf.TerraformOutput;
+  public readonly vaultUriOutput: cdktf.TerraformOutput;
 
   /**
-   * Constructs a new Azure Key Vault resource.
+   * Constructs a new Azure Key Vault resource using AzAPI.
    *
    * This class creates and configures an Azure Key Vault, a secure store for managing secrets, keys, certificates, and other sensitive data.
    * It supports advanced configurations such as access policies, network rules, and data retention policies.
@@ -130,435 +326,151 @@ export class Vault extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+    this.resourceGroup = props.resourceGroup || new ResourceGroup(this, "resource-group", {
+      location: props.location,
+    });
 
-    // Provide default values
-    const purgeProtection = props.purgeProtection ?? true;
-    const sku = props.sku ?? "standard";
-    const softDeleteRetentionDays = props.softDeleteRetentionDays ?? 90;
+    // Set defaults
+    const defaults = {
+      sku: props.sku || "standard",
+      softDeleteRetentionDays: props.softDeleteRetentionDays || 90,
+      purgeProtection: props.purgeProtection ?? true,
+      enableSoftDelete: props.enableSoftDelete ?? true,
+    };
 
-    const azurermKeyVault = new KeyVault(this, "key_vault", {
+    // Build the SKU object
+    const sku: Sku = {
+      family: "A",
+      name: defaults.sku,
+    };
+
+    // Convert legacy networkAcls to AzAPI format if provided
+    let networkRuleSet: NetworkRuleSet | undefined = props.networkRuleSet;
+    if (props.networkAcls && !networkRuleSet) {
+      // Convert legacy format to AzAPI format
+      networkRuleSet = {
+        bypass: props.networkAcls.bypass,
+        defaultAction: props.networkAcls.defaultAction,
+        ipRules: props.networkAcls.ipRules?.map((rule: any) => ({
+          value: rule.value,
+        })),
+        virtualNetworkRules: props.networkAcls.virtualNetworkRules?.map((rule: any) => ({
+          id: rule.id,
+          ignoreMissingVnetServiceEndpoint: rule.ignoreMissingVnetServiceEndpoint,
+        })),
+      };
+    }
+
+    // Build the vault properties
+    const vaultProperties: VaultProperties = {
+      tenantId: props.tenantId,
+      sku: sku,
+      softDeleteRetentionInDays: defaults.softDeleteRetentionDays,
+      enablePurgeProtection: defaults.purgeProtection,
+      enableSoftDelete: defaults.enableSoftDelete,
+      enabledForDeployment: props.enabledForDeployment,
+      enabledForDiskEncryption: props.enabledForDiskEncryption,
+      enabledForTemplateDeployment: props.enabledForTemplateDeployment,
+      enableRbacAuthorization: props.enableRbacAuthorization,
+      networkAcls: networkRuleSet,
+      accessPolicies: props.accessPolicies,
+      ...props.properties, // Allow override with custom properties
+    };
+
+    // Create the Key Vault using AzAPI
+    this.resource = new resource.Resource(this, "vault", {
+      type: "Microsoft.KeyVault/vaults@2023-07-01",
       name: props.name,
       location: props.location,
-      resourceGroupName: this.resourceGroup.name,
+      parentId: this.resourceGroup.resourceGroup.id,
+      body: {
+        properties: vaultProperties,
+      },
       tags: props.tags,
-      skuName: sku,
-      tenantId: props.tenantId,
-      networkAcls: props.networkAcls,
-      purgeProtectionEnabled: purgeProtection,
-      softDeleteRetentionDays: softDeleteRetentionDays,
     });
-    this.id = azurermKeyVault.id;
-    this.keyVault = azurermKeyVault;
 
-    // Terraform Outputs
-    const cdktfTerraformOutputKeyVaultid = new cdktf.TerraformOutput(
-      this,
-      "id",
-      {
-        value: azurermKeyVault.id,
-      },
-    );
+    // Set public properties
+    this.id = this.resource.id;
+    this.name = props.name;
+    this.location = props.location;
 
-    /*This allows the Terraform resource name to match the original name. You can remove the call if you don't need them to match.*/
-    cdktfTerraformOutputKeyVaultid.overrideLogicalId("id");
+    // Create outputs
+    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.resource.id,
+    });
+    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.resource.name,
+    });
+    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+      value: this.resource.location,
+    });
+    this.vaultUriOutput = new cdktf.TerraformOutput(this, "vaultUri", {
+      value: `\${jsondecode(${this.resource.output}).properties.vaultUri}`,
+    });
 
-    const cdktfTerraformOutputKeyVaultname = new cdktf.TerraformOutput(
-      this,
-      "key_vault_name",
-      {
-        value: azurermKeyVault.name,
-      },
-    );
-
-    /*This allows the Terraform resource name to match the original name. You can remove the call if you don't need them to match.*/
-    cdktfTerraformOutputKeyVaultname.overrideLogicalId("key_vault_name");
+    // Override logical IDs for compatibility
+    this.idOutput.overrideLogicalId("id");
+    this.nameOutput.overrideLogicalId("name");
+    this.locationOutput.overrideLogicalId("location");
+    this.vaultUriOutput.overrideLogicalId("vaultUri");
   }
 
   /**
-   * Grants read-only access to secrets stored in the Key Vault to a specified Azure AD group.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive read access to secrets.
+   * Legacy property compatibility - returns the AzAPI resource
+   * @deprecated Use `resource` instead
    */
-  public grantSecretReaderAccess(azureAdGroupId: string) {
-    const policyProps: AccessPolicyProps = {
-      keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      secretPermissions: ["Get", "List"],
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_secret_reader_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
+  public get keyVault(): resource.Resource {
+    return this.resource;
   }
 
   /**
-   * Grants administrative access to secrets stored in the Key Vault to a specified Azure AD group.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive administrative access to secrets.
+   * Add a secret to the Key Vault.
    */
-  public grantSecretAdminAccess(azureAdGroupId: string) {
-    const policyProps: AccessPolicyProps = {
+  public addSecret(secretId: string, props: SecretProps): Secret {
+    return new Secret(this, secretId, {
+      ...props,
       keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      secretPermissions: [
-        "Get",
-        "List",
-        "Set",
-        "Delete",
-        "Backup",
-        "Restore",
-        "Recover",
-      ],
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_secret_admin_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
+    });
   }
 
   /**
-   * Grants administrative access to certificates stored in the Key Vault to a specified Azure AD group.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive administrative access to certificates.
+   * Add a key to the Key Vault.
    */
-  public grantCertAdminAccess(azureAdGroupId: string) {
-    const policyProps: AccessPolicyProps = {
+  public addKey(keyId: string, props: KeyProps): Key {
+    return new Key(this, keyId, {
+      ...props,
       keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      certificatePermissions: [
-        "Get",
-        "List",
-        "Set",
-        "Delete",
-        "Backup",
-        "Restore",
-        "Recover",
-      ],
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_cert_admin_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
+    });
   }
 
   /**
-   * Grants read-only access to certificates stored in the Key Vault to a specified Azure AD group.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive read access to certificates.
+   * Add an access policy to the Key Vault.
    */
-  public grantCertReaderAccess(azureAdGroupId: string) {
-    const policyProps: AccessPolicyProps = {
+  public addAccessPolicy(policyId: string, props: AccessPolicyProps): AccessPolicy {
+    return new AccessPolicy(this, policyId, {
+      ...props,
       keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      certificatePermissions: ["Get", "List"],
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_cert_reader_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
+      tenantId: props.tenantId || this.props.tenantId,
+    });
   }
 
   /**
-   * Grants administrative access to keys stored in the Key Vault to a specified Azure AD group.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive administrative access to keys.
+   * Create a self-signed certificate in the Key Vault.
    */
-  public grantKeyAdminAccess(azureAdGroupId: string) {
-    const policyProps: AccessPolicyProps = {
+  public addSelfSignedCertificate(certId: string, props: SelfSignedCertificateProps): SelfSignedCertificate {
+    return new SelfSignedCertificate(this, certId, {
+      ...props,
       keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      keyPermissions: [
-        "Get",
-        "List",
-        "Set",
-        "Delete",
-        "Backup",
-        "Restore",
-        "Recover",
-      ],
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_key_admin_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
+    });
   }
 
   /**
-   * Grants read-only access to keys stored in the Key Vault to a specified Azure AD group.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive read access to keys.
+   * Add a certificate issuer to the Key Vault.
    */
-  public grantKeyReaderAccess(azureAdGroupId: string) {
-    const policyProps: AccessPolicyProps = {
+  public addCertificateIssuer(issuerId: string, props: any): CertificateIssuer {
+    return new CertificateIssuer(this, issuerId, {
+      ...props,
       keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      keyPermissions: ["Get", "List"],
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_key_reader_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
-  }
-
-  /**
-   * Grants custom access based on specified options to an Azure AD group in the Key Vault.
-   *
-   * @param azureAdGroupId - The Azure Active Directory group ID that will receive the custom access.
-   * @param options - Custom access options specifying various permissions for secrets, keys, certificates, and storage.
-   */
-  public grantCustomAccess(
-    azureAdGroupId: string,
-    options: GrantCustomAccessOptions,
-  ) {
-    const policyProps: AccessPolicyProps = {
-      keyVaultId: this,
-      tenantId: this.props.tenantId,
-      objectId: azureAdGroupId,
-      ...options,
-    };
-
-    const policy = new AccessPolicy(
-      this,
-      `kv_custom_policy_access_${azureAdGroupId}`,
-      policyProps,
-    );
-    this.accessPolicies.push(policy);
-  }
-
-  /**
-   * Creates a new secret within the Azure Key Vault.
-   *
-   * This method facilitates the storage of sensitive information in the form of a secret within the Key Vault.
-   * Secrets are protected items such as passwords, database connection strings, or any other piece of information
-   * that needs to be securely stored and accessed. This method allows setting additional properties such as
-   * expiration date and content type for better management and compliance.
-   *
-   * @param keyVaultSecretName - The unique name for the secret within the Key Vault.
-   * @param secretValue - The sensitive information or data that needs to be securely stored as a secret.
-   * @param expirationDate - Optional. The expiration date of the secret in ISO 8601 format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ).
-   *                         If provided, the secret will no longer be valid after this date.
-   * @param contentType - Optional. A description of the type of information the secret contains (e.g., 'password', 'connectionString').
-   *                      This can be used by applications to handle the secret appropriately.
-   *
-   * Example usage:
-   * ```typescript
-   * vault.addSecret(
-   *   'myDatabasePassword',
-   *   'p@ssw0rd123!',
-   *   '2030-01-01',
-   *   'databasePassword'
-   * );
-   * ```
-   * This method does not return a value. It creates a secret within the Key Vault with the specified properties.
-   */
-  public addSecret(
-    keyVaultSecretName: string,
-    secretValue: string,
-    expirationDate?: string,
-    contentType?: string,
-  ) {
-    const secretProps: SecretProps = {
-      keyVaultId: this,
-      name: keyVaultSecretName,
-      value: secretValue,
-      expirationDate: expirationDate,
-      contentType: contentType,
-      accessPolicies: this.accessPolicies,
-    };
-
-    new Secret(this, keyVaultSecretName, secretProps);
-  }
-
-  /**
-   * Creates an RSA cryptographic key within the Azure Key Vault.
-   *
-   * This method facilitates the creation of an RSA key, which is useful for a variety of cryptographic operations such as
-   * encryption, decryption, digital signature verification, and more. The RSA key created by this method is configurable
-   * with an optional expiration date and a default key size of 2048 bits. The key operations allowed include decryption,
-   * encryption, signing, verifying signatures, and key wrapping/unwrapping.
-   *
-   * @param keyVaultKeyName - The unique name for the RSA key within the Key Vault.
-   * @param expirationDate - Optional. The expiration date of the key in ISO 8601 format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ).
-   *                         If provided, the key will no longer be valid after this date.
-   * @returns A KeyVaultKey object representing the newly created RSA key within the vault.
-   *
-   * Example usage:
-   * ```typescript
-   * const rsaKey = vault.addRSAKey(
-   *   'myRSAKey',
-   *   '2030-01-01'
-   * );
-   * ```
-   * This method returns the created KeyVaultKey object, allowing further operations or references to the key.
-   */
-  public addRSAKey(
-    keyVaultKeyName: string,
-    expirationDate?: string,
-  ): KeyVaultKey {
-    const keyProps: KeyProps = {
-      keyVaultId: this,
-      name: keyVaultKeyName,
-      keyType: "RSA",
-      keySize: 2048,
-      keyOpts: ["decrypt", "encrypt", "sign", "unwrapKey", "verify", "wrapKey"],
-      expires: expirationDate,
-      accessPolicies: this.accessPolicies,
-    };
-
-    const key = new Key(this, keyVaultKeyName, keyProps);
-    return key.vaultKey;
-  }
-
-  /**
-   * Creates a cryptographic key within the Azure Key Vault.
-   *
-   * This method allows the creation of a cryptographic key of specified type and size within the Key Vault. The key can be
-   * configured with specific operations it can perform, such as encryption, decryption, signing, etc. An optional expiration
-   * date can also be set to control the key's lifecycle. This method is flexible, supporting various key types and sizes,
-   * making it suitable for a wide range of cryptographic needs.
-   *
-   * @param keyVaultKeyName - The unique name for the cryptographic key within the Key Vault.
-   * @param keyType - The type of cryptographic key to create (e.g., 'RSA', 'EC', 'oct-HSM').
-   * @param keySize - The size of the cryptographic key in bits (e.g., 2048, 3072, 4096 for RSA).
-   * @param keyOpts - A list of cryptographic operations that the key is allowed to perform. Possible values might include
-   *                  'encrypt', 'decrypt', 'sign', 'verify', 'wrapKey', 'unwrapKey'.
-   * @param expirationDate - Optional. The expiration date of the key in ISO 8601 format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ).
-   *                         If provided, the key will no longer be valid after this date, aligning with best practices for key management.
-   * @returns A KeyVaultKey object representing the newly created cryptographic key within the vault.
-   *
-   * Example usage:
-   * ```typescript
-   * const myKey = vault.addKey(
-   *   'myKey',
-   *   'RSA',
-   *   2048,
-   *   ['encrypt', 'decrypt', 'sign', 'verify'],
-   *   '2030-12-31'
-   * );
-   * ```
-   * This method returns the created KeyVaultKey object, enabling immediate use within the application for cryptographic operations.
-   */
-  public addKey(
-    keyVaultKeyName: string,
-    keyType: string,
-    keySize: number,
-    keyOpts: string[],
-    expirationDate?: string,
-  ): KeyVaultKey {
-    const keyProps: KeyProps = {
-      keyVaultId: this,
-      name: keyVaultKeyName,
-      keyType: keyType,
-      keySize: keySize,
-      keyOpts: keyOpts,
-      expires: expirationDate,
-      accessPolicies: this.accessPolicies,
-    };
-
-    const key = new Key(this, keyVaultKeyName, keyProps);
-    return key.vaultKey;
-  }
-
-  /**
-   * Creates a self-signed certificate within the Azure Key Vault.
-   *
-   * This method facilitates the creation of a self-signed certificate, which is a digital certificate that is signed by
-   * its own creator rather than a trusted authority. Self-signed certificates can be useful for testing, internal
-   * communications, or any scenario where public trust is not required. The method allows specifying subject details,
-   * DNS names for the certificate, and managing its lifecycle with action types and expiry.
-   *
-   * @param certName - The unique name for the certificate within the Key Vault.
-   * @param subject - The subject name of the certificate, typically formatted as an X.500 Distinguished Name (e.g., "CN=example.com").
-   * @param dnsNames - An array of DNS names that should be associated with this certificate. This is useful for certificates
-   *                   that need to be valid for multiple hostnames.
-   * @param actionType - Optional. Specifies the action to be performed with the certificate, such as 'create' or 'renew'.
-   * @param daysBeforeExpiry - Optional. Number of days before expiry when an action should be taken, useful for auto-renewal scenarios.
-   * @returns A KeyVaultCertificate object representing the newly created self-signed certificate.
-   *
-   * Example usage:
-   * ```typescript
-   * const myCertificate = vault.addSelfSignedCert(
-   *   'myCert',
-   *   'CN=mydomain.com',
-   *   ['mydomain.com', 'www.mydomain.com'],
-   *   'create',
-   *   30
-   * );
-   * ```
-   * This method returns the KeyVaultCertificate object, enabling it to be used immediately within the application or stored for future use.
-   */
-  public addSelfSignedCert(
-    certName: string,
-    subject: string,
-    dnsNames: string[],
-    actionType?: string,
-    daysBeforeExpiry?: number,
-  ): KeyVaultCertificate {
-    const keyProps: SelfSignedCertificateProps = {
-      keyVaultId: this,
-      name: certName,
-      subject: subject,
-      dnsNames: dnsNames,
-      actionType: actionType,
-      daysBeforeExpiry: daysBeforeExpiry,
-      accessPolicies: this.accessPolicies,
-    };
-    const cert = new SelfSignedCertificate(this, certName, keyProps);
-    return cert.certificate;
-  }
-
-  /**
-   * Adds a certificate issuer to the Azure Key Vault.
-   *
-   * This method configures a certificate issuer within the Key Vault, allowing the Key Vault to issue certificates
-   * through external providers. Configuring an issuer is essential for enabling automated certificate management
-   * processes, such as issuance and renewal, directly through the Key Vault with a specified Certificate Authority (CA).
-   *
-   * @param name - The unique name for the certificate issuer within the Key Vault.
-   * @param provider - The name of the external provider that will issue the certificates, such as 'DigiCert' or 'GlobalSign'.
-   *
-   * Example usage:
-   * ```typescript
-   * vault.addCertIssuer(
-   *   'myCertIssuer',
-   *   'DigiCert'
-   * );
-   * ```
-   * This method configures a certificate issuer but does not return any value. The issuer details, including provider name
-   * and any necessary credentials (managed externally or through additional method parameters), are set up in the Key Vault
-   * for future certificate operations.
-   */
-  public addCertIssuer(name: string, provider: string) {
-    new CertificateIssuer(this, name, {
-      name: name,
-      providerName: provider,
-      keyVaultId: this,
-      accessPolicies: this.accessPolicies,
     });
   }
 }
