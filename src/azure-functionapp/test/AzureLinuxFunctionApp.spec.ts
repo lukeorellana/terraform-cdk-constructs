@@ -1,10 +1,12 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as func from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
-import "cdktf/lib/testing/adapters/jest";
 
-describe("Azure Linux Function App With Defaults", () => {
+setupJest();
+
+describe("Azure Function App With Defaults (AzAPI)", () => {
   let stack: TerraformStack;
   let fullSynthResult: any;
 
@@ -12,17 +14,25 @@ describe("Azure Linux Function App With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
-    new func.FunctionAppLinux(stack, "testAzureLinuxFunctionApp", {
+    new func.FunctionApp(stack, "testAzureFunctionApp", {
       name: "fatest",
       location: "eastus",
+      kind: "functionapp,linux",
+      properties: {
+        enabled: true,
+        siteConfig: {
+          linuxFxVersion: "NODE|18",
+          alwaysOn: false,
+        },
+      },
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });
 
-  it("renders an Azure Linux Function App with defaults and checks snapshot", () => {
+  it("renders an Azure Function App with defaults and checks snapshot", () => {
     expect(Testing.synth(stack)).toMatchSnapshot(); // Compare the already prepared stack
   });
 

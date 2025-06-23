@@ -1,81 +1,63 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Azure Linux Function App With Defaults renders an Azure Linux Function App with defaults and checks snapshot 1`] = `
+exports[`Azure Function App With Defaults (AzAPI) renders an Azure Function App with defaults and checks snapshot 1`] = `
 "{
+  "output": {
+    "default_hostname": {
+      "value": "\${azapi_resource.testAzureFunctionApp_functionapp_A52554F7.output}"
+    },
+    "id": {
+      "value": "\${azapi_resource.testAzureFunctionApp_functionapp_A52554F7.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureFunctionApp_functionapp_A52554F7.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureFunctionApp_functionapp_A52554F7.name}"
+    }
+  },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_linux_function_app": {
-      "testAzureLinuxFunctionApp_2B86F984": {
-        "builtin_logging_enabled": true,
-        "client_certificate_enabled": false,
-        "client_certificate_exclusion_paths": "",
-        "client_certificate_mode": "Required",
-        "enabled": true,
-        "functions_extension_version": "~4",
-        "https_only": true,
-        "identity": {
-          "type": "SystemAssigned"
+    "azapi_resource": {
+      "testAzureFunctionApp_functionapp_A52554F7": {
+        "body": {
+          "kind": "functionapp,linux",
+          "properties": {
+            "enabled": true,
+            "siteConfig": {
+              "alwaysOn": false,
+              "linuxFxVersion": "NODE|18"
+            }
+          }
         },
         "location": "eastus",
         "name": "fatest",
-        "public_network_access_enabled": true,
-        "resource_group_name": "\${azurerm_resource_group.testAzureLinuxFunctionApp_rg_9D21757F.name}",
-        "service_plan_id": "\${azurerm_service_plan.testAzureLinuxFunctionApp_AppServicePlan_41C3FFFD.id}",
-        "site_config": {
-          "application_stack": {
-            "node_version": "14"
-          },
-          "use_32_bit_worker": false
-        },
-        "storage_account_name": "\${azurerm_storage_account.testAzureLinuxFunctionApp_sa_4C0B969D.name}",
-        "storage_uses_managed_identity": true
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureLinuxFunctionApp_rg_9D21757F": {
+        "parent_id": "\${azapi_resource.testAzureFunctionApp_resource-group-resource_78A2A8E7.id}",
+        "type": "Microsoft.Web/sites@2023-12-01"
+      },
+      "testAzureFunctionApp_resource-group-resource_78A2A8E7": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
         "location": "eastus",
-        "name": "rg-fatest"
-      }
-    },
-    "azurerm_service_plan": {
-      "testAzureLinuxFunctionApp_AppServicePlan_41C3FFFD": {
-        "location": "eastus",
-        "name": "fatestasp",
-        "os_type": "Linux",
-        "resource_group_name": "\${azurerm_resource_group.testAzureLinuxFunctionApp_rg_9D21757F.name}",
-        "sku_name": "Y1"
-      }
-    },
-    "azurerm_storage_account": {
-      "testAzureLinuxFunctionApp_sa_4C0B969D": {
-        "account_replication_type": "LRS",
-        "account_tier": "Standard",
-        "location": "eastus",
-        "min_tls_version": "TLS1_2",
-        "name": "fateststacc",
-        "network_rules": {
-          "bypass": [
-            "AzureServices"
-          ],
-          "default_action": "Deny"
-        },
-        "public_network_access_enabled": false,
-        "resource_group_name": "\${azurerm_resource_group.testAzureLinuxFunctionApp_rg_9D21757F.name}"
+        "name": "rg-fatest",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

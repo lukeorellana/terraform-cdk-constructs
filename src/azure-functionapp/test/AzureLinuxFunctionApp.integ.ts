@@ -1,17 +1,16 @@
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as func from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
 import { generateRandomName } from "../../util/randomName";
-import "cdktf/lib/testing/adapters/jest";
-import { ServicePlanSkus } from "../serviceplanskus";
 
-describe("Example of deploying a Linux Function App", () => {
+setupJest();
+
+describe("Example of deploying a Function App (AzAPI)", () => {
   let stack: TerraformStack;
   let fullSynthResult: any;
   const streamOutput = process.env.STREAM_OUTPUT !== "false";
@@ -21,117 +20,42 @@ describe("Example of deploying a Linux Function App", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", {
-      features: {
-        resourceGroup: {
-          preventDeletionIfContainsResources: false,
-        },
-      },
-    });
+    new AzapiProvider(stack, "azapi", {});
 
-    // Create a resource group
-    const resourceGroup = new ResourceGroup(stack, "rg", {
-      name: `rg-${randomName}`,
+    // TODO: Advanced features like Log Analytics, Diagnostics, and Service Plans
+    // need to be migrated to AzAPI individually. For now, this test demonstrates
+    // basic Function App creation with AzAPI.
+
+    // Basic Linux Function App with AzAPI
+    new func.FunctionApp(stack, "basic-functionapp", {
+      name: `func-${randomName}`,
       location: "eastus",
-    });
-
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
-      stack,
-      "log_analytics",
-      {
-        location: "eastus",
-        name: `la-${randomName}`,
-        resourceGroupName: resourceGroup.name,
-      },
-    );
-
-    // Consumption Function
-    const consumptionFunctionApp = new func.FunctionAppLinux(
-      stack,
-      "consumptionFA",
-      {
-        name: `fa${randomName}`,
-        location: "eastus",
-        resourceGroup: resourceGroup,
-        tags: {
-          test: "test",
-        },
-      },
-    );
-
-    new func.FunctionAppLinux(stack, "consumptionFA2", {
-      name: `fa${randomName}2`,
-      location: "eastus",
-      storageAccount: consumptionFunctionApp.storageAccount,
-      servicePlan: consumptionFunctionApp.servicePlan,
-      resourceGroup: resourceGroup,
-      runtimeVersion: {
-        pythonVersion: "3.8",
-      },
-      siteConfig: {
-        cors: {
-          allowedOrigins: ["*"],
+      kind: "functionapp,linux",
+      properties: {
+        enabled: true,
+        siteConfig: {
+          linuxFxVersion: "NODE|18",
+          alwaysOn: false,
         },
       },
       tags: {
-        test: "test",
+        environment: "integration-test",
+        owner: "cdktf-team",
       },
     });
 
-    // Premium Function
-    new func.FunctionAppLinux(stack, "premiumFA", {
-      name: `faprem${randomName}`,
-      location: "eastus",
-      servicePlanSku: ServicePlanSkus.PremiumEP1,
-      runtimeVersion: {
-        dotnetVersion: "5.0",
-      },
-      tags: {
-        test: "test",
-      },
-    });
+    fullSynthResult = Testing.fullSynth(stack);
+  });
 
-    // Service Plan Function
-    new func.FunctionAppLinux(stack, "servicePlanFA", {
-      name: `fasp${randomName}`,
-      location: "eastus",
-      servicePlanSku: ServicePlanSkus.ASPBasicB1,
-      runtimeVersion: {
-        pythonVersion: "3.8",
-      },
-      siteConfig: {
-        cors: {
-          allowedOrigins: ["*"],
-        },
-      },
-      tags: {
-        test: "test",
-      },
-    });
-
-    //Diag Settings
-    consumptionFunctionApp.addDiagSettings({
-      name: "diagsettings",
-      logAnalyticsWorkspaceId: logAnalyticsWorkspace.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
-    });
-
-    fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  it("deploys a basic Function App successfully", () => {
+    TerraformApplyAndCheckIdempotency(fullSynthResult, streamOutput);
   });
 
   afterEach(() => {
     try {
       TerraformDestroy(fullSynthResult, streamOutput);
     } catch (error) {
-      console.error("Error during Terraform destroy:", error);
+      console.warn("Failed to destroy resources:", error);
     }
-  });
-
-  it("check if stack can be deployed", () => {
-    TerraformApplyAndCheckIdempotency(fullSynthResult, streamOutput); // Set to true to stream output
   });
 });

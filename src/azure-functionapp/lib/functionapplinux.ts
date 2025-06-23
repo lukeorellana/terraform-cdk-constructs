@@ -344,4 +344,16 @@ export class FunctionAppLinux extends AzureResource {
       return props.servicePlan;
     }
   }
+
+  private setupResourceGroup(props: FunctionAppLinuxProps): ResourceGroup {
+    // Reference or create a new resource group for the Function App
+    if (!props.resourceGroup) {
+      return new ResourceGroup(this, "rg", {
+        name: `rg-${props.name}`,
+        location: props.location,
+        tags: props.tags,
+      });
+    }
+    return props.resourceGroup;
+  }
 }
