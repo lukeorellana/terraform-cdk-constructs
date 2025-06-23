@@ -2,44 +2,75 @@
 
 exports[`Azure Kubernetes Cluster With Defaults renders an Azure Kubernetes Cluster with defaults and checks snapshot 1`] = `
 "{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testAksCluster_resource-group-resource_091B14E3.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAksCluster_resource-group-resource_091B14E3.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAksCluster_resource-group-resource_091B14E3.name}"
+    },
+    "testAksCluster_aks_fqdn_B96F9F3B": {
+      "value": "\${jsondecode(azapi_resource.testAksCluster_aks_9A5F2BEC.output).properties.fqdn}"
+    },
+    "testAksCluster_aks_id_59CDD10A": {
+      "value": "\${azapi_resource.testAksCluster_aks_9A5F2BEC.id}"
+    },
+    "testAksCluster_aks_name_5B7A70D8": {
+      "value": "\${azapi_resource.testAksCluster_aks_9A5F2BEC.name}"
+    }
+  },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_kubernetes_cluster": {
-      "testAksCluster_AKS_223A0241": {
-        "default_node_pool": {
-          "name": "default",
-          "node_count": 1,
-          "vm_size": "Standard_B2s"
-        },
-        "dns_prefix": "akstest",
-        "identity": {
-          "type": "SystemAssigned"
+    "azapi_resource": {
+      "testAksCluster_aks_9A5F2BEC": {
+        "body": {
+          "identity": {
+            "type": "SystemAssigned"
+          },
+          "properties": {
+            "agentPoolProfiles": [
+              {
+                "count": 1,
+                "name": "default",
+                "type": "VirtualMachineScaleSets",
+                "vmSize": "Standard_B2s"
+              }
+            ],
+            "dnsPrefix": "akstest",
+            "enableRBAC": true
+          }
         },
         "location": "eastus",
         "name": "akstest",
-        "resource_group_name": "\${azurerm_resource_group.testAksCluster_rg_92DF0F6D.name}",
-        "role_based_access_control_enabled": true
-      }
-    },
-    "azurerm_resource_group": {
-      "testAksCluster_rg_92DF0F6D": {
+        "parent_id": "\${azapi_resource.testAksCluster_resource-group-resource_091B14E3.id}",
+        "type": "Microsoft.ContainerService/managedClusters@2023-10-01"
+      },
+      "testAksCluster_resource-group-resource_091B14E3": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
         "location": "eastus",
-        "name": "rg-akstest"
+        "name": "rg-akstest",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

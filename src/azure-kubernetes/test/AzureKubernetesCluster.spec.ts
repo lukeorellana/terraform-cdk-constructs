@@ -1,9 +1,10 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as aks from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
 
-import "cdktf/lib/testing/adapters/jest";
+setupJest();
 
 describe("Azure Kubernetes Cluster With Defaults", () => {
   let stack: TerraformStack;
@@ -13,15 +14,22 @@ describe("Azure Kubernetes Cluster With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     new aks.Cluster(stack, "testAksCluster", {
       name: "akstest",
       location: "eastus",
-      defaultNodePool: {
-        name: "default",
-        nodeCount: 1,
-        vmSize: "Standard_B2s",
+      properties: {
+        agentPoolProfiles: [
+          {
+            name: "default",
+            count: 1,
+            vmSize: "Standard_B2s",
+            type: "VirtualMachineScaleSets",
+          },
+        ],
+        dnsPrefix: "akstest",
+        enableRBAC: true,
       },
       identity: {
         type: "SystemAssigned",

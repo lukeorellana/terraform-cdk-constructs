@@ -1,14 +1,13 @@
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import "cdktf/lib/testing/adapters/jest";
 import * as aks from "..";
+import { generateRandomName } from "../../util/randomName";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
-import { generateRandomName } from "../../util/randomName";
-import "cdktf/lib/testing/adapters/jest";
 
 describe("Example of deploying a Kubernetes Cluster", () => {
   let stack: TerraformStack;
@@ -20,7 +19,7 @@ describe("Example of deploying a Kubernetes Cluster", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {
@@ -28,48 +27,57 @@ describe("Example of deploying a Kubernetes Cluster", () => {
       location: "southcentralus",
     });
 
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
-      stack,
-      "log_analytics",
-      {
-        location: "southcentralus",
-        name: `la-${randomName}`,
-        resourceGroupName: resourceGroup.name,
-      },
-    );
+    // TODO: Add Log Analytics Workspace when migrated to AzAPI
+    // const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
+    //   stack,
+    //   "log_analytics",
+    //   {
+    //     location: "southcentralus",
+    //     name: `la-${randomName}`,
+    //     resourceGroupName: resourceGroup.name,
+    //   },
+    // );
 
     const aksCluster = new aks.Cluster(stack, "testAksCluster", {
       name: "akstest",
       location: "southcentralus",
       resourceGroup: resourceGroup,
       //apiServerAuthorizedIpRanges: ["0.0.0.0"],
-      defaultNodePool: {
-        name: "default",
-        nodeCount: 1,
-        vmSize: "Standard_D2as_v4",
-        upgradeSettings: {
-          maxSurge: "10%",
+      properties: {
+        agentPoolProfiles: [
+          {
+            name: "default",
+            count: 1,
+            vmSize: "Standard_D2as_v4",
+            type: "VirtualMachineScaleSets",
+            // TODO: Add upgrade settings when supported in AzAPI schema
+            // upgradeSettings: {
+            //   maxSurge: "10%",
+            // },
+          },
+        ],
+        dnsPrefix: "akstest",
+        enableRBAC: true,
+        aadProfile: {
+          managed: true,
+          enableAzureRbac: true,
         },
       },
       identity: {
         type: "SystemAssigned",
       },
-      azureActiveDirectoryRoleBasedAccessControl: {
-        managed: true,
-        azureRbacEnabled: true,
-      },
     });
 
-    //Diag Settings
-    aksCluster.addDiagSettings({
-      name: "diagsettings",
-      logAnalyticsWorkspaceId: logAnalyticsWorkspace.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
-    });
+    //TODO: Add Diagnostic Settings when migrated to AzAPI
+    // aksCluster.addDiagSettings({
+    //   name: "diagsettings",
+    //   logAnalyticsWorkspaceId: logAnalyticsWorkspace.id,
+    //   metric: [
+    //     {
+    //       category: "AllMetrics",
+    //     },
+    //   ],
+    // });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });
