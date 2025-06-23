@@ -1,57 +1,71 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Azure Eventhub With Defaults renders an Azure Eventhub with defaults and checks snapshot 1`] = `
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_eventhub_namespace.testAzureEventhubDefaults_ehnamespace_B16BC9EF.id}"
+      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.name}"
+    },
+    "service_bus_endpoint": {
+      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.output}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_eventhub_namespace": {
-      "testAzureEventhubDefaults_ehnamespace_B16BC9EF": {
-        "auto_inflate_enabled": false,
-        "capacity": 2,
-        "identity": {
-          "type": "SystemAssigned"
+    "azapi_resource": {
+      "testAzureEventhubDefaults_namespace_C9414279": {
+        "body": {
+          "properties": {
+            "disableLocalAuth": false,
+            "minimumTlsVersion": "1.2",
+            "publicNetworkAccess": "Enabled"
+          },
+          "sku": {
+            "capacity": 1,
+            "name": "Standard",
+            "tier": "Standard"
+          }
         },
-        "local_authentication_enabled": true,
-        "location": "\${azurerm_resource_group.testAzureEventhubDefaults_rg_1042CABC.location}",
-        "maximum_throughput_units": 0,
-        "minimum_tls_version": "1.2",
-        "name": "eh-test",
-        "public_network_access_enabled": true,
-        "resource_group_name": "\${azurerm_resource_group.testAzureEventhubDefaults_rg_1042CABC.name}",
-        "sku": "Basic",
-        "tags": {
-          "test": "test"
-        },
-        "zone_redundant": false
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureEventhubDefaults_rg_1042CABC": {
         "location": "eastus",
-        "name": "rg-eh-test",
+        "name": "eh-test-namespace",
+        "parent_id": "\${azapi_resource.testAzureEventhubDefaults_resource-group-resource_572C8529.id}",
         "tags": {
           "test": "test"
-        }
+        },
+        "type": "Microsoft.EventHub/namespaces@2023-01-01-preview"
+      },
+      "testAzureEventhubDefaults_resource-group-resource_572C8529": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-eh-test-namespace",
+        "tags": {
+          "test": "test"
+        },
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

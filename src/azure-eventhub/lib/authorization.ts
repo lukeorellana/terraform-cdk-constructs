@@ -117,10 +117,22 @@ export class AuthorizationRule extends Construct {
     name: string,
     expirationDate?: string,
   ) {
-    vault.addSecret(name, this.primaryConnectionString, expirationDate);
+    vault.addSecret(name, {
+      keyVaultId: vault,
+      name: name,
+      value: this.primaryConnectionString,
+      expirationDate: expirationDate,
+      accessPolicies: [], // Empty array - access policies should be managed at vault level
+    });
   }
 
   addPrimaryKeyToVault(vault: Vault, name: string, expirationDate?: string) {
-    vault.addSecret(name, this.primaryKey, expirationDate);
+    vault.addSecret(name, {
+      keyVaultId: vault,
+      name: name,
+      value: this.primaryKey,
+      expirationDate: expirationDate,
+      accessPolicies: [], // Empty array - access policies should be managed at vault level
+    });
   }
 }

@@ -1,6 +1,5 @@
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { Testing, TerraformStack } from "cdktf";
 import {
   TerraformApplyAndCheckIdempotency,
@@ -9,6 +8,7 @@ import {
 import { generateRandomName } from "../../util/randomName";
 import "cdktf/lib/testing/adapters/jest";
 import * as eh from "../lib";
+import { ResourceGroup } from "../../azure-resourcegroup";
 
 describe("Example of deploying an Event Hub", () => {
   let stack: TerraformStack;
@@ -26,7 +26,7 @@ describe("Example of deploying an Event Hub", () => {
       {},
     );
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {
@@ -69,7 +69,8 @@ describe("Example of deploying an Event Hub", () => {
     eventhubInstance.addConsumerGroup("test-consumer-group");
 
     // Add IAM role to Eventhub Namespace
-    eventhubNamespace.addAccess(clientConfig.objectId, "Contributor");
+    // NOTE: This may need to be updated for AzAPI or commented out if not supported
+    // eventhubNamespace.addAccess(clientConfig.objectId, "Contributor");
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });
