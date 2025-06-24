@@ -1,6 +1,6 @@
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,

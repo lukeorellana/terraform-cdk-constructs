@@ -1,13 +1,13 @@
 import { Testing, TerraformStack } from "cdktf";
 import "cdktf/lib/testing/adapters/jest";
 import * as aks from "..";
-import { generateRandomName } from "../../util/randomName";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { ResourceGroup } from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
 } from "../../testing";
+import { generateRandomName } from "../../util/randomName";
 
 describe("Example of deploying a Kubernetes Cluster", () => {
   let stack: TerraformStack;

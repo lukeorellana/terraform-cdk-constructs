@@ -1,9 +1,7 @@
-import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
 import * as acr from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
@@ -21,54 +19,73 @@ describe("Example of deploying a Container Registry", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    const clientConfig = new DataAzurermClientConfig(
-      stack,
-      "CurrentClientConfig",
-      {},
-    );
-
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     const resourceGroup = new ResourceGroup(stack, "rg", {
       name: `rg-${randomName}`,
       location: "eastus",
     });
 
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
-      stack,
-      "log_analytics",
-      {
-        location: "eastus",
-        name: `la-${randomName}`,
-        resourceGroupName: resourceGroup.name,
-      },
-    );
-
     const azureContainerRegistry = new acr.Registry(stack, "testACR", {
       name: `acr${randomName}`,
-      location: resourceGroup.location,
+      location: "eastus",
       resourceGroup: resourceGroup,
-      sku: "Premium",
-      adminEnabled: false,
-      geoReplicationLocations: [{ location: "westus" }],
+      sku: { name: "Premium" },
+      properties: {
+        adminUserEnabled: false,
+        publicNetworkAccess: "Enabled",
+        policies: {
+          retentionPolicy: {
+            status: "enabled",
+            days: 7,
+          },
+          trustPolicy: {
+            status: "enabled",
+            type: "Notary",
+          },
+        },
+        networkRuleSet: {
+          defaultAction: "Allow",
+        },
+      },
       tags: {
         environment: "test",
       },
     });
 
-    //Diag Settings
-    azureContainerRegistry.addDiagSettings({
-      name: "diagsettings",
-      logAnalyticsWorkspaceId: logAnalyticsWorkspace.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
+    // Add child resources to demonstrate the enhanced functionality
+    azureContainerRegistry.addScopeMap({
+      name: "testScopeMap",
+      properties: {
+        actions: [
+          "repositories/*/content/read",
+          "repositories/*/content/write",
+        ],
+        description: "Test scope map for integration test",
+      },
     });
 
-    //RBAC
-    azureContainerRegistry.addAccess(clientConfig.objectId, "Contributor");
+    azureContainerRegistry.addReplication({
+      name: "westus2replication",
+      location: "westus2",
+      properties: {
+        regionEndpointEnabled: true,
+        zoneRedundancy: "Disabled",
+      },
+      tags: {
+        purpose: "replication",
+      },
+    });
+
+    // Note: Webhook would require a real endpoint for integration testing
+    // azureContainerRegistry.addWebhook({
+    //   name: "testWebhook",
+    //   properties: {
+    //     actions: ["push"],
+    //     serviceUri: "https://example.com/webhook",
+    //     status: "enabled",
+    //   },
+    // });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

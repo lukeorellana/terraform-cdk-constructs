@@ -1,50 +1,157 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Azure Container Registry With Defaults renders an Azure Container Registry with defaults and checks snapshot 1`] = `
+exports[`Azure Container Registry With Child Resources renders an Azure Container Registry with child resources and checks snapshot 1`] = `
 "{
   "output": {
     "container_registry_name": {
-      "value": "\${azurerm_container_registry.testAzureContainerRegistryDefaults_acr_93F9D5D6.name}"
+      "value": "\${azapi_resource.testAcrWithChildren_acr_5899F3BB.name}"
     },
     "id": {
-      "value": "\${azurerm_container_registry.testAzureContainerRegistryDefaults_acr_93F9D5D6.id}"
+      "value": "\${azapi_resource.testAcrWithChildren_acr_5899F3BB.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAcrWithChildren_resource-group-resource_9A3F87CB.location}"
     },
     "login_server": {
-      "value": "\${azurerm_container_registry.testAzureContainerRegistryDefaults_acr_93F9D5D6.login_server}"
+      "value": "\${jsondecode(azapi_resource.testAcrWithChildren_acr_5899F3BB.output).properties.loginServer}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAcrWithChildren_resource-group-resource_9A3F87CB.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_container_registry": {
-      "testAzureContainerRegistryDefaults_acr_93F9D5D6": {
-        "admin_enabled": false,
-        "georeplications": [
+    "azapi_resource": {
+      "testAcrWithChildren_acr_5899F3BB": {
+        "body": {
+          "properties": {
+            "adminUserEnabled": true,
+            "publicNetworkAccess": "Enabled"
+          },
+          "sku": {
+            "name": "Premium"
+          }
+        },
+        "location": "eastus",
+        "name": "testchildrenacr123",
+        "parent_id": "\${azapi_resource.testAcrWithChildren_resource-group-resource_9A3F87CB.id}",
+        "type": "Microsoft.ContainerRegistry/registries@2023-11-01-preview"
+      },
+      "testAcrWithChildren_resource-group-resource_9A3F87CB": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
         ],
         "location": "eastus",
-        "name": "latest",
-        "resource_group_name": "\${azurerm_resource_group.testAzureContainerRegistryDefaults_rg_96E1CBF6.name}",
-        "sku": "Basic"
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureContainerRegistryDefaults_rg_96E1CBF6": {
-        "location": "eastus",
-        "name": "rg-latest"
+        "name": "rg-testchildrenacr123",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      },
+      "testAcrWithChildren_scope-map-testscopemap_scope-map_6AB1AB58": {
+        "body": {
+          "properties": {
+            "actions": [
+              "repositories/*/content/read"
+            ],
+            "description": "Test scope map"
+          }
+        },
+        "name": "testscopemap",
+        "parent_id": "\${azapi_resource.testAcrWithChildren_acr_5899F3BB.id}",
+        "type": "Microsoft.ContainerRegistry/registries/scopeMaps@2023-11-01-preview"
+      },
+      "testAcrWithChildren_webhook-testwebhook_0DE5837A": {
+        "body": {
+          "properties": {
+            "actions": [
+              "push",
+              "delete"
+            ],
+            "serviceUri": "https://example.com/webhook",
+            "status": "enabled"
+          }
+        },
+        "name": "testwebhook",
+        "parent_id": "\${azapi_resource.testAcrWithChildren_acr_5899F3BB.id}",
+        "type": "Microsoft.ContainerRegistry/registries/webhooks@2023-11-01-preview"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
+
+exports[`Azure Container Registry With Defaults renders an Azure Container Registry with defaults and checks snapshot 1`] = `
+"{
+  "output": {
+    "container_registry_name": {
+      "value": "\${azapi_resource.testAzureContainerRegistryDefaults_acr_93F9D5D6.name}"
+    },
+    "id": {
+      "value": "\${azapi_resource.testAzureContainerRegistryDefaults_acr_93F9D5D6.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureContainerRegistryDefaults_resource-group-resource_5767C801.location}"
+    },
+    "login_server": {
+      "value": "\${jsondecode(azapi_resource.testAzureContainerRegistryDefaults_acr_93F9D5D6.output).properties.loginServer}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureContainerRegistryDefaults_resource-group-resource_5767C801.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testAzureContainerRegistryDefaults_acr_93F9D5D6": {
+        "body": {
+          "properties": {
+          },
+          "sku": {
+            "name": "Basic"
+          }
+        },
+        "location": "eastus",
+        "name": "testlatestacr123",
+        "parent_id": "\${azapi_resource.testAzureContainerRegistryDefaults_resource-group-resource_5767C801.id}",
+        "type": "Microsoft.ContainerRegistry/registries@2023-11-01-preview"
+      },
+      "testAzureContainerRegistryDefaults_resource-group-resource_5767C801": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-testlatestacr123",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

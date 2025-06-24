@@ -1,8 +1,5 @@
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
-import * as resource from "../../../.gen/providers/azapi/resource";
-import { ResourceGroup } from "../../azure-resourcegroup";
-import { AzureResource } from "../../core-azure";
 import {
   CertificateIssuer,
   SelfSignedCertificate,
@@ -11,6 +8,9 @@ import {
 import { Key, KeyProps } from "./key";
 import { AccessPolicy, AccessPolicyProps } from "./policy";
 import { Secret, SecretProps } from "./secret";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup";
+import { AzureResource } from "../../core-azure";
 
 /**
  * Azure Key Vault SKU configuration (AzAPI schema).
@@ -326,9 +326,11 @@ export class Vault extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = props.resourceGroup || new ResourceGroup(this, "resource-group", {
-      location: props.location,
-    });
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location,
+      });
 
     // Set defaults
     const defaults = {
@@ -354,10 +356,13 @@ export class Vault extends AzureResource {
         ipRules: props.networkAcls.ipRules?.map((rule: any) => ({
           value: rule.value,
         })),
-        virtualNetworkRules: props.networkAcls.virtualNetworkRules?.map((rule: any) => ({
-          id: rule.id,
-          ignoreMissingVnetServiceEndpoint: rule.ignoreMissingVnetServiceEndpoint,
-        })),
+        virtualNetworkRules: props.networkAcls.virtualNetworkRules?.map(
+          (rule: any) => ({
+            id: rule.id,
+            ignoreMissingVnetServiceEndpoint:
+              rule.ignoreMissingVnetServiceEndpoint,
+          }),
+        ),
       };
     }
 
@@ -446,7 +451,10 @@ export class Vault extends AzureResource {
   /**
    * Add an access policy to the Key Vault.
    */
-  public addAccessPolicy(policyId: string, props: AccessPolicyProps): AccessPolicy {
+  public addAccessPolicy(
+    policyId: string,
+    props: AccessPolicyProps,
+  ): AccessPolicy {
     return new AccessPolicy(this, policyId, {
       ...props,
       keyVaultId: this,
@@ -457,7 +465,10 @@ export class Vault extends AzureResource {
   /**
    * Create a self-signed certificate in the Key Vault.
    */
-  public addSelfSignedCertificate(certId: string, props: SelfSignedCertificateProps): SelfSignedCertificate {
+  public addSelfSignedCertificate(
+    certId: string,
+    props: SelfSignedCertificateProps,
+  ): SelfSignedCertificate {
     return new SelfSignedCertificate(this, certId, {
       ...props,
       keyVaultId: this,
