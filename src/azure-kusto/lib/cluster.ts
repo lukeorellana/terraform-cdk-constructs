@@ -158,21 +158,9 @@ export interface ClusterProps {
    */
   readonly name?: string;
   /**
-   * The SKU of the Kusto Cluster. All the allowed values are defined in the ComputeSpecification class.
-   * @default devtestExtraSmallDv2
-   * @deprecated Use azureSku instead for AzAPI compatibility
-   */
-  readonly sku?: IComputeSpecification;
-  /**
    * The AzAPI SKU of the Kusto Cluster.
    */
   readonly azureSku?: AzureSku;
-  /**
-   * The node count for the cluster.
-   * @default 2
-   * @deprecated Use azureSku.capacity instead
-   */
-  readonly capacity?: number;
   /**
    * The type of Managed Service Identity.
    * @default "SystemAssigned"
@@ -183,45 +171,31 @@ export interface ClusterProps {
    */
   readonly identityIds?: string[];
   /**
-   * Is the public network access enabled?
-   * @default true
-   * @deprecated Use properties.publicNetworkAccess instead
-   */
-  readonly publicNetworkAccessEnabled?: boolean;
-  /**
    * Specifies if the cluster could be automatically stopped.
    * (due to lack of data or no activity for many days).
    * @default true
-   * @deprecated Use properties.enableAutoStop instead
    */
-  readonly autoStopEnabled?: boolean;
+  readonly enableAutoStop?: boolean;
   /**
    * Specifies if the streaming ingest is enabled.
    * @default true
-   * @deprecated Use properties.enableStreamingIngest instead
    */
-  readonly streamingIngestionEnabled?: boolean;
+  readonly enableStreamingIngest?: boolean;
   /**
    * Specifies if the purge operations are enabled.
    * @default false
-   * @deprecated Use properties.enablePurge instead
    */
-  readonly purgeEnabled?: boolean;
+  readonly enablePurge?: boolean;
+  /**
+   * Is the public network access enabled?
+   * @default true
+   */
+  readonly publicNetworkAccess?: string;
   /**
    * Specifies if the purge operations are enabled. Based on the SKU, the number of zones allowed are different.
    * @default true
    */
   readonly enableZones?: boolean;
-  /**
-   * The minimum number of allowed instances. Must between 0 and 1000.
-   * @deprecated Use properties.optimizedAutoscale.minimum instead
-   */
-  readonly minimumInstances?: number;
-  /**
-   * The maximum number of allowed instances. Must between 0 and 1000.
-   * @deprecated Use properties.optimizedAutoscale.maximum instead
-   */
-  readonly maximumInstances?: number;
   /**
    * A mapping of tags to assign to the Kusto.
    */
@@ -230,8 +204,119 @@ export interface ClusterProps {
    * The availability zones of the cluster.
    */
   readonly zones?: string[];
+
+  // ============================================================================
+  // FLATTENED CLUSTER PROPERTIES (from ClusterProperties)
+  // ============================================================================
+
+  /**
+   * List of allowed FQDNs(Fully Qualified Domain Name) for egress from Cluster.
+   */
+  readonly allowedFqdnList?: string[];
+
+  /**
+   * The list of ips in the format of CIDR allowed to connect to the cluster.
+   */
+  readonly allowedIpRangeList?: string[];
+
+  /**
+   * A boolean value that indicates if the cluster's disks are encrypted.
+   */
+  readonly enableDiskEncryption?: boolean;
+
+  /**
+   * A boolean value that indicates if double encryption is enabled.
+   */
+  readonly enableDoubleEncryption?: boolean;
+
+  /**
+   * The engine type
+   */
+  readonly engineType?: string;
+
+  /**
+   * Optimized auto scale definition.
+   */
+  readonly optimizedAutoscale?: OptimizedAutoscale;
+
+  /**
+   * Indicates what public IP type to create - IPv4 (default), or DualStack (both IPv4 and IPv6)
+   */
+  readonly publicIPType?: string;
+
+  /**
+   * Whether or not to restrict outbound network access.  Value is optional but if passed in, must be 'Enabled' or 'Disabled'
+   */
+  readonly restrictOutboundNetworkAccess?: string;
+
+  /**
+   * The cluster's external tenants.
+   */
+  readonly trustedExternalTenants?: TrustedExternalTenant[];
+
+  /**
+   * Virtual network definition.
+   */
+  readonly virtualNetworkConfiguration?: VirtualNetworkConfiguration;
+
+  // ============================================================================
+  // LEGACY PROPERTIES (for backward compatibility)
+  // ============================================================================
+
+  /**
+   * The SKU of the Kusto Cluster. All the allowed values are defined in the ComputeSpecification class.
+   * @default devtestExtraSmallDv2
+   * @deprecated Use azureSku instead
+   */
+  readonly sku?: IComputeSpecification;
+
+  /**
+   * The node count for the cluster.
+   * @default 2
+   * @deprecated Use azureSku.capacity instead
+   */
+  readonly capacity?: number;
+
+  /**
+   * Is the public network access enabled?
+   * @default true
+   * @deprecated Use publicNetworkAccess instead
+   */
+  readonly publicNetworkAccessEnabled?: boolean;
+
+  /**
+   * Specifies if the cluster could be automatically stopped.
+   * @deprecated Use enableAutoStop instead
+   */
+  readonly autoStopEnabled?: boolean;
+
+  /**
+   * Specifies if the streaming ingest is enabled.
+   * @deprecated Use enableStreamingIngest instead
+   */
+  readonly streamingIngestionEnabled?: boolean;
+
+  /**
+   * Specifies if the purge operations are enabled.
+   * @deprecated Use enablePurge instead
+   */
+  readonly purgeEnabled?: boolean;
+
+  /**
+   * The minimum number of allowed instances. Must between 0 and 1000.
+   * @deprecated Use optimizedAutoscale.minimum instead
+   */
+  readonly minimumInstances?: number;
+
+  /**
+   * The maximum number of allowed instances. Must between 0 and 1000.
+   * @deprecated Use optimizedAutoscale.maximum instead
+   */
+  readonly maximumInstances?: number;
+
   /**
    * The cluster properties using AzAPI schema.
+   * @deprecated Use the flattened properties directly instead
    */
   readonly properties?: ClusterProperties;
 }
@@ -302,26 +387,59 @@ export class Cluster extends AzureResource {
       };
     }
 
-    // Build cluster properties, supporting both new and legacy prop patterns
+    // Build cluster properties from flattened interface, supporting legacy props
     const clusterProperties: ClusterProperties = {
+      // If properties is provided (legacy), use it as base
       ...props.properties,
+
+      // Override with flattened properties (new interface)
+      allowedFqdnList:
+        props.allowedFqdnList || props.properties?.allowedFqdnList,
+      allowedIpRangeList:
+        props.allowedIpRangeList || props.properties?.allowedIpRangeList,
       enableAutoStop:
-        props.properties?.enableAutoStop ?? props.autoStopEnabled ?? true,
+        props.enableAutoStop ??
+        props.properties?.enableAutoStop ??
+        props.autoStopEnabled ??
+        true,
+      enableDiskEncryption:
+        props.enableDiskEncryption ?? props.properties?.enableDiskEncryption,
+      enableDoubleEncryption:
+        props.enableDoubleEncryption ??
+        props.properties?.enableDoubleEncryption,
+      enablePurge:
+        props.enablePurge ??
+        props.properties?.enablePurge ??
+        props.purgeEnabled ??
+        false,
       enableStreamingIngest:
+        props.enableStreamingIngest ??
         props.properties?.enableStreamingIngest ??
         props.streamingIngestionEnabled ??
         true,
-      enablePurge: props.properties?.enablePurge ?? props.purgeEnabled ?? false,
+      engineType: props.engineType || props.properties?.engineType,
+      optimizedAutoscale:
+        props.optimizedAutoscale || props.properties?.optimizedAutoscale,
+      publicIPType: props.publicIPType || props.properties?.publicIPType,
       publicNetworkAccess:
-        props.properties?.publicNetworkAccess ??
+        (props.publicNetworkAccess || props.properties?.publicNetworkAccess) ??
         (props.publicNetworkAccessEnabled !== false ? "Enabled" : "Disabled"),
+      restrictOutboundNetworkAccess:
+        props.restrictOutboundNetworkAccess ||
+        props.properties?.restrictOutboundNetworkAccess,
+      trustedExternalTenants:
+        props.trustedExternalTenants ||
+        props.properties?.trustedExternalTenants,
+      virtualNetworkConfiguration:
+        props.virtualNetworkConfiguration ||
+        props.properties?.virtualNetworkConfiguration,
     };
 
-    // Handle autoscale if minimum and maximum instances are provided
+    // Handle autoscale if minimum and maximum instances are provided (legacy support)
     if (
       props.minimumInstances &&
       props.maximumInstances &&
-      !props.properties?.optimizedAutoscale
+      !clusterProperties.optimizedAutoscale
     ) {
       clusterProperties.optimizedAutoscale = {
         isEnabled: true,

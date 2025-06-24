@@ -835,28 +835,45 @@ export class Cluster extends AzureResource {
     const clusterProperties: ManagedClusterProperties = {
       // If properties is provided (legacy), use it as base
       ...props.properties,
-      
+
       // Override with flattened properties (new interface)
       aadProfile: props.aadProfile || props.properties?.aadProfile,
-      agentPoolProfiles: props.agentPoolProfiles || props.properties?.agentPoolProfiles,
-      apiServerAccessProfile: props.apiServerAccessProfile || props.properties?.apiServerAccessProfile,
-      autoScalerProfile: props.autoScalerProfile || props.properties?.autoScalerProfile,
-      autoUpgradeProfile: props.autoUpgradeProfile || props.properties?.autoUpgradeProfile,
-      disableLocalAccounts: props.disableLocalAccounts ?? props.properties?.disableLocalAccounts,
+      agentPoolProfiles:
+        props.agentPoolProfiles || props.properties?.agentPoolProfiles,
+      apiServerAccessProfile:
+        props.apiServerAccessProfile ||
+        props.properties?.apiServerAccessProfile,
+      autoScalerProfile:
+        props.autoScalerProfile || props.properties?.autoScalerProfile,
+      autoUpgradeProfile:
+        props.autoUpgradeProfile || props.properties?.autoUpgradeProfile,
+      disableLocalAccounts:
+        props.disableLocalAccounts ?? props.properties?.disableLocalAccounts,
       dnsPrefix: props.dnsPrefix || props.properties?.dnsPrefix || props.name,
       enableRBAC: props.enableRBAC ?? props.properties?.enableRBAC ?? true,
-      identityProfile: props.identityProfile || props.properties?.identityProfile,
-      kubernetesVersion: props.kubernetesVersion || props.properties?.kubernetesVersion,
+      identityProfile:
+        props.identityProfile || props.properties?.identityProfile,
+      kubernetesVersion:
+        props.kubernetesVersion || props.properties?.kubernetesVersion,
       linuxProfile: props.linuxProfile || props.properties?.linuxProfile,
       networkProfile: props.networkProfile || props.properties?.networkProfile,
-      nodeResourceGroup: props.nodeResourceGroup || props.properties?.nodeResourceGroup,
-      oidcIssuerProfile: props.oidcIssuerProfile || props.properties?.oidcIssuerProfile,
-      publicNetworkAccess: props.publicNetworkAccess || props.properties?.publicNetworkAccess,
-      securityProfile: props.securityProfile || props.properties?.securityProfile,
-      servicePrincipalProfile: props.servicePrincipalProfile || props.properties?.servicePrincipalProfile,
-      upgradeSettings: props.upgradeSettings || props.properties?.upgradeSettings,
+      nodeResourceGroup:
+        props.nodeResourceGroup || props.properties?.nodeResourceGroup,
+      oidcIssuerProfile:
+        props.oidcIssuerProfile || props.properties?.oidcIssuerProfile,
+      publicNetworkAccess:
+        props.publicNetworkAccess || props.properties?.publicNetworkAccess,
+      securityProfile:
+        props.securityProfile || props.properties?.securityProfile,
+      servicePrincipalProfile:
+        props.servicePrincipalProfile ||
+        props.properties?.servicePrincipalProfile,
+      upgradeSettings:
+        props.upgradeSettings || props.properties?.upgradeSettings,
       windowsProfile: props.windowsProfile || props.properties?.windowsProfile,
-      workloadAutoScalerProfile: props.workloadAutoScalerProfile || props.properties?.workloadAutoScalerProfile,
+      workloadAutoScalerProfile:
+        props.workloadAutoScalerProfile ||
+        props.properties?.workloadAutoScalerProfile,
     };
 
     // Handle legacy defaultNodePool property

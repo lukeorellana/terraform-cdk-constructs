@@ -347,15 +347,21 @@ export class Registry extends AzureResource {
       // Start with legacy properties if provided
       ...props.properties,
       // Override with flattened properties if provided
-      adminUserEnabled: props.adminUserEnabled ?? props.properties?.adminUserEnabled,
-      anonymousPullEnabled: props.anonymousPullEnabled ?? props.properties?.anonymousPullEnabled,
-      dataEndpointEnabled: props.dataEndpointEnabled ?? props.properties?.dataEndpointEnabled,
+      adminUserEnabled:
+        props.adminUserEnabled ?? props.properties?.adminUserEnabled,
+      anonymousPullEnabled:
+        props.anonymousPullEnabled ?? props.properties?.anonymousPullEnabled,
+      dataEndpointEnabled:
+        props.dataEndpointEnabled ?? props.properties?.dataEndpointEnabled,
       encryption: props.encryption ?? props.properties?.encryption,
       metadataSearch: props.metadataSearch ?? props.properties?.metadataSearch,
-      networkRuleBypassOptions: props.networkRuleBypassOptions ?? props.properties?.networkRuleBypassOptions,
+      networkRuleBypassOptions:
+        props.networkRuleBypassOptions ??
+        props.properties?.networkRuleBypassOptions,
       networkRuleSet: props.networkRuleSet ?? props.properties?.networkRuleSet,
       policies: props.policies ?? props.properties?.policies,
-      publicNetworkAccess: props.publicNetworkAccess ?? props.properties?.publicNetworkAccess,
+      publicNetworkAccess:
+        props.publicNetworkAccess ?? props.properties?.publicNetworkAccess,
       zoneRedundancy: props.zoneRedundancy ?? props.properties?.zoneRedundancy,
     };
 
@@ -698,7 +704,7 @@ export class CacheRule extends AzureResource {
 
     // Get the parent registry resource
     const parentRegistry = scope as Registry;
-    
+
     this.resource = new resource.Resource(this, "cache-rule", {
       type: "Microsoft.ContainerRegistry/registries/cacheRules@2023-11-01-preview",
       name: props.name,

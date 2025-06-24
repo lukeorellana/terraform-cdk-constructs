@@ -267,67 +267,70 @@ export class Workspace extends AzureResource {
     const workspaceProperties: WorkspaceProperties = {
       // If properties is provided (legacy), use it as base
       ...props.properties,
-      
+
       // Override with flattened properties (new interface)
-      defaultDataCollectionRuleResourceId: 
-        props.defaultDataCollectionRuleResourceId || 
+      defaultDataCollectionRuleResourceId:
+        props.defaultDataCollectionRuleResourceId ||
         props.properties?.defaultDataCollectionRuleResourceId,
-      
-      forceCmkForQuery: 
-        props.forceCmkForQuery ?? 
-        props.properties?.forceCmkForQuery,
-      
-      publicNetworkAccessForIngestion: 
-        props.publicNetworkAccessForIngestion || 
+
+      forceCmkForQuery:
+        props.forceCmkForQuery ?? props.properties?.forceCmkForQuery,
+
+      publicNetworkAccessForIngestion:
+        props.publicNetworkAccessForIngestion ||
         props.properties?.publicNetworkAccessForIngestion,
-      
-      publicNetworkAccessForQuery: 
-        props.publicNetworkAccessForQuery || 
+
+      publicNetworkAccessForQuery:
+        props.publicNetworkAccessForQuery ||
         props.properties?.publicNetworkAccessForQuery,
-      
-      retentionInDays: 
-        props.retentionInDays || 
-        props.properties?.retentionInDays || 
-        props.retention || 
+
+      retentionInDays:
+        props.retentionInDays ||
+        props.properties?.retentionInDays ||
+        props.retention ||
         30,
-      
-      sku: 
-        props.sku || 
-        props.properties?.sku || 
+
+      sku:
+        props.sku ||
+        props.properties?.sku ||
         (props.skuName ? { name: props.skuName } : { name: "PerGB2018" }),
-      
-      workspaceCapping: 
-        (props.dailyQuotaGb ? { dailyQuotaGb: props.dailyQuotaGb } : undefined) ||
-        props.properties?.workspaceCapping,
-      
+
+      workspaceCapping:
+        (props.dailyQuotaGb
+          ? { dailyQuotaGb: props.dailyQuotaGb }
+          : undefined) || props.properties?.workspaceCapping,
+
       // Build features from flattened properties
       features: {
         ...props.properties?.features,
-        clusterResourceId: 
-          props.clusterResourceId || 
+        clusterResourceId:
+          props.clusterResourceId ||
           props.properties?.features?.clusterResourceId,
-        
-        disableLocalAuth: 
-          props.disableLocalAuth ?? 
+
+        disableLocalAuth:
+          props.disableLocalAuth ??
           props.properties?.features?.disableLocalAuth,
-        
-        enableDataExport: 
-          props.enableDataExport ?? 
+
+        enableDataExport:
+          props.enableDataExport ??
           props.properties?.features?.enableDataExport,
-        
-        enableLogAccessUsingOnlyResourcePermissions: 
-          props.enableLogAccessUsingOnlyResourcePermissions ?? 
-          props.properties?.features?.enableLogAccessUsingOnlyResourcePermissions,
-        
-        immediatePurgeDataOn30Days: 
-          props.immediatePurgeDataOn30Days ?? 
+
+        enableLogAccessUsingOnlyResourcePermissions:
+          props.enableLogAccessUsingOnlyResourcePermissions ??
+          props.properties?.features
+            ?.enableLogAccessUsingOnlyResourcePermissions,
+
+        immediatePurgeDataOn30Days:
+          props.immediatePurgeDataOn30Days ??
           props.properties?.features?.immediatePurgeDataOn30Days,
       },
     };
 
     // Clean up features object if all properties are undefined
-    if (workspaceProperties.features && 
-        Object.values(workspaceProperties.features).every(v => v === undefined)) {
+    if (
+      workspaceProperties.features &&
+      Object.values(workspaceProperties.features).every((v) => v === undefined)
+    ) {
       delete workspaceProperties.features;
     }
 

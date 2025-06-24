@@ -201,56 +201,110 @@ export interface VaultProps {
    */
   readonly tags?: { [key: string]: string };
   /**
-   * The Name of the SKU used for this Key Vault. Possible values are standard and premium.
-   */
-  readonly sku?: string;
-  /**
    * The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.
    */
   readonly tenantId: string;
+
+  // ============================================================================
+  // FLATTENED VAULT PROPERTIES (from VaultProperties)
+  // ============================================================================
+
   /**
-   * Network ACL rules for the Key Vault (legacy compatibility).
-   * @deprecated Use networkRuleSet instead for AzAPI compatibility
-   */
-  readonly networkAcls?: any;
-  /**
-   * AzAPI-compatible network ACL rules for the Key Vault.
-   */
-  readonly networkRuleSet?: NetworkRuleSet;
-  /**
-   * Specifies whether protection against purge is enabled for this Key Vault.
-   */
-  readonly purgeProtection?: boolean;
-  /**
-   * The number of days that items should be retained for once soft-deleted.
-   */
-  readonly softDeleteRetentionDays?: number;
-  /**
-   * Access policies for the Key Vault.
+   * An array of 0 to 1024 identities that have access to the key vault.
    */
   readonly accessPolicies?: AccessPolicyEntry[];
+
   /**
-   * Property to specify whether the 'soft delete' functionality is enabled for this key vault.
+   * The vault's create mode to indicate whether the vault need to be recovered or not.
    */
-  readonly enableSoftDelete?: boolean;
+  readonly createMode?: string;
+
   /**
-   * Property to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault.
+   * Property specifying whether protection against purge is enabled for this vault.
    */
-  readonly enabledForDeployment?: boolean;
-  /**
-   * Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys.
-   */
-  readonly enabledForDiskEncryption?: boolean;
-  /**
-   * Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault.
-   */
-  readonly enabledForTemplateDeployment?: boolean;
+  readonly enablePurgeProtection?: boolean;
+
   /**
    * Property that controls how data actions are authorized.
    */
   readonly enableRbacAuthorization?: boolean;
+
+  /**
+   * Property to specify whether the 'soft delete' functionality is enabled for this key vault.
+   */
+  readonly enableSoftDelete?: boolean;
+
+  /**
+   * Property to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault.
+   */
+  readonly enabledForDeployment?: boolean;
+
+  /**
+   * Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys.
+   */
+  readonly enabledForDiskEncryption?: boolean;
+
+  /**
+   * Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault.
+   */
+  readonly enabledForTemplateDeployment?: boolean;
+
+  /**
+   * Rules governing the accessibility of the key vault from specific network locations.
+   */
+  readonly networkAcls?: NetworkRuleSet;
+
+  /**
+   * Property to specify whether the vault will accept traffic from public internet.
+   */
+  readonly publicNetworkAccess?: string;
+
+  /**
+   * SKU details for the key vault (name: "standard" or "premium", family defaults to "A").
+   */
+  readonly sku?: Sku;
+
+  /**
+   * softDelete data retention days. It accepts >=7 and <=90.
+   */
+  readonly softDeleteRetentionInDays?: number;
+
+  /**
+   * The URI of the vault for performing operations on keys and secrets.
+   */
+  readonly vaultUri?: string;
+
+  // ============================================================================
+  // LEGACY PROPERTIES (for backward compatibility)
+  // ============================================================================
+
+  /**
+   * The Name of the SKU used for this Key Vault. Possible values are standard and premium.
+   * @deprecated Use sku property instead
+   */
+  readonly skuName?: string;
+
+  /**
+   * Network ACL rules for the Key Vault (legacy compatibility).
+   * @deprecated Use networkAcls instead
+   */
+  readonly networkRuleSet?: NetworkRuleSet;
+
+  /**
+   * Specifies whether protection against purge is enabled for this Key Vault.
+   * @deprecated Use enablePurgeProtection instead
+   */
+  readonly purgeProtection?: boolean;
+
+  /**
+   * The number of days that items should be retained for once soft-deleted.
+   * @deprecated Use softDeleteRetentionInDays instead
+   */
+  readonly softDeleteRetentionDays?: number;
+
   /**
    * AzAPI-specific properties (for advanced usage).
+   * @deprecated Use the flattened properties directly instead
    */
   readonly properties?: VaultProperties;
 }
@@ -332,31 +386,33 @@ export class Vault extends AzureResource {
         location: props.location,
       });
 
-    // Set defaults
+    // Set defaults with flattened interface support
     const defaults = {
-      sku: props.sku || "standard",
-      softDeleteRetentionDays: props.softDeleteRetentionDays || 90,
-      purgeProtection: props.purgeProtection ?? true,
+      sku:
+        props.sku ||
+        (props.skuName
+          ? { family: "A", name: props.skuName }
+          : { family: "A", name: "standard" }),
+      softDeleteRetentionDays:
+        props.softDeleteRetentionInDays || props.softDeleteRetentionDays || 90,
+      purgeProtection:
+        props.enablePurgeProtection ?? props.purgeProtection ?? true,
       enableSoftDelete: props.enableSoftDelete ?? true,
     };
 
-    // Build the SKU object
-    const sku: Sku = {
-      family: "A",
-      name: defaults.sku,
-    };
-
     // Convert legacy networkAcls to AzAPI format if provided
-    let networkRuleSet: NetworkRuleSet | undefined = props.networkRuleSet;
-    if (props.networkAcls && !networkRuleSet) {
+    let networkRuleSet: NetworkRuleSet | undefined =
+      props.networkAcls || props.networkRuleSet;
+
+    if (props.networkRuleSet && !networkRuleSet) {
       // Convert legacy format to AzAPI format
       networkRuleSet = {
-        bypass: props.networkAcls.bypass,
-        defaultAction: props.networkAcls.defaultAction,
-        ipRules: props.networkAcls.ipRules?.map((rule: any) => ({
+        bypass: props.networkRuleSet.bypass,
+        defaultAction: props.networkRuleSet.defaultAction,
+        ipRules: props.networkRuleSet.ipRules?.map((rule: any) => ({
           value: rule.value,
         })),
-        virtualNetworkRules: props.networkAcls.virtualNetworkRules?.map(
+        virtualNetworkRules: props.networkRuleSet.virtualNetworkRules?.map(
           (rule: any) => ({
             id: rule.id,
             ignoreMissingVnetServiceEndpoint:
@@ -366,20 +422,34 @@ export class Vault extends AzureResource {
       };
     }
 
-    // Build the vault properties
+    // Build the vault properties from flattened interface, supporting legacy props
     const vaultProperties: VaultProperties = {
+      // If properties is provided (legacy), use it as base
+      ...props.properties,
+
+      // Override with flattened properties (new interface)
       tenantId: props.tenantId,
-      sku: sku,
-      softDeleteRetentionInDays: defaults.softDeleteRetentionDays,
+      sku: defaults.sku,
+      accessPolicies: props.accessPolicies || props.properties?.accessPolicies,
+      createMode: props.createMode || props.properties?.createMode,
       enablePurgeProtection: defaults.purgeProtection,
+      enableRbacAuthorization:
+        props.enableRbacAuthorization ??
+        props.properties?.enableRbacAuthorization,
       enableSoftDelete: defaults.enableSoftDelete,
-      enabledForDeployment: props.enabledForDeployment,
-      enabledForDiskEncryption: props.enabledForDiskEncryption,
-      enabledForTemplateDeployment: props.enabledForTemplateDeployment,
-      enableRbacAuthorization: props.enableRbacAuthorization,
+      enabledForDeployment:
+        props.enabledForDeployment ?? props.properties?.enabledForDeployment,
+      enabledForDiskEncryption:
+        props.enabledForDiskEncryption ??
+        props.properties?.enabledForDiskEncryption,
+      enabledForTemplateDeployment:
+        props.enabledForTemplateDeployment ??
+        props.properties?.enabledForTemplateDeployment,
       networkAcls: networkRuleSet,
-      accessPolicies: props.accessPolicies,
-      ...props.properties, // Allow override with custom properties
+      publicNetworkAccess:
+        props.publicNetworkAccess || props.properties?.publicNetworkAccess,
+      softDeleteRetentionInDays: defaults.softDeleteRetentionDays,
+      vaultUri: props.vaultUri || props.properties?.vaultUri,
     };
 
     // Create the Key Vault using AzAPI

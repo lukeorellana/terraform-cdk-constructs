@@ -54,10 +54,7 @@ describe("Example of deploying a Container Registry", () => {
     // Add child resources to demonstrate the enhanced functionality
     azureContainerRegistry.addScopeMap({
       name: "testScopeMap",
-      actions: [
-        "repositories/*/content/read",
-        "repositories/*/content/write",
-      ],
+      actions: ["repositories/*/content/read", "repositories/*/content/write"],
       description: "Test scope map for integration test",
     });
 

@@ -1115,51 +1115,186 @@ export class FunctionApp extends AzureResource {
     // Build SiteConfig from flattened properties
     const siteConfig: SiteConfig = {
       // Use flattened properties first, then fall back to legacy siteConfig or properties.siteConfig
-      alwaysOn: props.alwaysOn ?? props.siteConfig?.alwaysOn ?? props.properties?.siteConfig?.alwaysOn,
-      appCommandLine: props.appCommandLine ?? props.siteConfig?.appCommandLine ?? props.properties?.siteConfig?.appCommandLine,
-      appSettings: props.appSettings ?? props.siteConfig?.appSettings ?? props.properties?.siteConfig?.appSettings,
-      autoHealEnabled: props.autoHealEnabled ?? props.siteConfig?.autoHealEnabled ?? props.properties?.siteConfig?.autoHealEnabled,
-      connectionStrings: props.connectionStrings ?? props.siteConfig?.connectionStrings ?? props.properties?.siteConfig?.connectionStrings,
-      defaultDocuments: props.defaultDocuments ?? props.siteConfig?.defaultDocuments ?? props.properties?.siteConfig?.defaultDocuments,
-      detailedErrorLoggingEnabled: props.detailedErrorLoggingEnabled ?? props.siteConfig?.detailedErrorLoggingEnabled ?? props.properties?.siteConfig?.detailedErrorLoggingEnabled,
-      documentRoot: props.documentRoot ?? props.siteConfig?.documentRoot ?? props.properties?.siteConfig?.documentRoot,
-      ftpsState: props.ftpsState ?? props.siteConfig?.ftpsState ?? props.properties?.siteConfig?.ftpsState,
-      functionAppScaleLimit: props.functionAppScaleLimit ?? props.siteConfig?.functionAppScaleLimit ?? props.properties?.siteConfig?.functionAppScaleLimit,
-      functionsRuntimeScaleMonitoringEnabled: props.functionsRuntimeScaleMonitoringEnabled ?? props.siteConfig?.functionsRuntimeScaleMonitoringEnabled ?? props.properties?.siteConfig?.functionsRuntimeScaleMonitoringEnabled,
-      http20Enabled: props.http20Enabled ?? props.siteConfig?.http20Enabled ?? props.properties?.siteConfig?.http20Enabled,
-      httpLoggingEnabled: props.httpLoggingEnabled ?? props.siteConfig?.httpLoggingEnabled ?? props.properties?.siteConfig?.httpLoggingEnabled,
-      ipSecurityRestrictions: props.ipSecurityRestrictions ?? props.siteConfig?.ipSecurityRestrictions ?? props.properties?.siteConfig?.ipSecurityRestrictions,
-      javaContainer: props.javaContainer ?? props.siteConfig?.javaContainer ?? props.properties?.siteConfig?.javaContainer,
-      javaContainerVersion: props.javaContainerVersion ?? props.siteConfig?.javaContainerVersion ?? props.properties?.siteConfig?.javaContainerVersion,
-      javaVersion: props.javaVersion ?? props.siteConfig?.javaVersion ?? props.properties?.siteConfig?.javaVersion,
-      limits: props.limits ?? props.siteConfig?.limits ?? props.properties?.siteConfig?.limits,
-      linuxFxVersion: props.linuxFxVersion ?? props.siteConfig?.linuxFxVersion ?? props.properties?.siteConfig?.linuxFxVersion,
-      loadBalancing: props.loadBalancing ?? props.siteConfig?.loadBalancing ?? props.properties?.siteConfig?.loadBalancing,
-      localMySqlEnabled: props.localMySqlEnabled ?? props.siteConfig?.localMySqlEnabled ?? props.properties?.siteConfig?.localMySqlEnabled,
-      logsDirectorySizeLimit: props.logsDirectorySizeLimit ?? props.siteConfig?.logsDirectorySizeLimit ?? props.properties?.siteConfig?.logsDirectorySizeLimit,
-      managedPipelineMode: props.managedPipelineMode ?? props.siteConfig?.managedPipelineMode ?? props.properties?.siteConfig?.managedPipelineMode,
-      minTlsVersion: props.minTlsVersion ?? props.siteConfig?.minTlsVersion ?? props.properties?.siteConfig?.minTlsVersion,
-      netFrameworkVersion: props.netFrameworkVersion ?? props.siteConfig?.netFrameworkVersion ?? props.properties?.siteConfig?.netFrameworkVersion,
-      nodeVersion: props.nodeVersion ?? props.siteConfig?.nodeVersion ?? props.properties?.siteConfig?.nodeVersion,
-      numberOfWorkers: props.numberOfWorkers ?? props.siteConfig?.numberOfWorkers ?? props.properties?.siteConfig?.numberOfWorkers,
-      phpVersion: props.phpVersion ?? props.siteConfig?.phpVersion ?? props.properties?.siteConfig?.phpVersion,
-      powerShellVersion: props.powerShellVersion ?? props.siteConfig?.powerShellVersion ?? props.properties?.siteConfig?.powerShellVersion,
-      preWarmedInstanceCount: props.preWarmedInstanceCount ?? props.siteConfig?.preWarmedInstanceCount ?? props.properties?.siteConfig?.preWarmedInstanceCount,
-      publishingUsername: props.publishingUsername ?? props.siteConfig?.publishingUsername ?? props.properties?.siteConfig?.publishingUsername,
-      pythonVersion: props.pythonVersion ?? props.siteConfig?.pythonVersion ?? props.properties?.siteConfig?.pythonVersion,
-      remoteDebuggingEnabled: props.remoteDebuggingEnabled ?? props.siteConfig?.remoteDebuggingEnabled ?? props.properties?.siteConfig?.remoteDebuggingEnabled,
-      remoteDebuggingVersion: props.remoteDebuggingVersion ?? props.siteConfig?.remoteDebuggingVersion ?? props.properties?.siteConfig?.remoteDebuggingVersion,
-      requestTracingEnabled: props.requestTracingEnabled ?? props.siteConfig?.requestTracingEnabled ?? props.properties?.siteConfig?.requestTracingEnabled,
-      requestTracingExpirationTime: props.requestTracingExpirationTime ?? props.siteConfig?.requestTracingExpirationTime ?? props.properties?.siteConfig?.requestTracingExpirationTime,
-      scmIpSecurityRestrictions: props.scmIpSecurityRestrictions ?? props.siteConfig?.scmIpSecurityRestrictions ?? props.properties?.siteConfig?.scmIpSecurityRestrictions,
-      scmIpSecurityRestrictionsUseMain: props.scmIpSecurityRestrictionsUseMain ?? props.siteConfig?.scmIpSecurityRestrictionsUseMain ?? props.properties?.siteConfig?.scmIpSecurityRestrictionsUseMain,
-      scmMinTlsVersion: props.scmMinTlsVersion ?? props.siteConfig?.scmMinTlsVersion ?? props.properties?.siteConfig?.scmMinTlsVersion,
-      use32BitWorkerProcess: props.use32BitWorkerProcess ?? props.siteConfig?.use32BitWorkerProcess ?? props.properties?.siteConfig?.use32BitWorkerProcess,
-      virtualApplications: props.virtualApplications ?? props.siteConfig?.virtualApplications ?? props.properties?.siteConfig?.virtualApplications,
-      vnetName: props.vnetName ?? props.siteConfig?.vnetName ?? props.properties?.siteConfig?.vnetName,
-      vnetRouteAllEnabled: props.vnetRouteAllEnabled ?? props.siteConfig?.vnetRouteAllEnabled ?? props.properties?.siteConfig?.vnetRouteAllEnabled,
-      webSocketsEnabled: props.webSocketsEnabled ?? props.siteConfig?.webSocketsEnabled ?? props.properties?.siteConfig?.webSocketsEnabled,
-      windowsFxVersion: props.windowsFxVersion ?? props.siteConfig?.windowsFxVersion ?? props.properties?.siteConfig?.windowsFxVersion,
+      alwaysOn:
+        props.alwaysOn ??
+        props.siteConfig?.alwaysOn ??
+        props.properties?.siteConfig?.alwaysOn,
+      appCommandLine:
+        props.appCommandLine ??
+        props.siteConfig?.appCommandLine ??
+        props.properties?.siteConfig?.appCommandLine,
+      appSettings:
+        props.appSettings ??
+        props.siteConfig?.appSettings ??
+        props.properties?.siteConfig?.appSettings,
+      autoHealEnabled:
+        props.autoHealEnabled ??
+        props.siteConfig?.autoHealEnabled ??
+        props.properties?.siteConfig?.autoHealEnabled,
+      connectionStrings:
+        props.connectionStrings ??
+        props.siteConfig?.connectionStrings ??
+        props.properties?.siteConfig?.connectionStrings,
+      defaultDocuments:
+        props.defaultDocuments ??
+        props.siteConfig?.defaultDocuments ??
+        props.properties?.siteConfig?.defaultDocuments,
+      detailedErrorLoggingEnabled:
+        props.detailedErrorLoggingEnabled ??
+        props.siteConfig?.detailedErrorLoggingEnabled ??
+        props.properties?.siteConfig?.detailedErrorLoggingEnabled,
+      documentRoot:
+        props.documentRoot ??
+        props.siteConfig?.documentRoot ??
+        props.properties?.siteConfig?.documentRoot,
+      ftpsState:
+        props.ftpsState ??
+        props.siteConfig?.ftpsState ??
+        props.properties?.siteConfig?.ftpsState,
+      functionAppScaleLimit:
+        props.functionAppScaleLimit ??
+        props.siteConfig?.functionAppScaleLimit ??
+        props.properties?.siteConfig?.functionAppScaleLimit,
+      functionsRuntimeScaleMonitoringEnabled:
+        props.functionsRuntimeScaleMonitoringEnabled ??
+        props.siteConfig?.functionsRuntimeScaleMonitoringEnabled ??
+        props.properties?.siteConfig?.functionsRuntimeScaleMonitoringEnabled,
+      http20Enabled:
+        props.http20Enabled ??
+        props.siteConfig?.http20Enabled ??
+        props.properties?.siteConfig?.http20Enabled,
+      httpLoggingEnabled:
+        props.httpLoggingEnabled ??
+        props.siteConfig?.httpLoggingEnabled ??
+        props.properties?.siteConfig?.httpLoggingEnabled,
+      ipSecurityRestrictions:
+        props.ipSecurityRestrictions ??
+        props.siteConfig?.ipSecurityRestrictions ??
+        props.properties?.siteConfig?.ipSecurityRestrictions,
+      javaContainer:
+        props.javaContainer ??
+        props.siteConfig?.javaContainer ??
+        props.properties?.siteConfig?.javaContainer,
+      javaContainerVersion:
+        props.javaContainerVersion ??
+        props.siteConfig?.javaContainerVersion ??
+        props.properties?.siteConfig?.javaContainerVersion,
+      javaVersion:
+        props.javaVersion ??
+        props.siteConfig?.javaVersion ??
+        props.properties?.siteConfig?.javaVersion,
+      limits:
+        props.limits ??
+        props.siteConfig?.limits ??
+        props.properties?.siteConfig?.limits,
+      linuxFxVersion:
+        props.linuxFxVersion ??
+        props.siteConfig?.linuxFxVersion ??
+        props.properties?.siteConfig?.linuxFxVersion,
+      loadBalancing:
+        props.loadBalancing ??
+        props.siteConfig?.loadBalancing ??
+        props.properties?.siteConfig?.loadBalancing,
+      localMySqlEnabled:
+        props.localMySqlEnabled ??
+        props.siteConfig?.localMySqlEnabled ??
+        props.properties?.siteConfig?.localMySqlEnabled,
+      logsDirectorySizeLimit:
+        props.logsDirectorySizeLimit ??
+        props.siteConfig?.logsDirectorySizeLimit ??
+        props.properties?.siteConfig?.logsDirectorySizeLimit,
+      managedPipelineMode:
+        props.managedPipelineMode ??
+        props.siteConfig?.managedPipelineMode ??
+        props.properties?.siteConfig?.managedPipelineMode,
+      minTlsVersion:
+        props.minTlsVersion ??
+        props.siteConfig?.minTlsVersion ??
+        props.properties?.siteConfig?.minTlsVersion,
+      netFrameworkVersion:
+        props.netFrameworkVersion ??
+        props.siteConfig?.netFrameworkVersion ??
+        props.properties?.siteConfig?.netFrameworkVersion,
+      nodeVersion:
+        props.nodeVersion ??
+        props.siteConfig?.nodeVersion ??
+        props.properties?.siteConfig?.nodeVersion,
+      numberOfWorkers:
+        props.numberOfWorkers ??
+        props.siteConfig?.numberOfWorkers ??
+        props.properties?.siteConfig?.numberOfWorkers,
+      phpVersion:
+        props.phpVersion ??
+        props.siteConfig?.phpVersion ??
+        props.properties?.siteConfig?.phpVersion,
+      powerShellVersion:
+        props.powerShellVersion ??
+        props.siteConfig?.powerShellVersion ??
+        props.properties?.siteConfig?.powerShellVersion,
+      preWarmedInstanceCount:
+        props.preWarmedInstanceCount ??
+        props.siteConfig?.preWarmedInstanceCount ??
+        props.properties?.siteConfig?.preWarmedInstanceCount,
+      publishingUsername:
+        props.publishingUsername ??
+        props.siteConfig?.publishingUsername ??
+        props.properties?.siteConfig?.publishingUsername,
+      pythonVersion:
+        props.pythonVersion ??
+        props.siteConfig?.pythonVersion ??
+        props.properties?.siteConfig?.pythonVersion,
+      remoteDebuggingEnabled:
+        props.remoteDebuggingEnabled ??
+        props.siteConfig?.remoteDebuggingEnabled ??
+        props.properties?.siteConfig?.remoteDebuggingEnabled,
+      remoteDebuggingVersion:
+        props.remoteDebuggingVersion ??
+        props.siteConfig?.remoteDebuggingVersion ??
+        props.properties?.siteConfig?.remoteDebuggingVersion,
+      requestTracingEnabled:
+        props.requestTracingEnabled ??
+        props.siteConfig?.requestTracingEnabled ??
+        props.properties?.siteConfig?.requestTracingEnabled,
+      requestTracingExpirationTime:
+        props.requestTracingExpirationTime ??
+        props.siteConfig?.requestTracingExpirationTime ??
+        props.properties?.siteConfig?.requestTracingExpirationTime,
+      scmIpSecurityRestrictions:
+        props.scmIpSecurityRestrictions ??
+        props.siteConfig?.scmIpSecurityRestrictions ??
+        props.properties?.siteConfig?.scmIpSecurityRestrictions,
+      scmIpSecurityRestrictionsUseMain:
+        props.scmIpSecurityRestrictionsUseMain ??
+        props.siteConfig?.scmIpSecurityRestrictionsUseMain ??
+        props.properties?.siteConfig?.scmIpSecurityRestrictionsUseMain,
+      scmMinTlsVersion:
+        props.scmMinTlsVersion ??
+        props.siteConfig?.scmMinTlsVersion ??
+        props.properties?.siteConfig?.scmMinTlsVersion,
+      use32BitWorkerProcess:
+        props.use32BitWorkerProcess ??
+        props.siteConfig?.use32BitWorkerProcess ??
+        props.properties?.siteConfig?.use32BitWorkerProcess,
+      virtualApplications:
+        props.virtualApplications ??
+        props.siteConfig?.virtualApplications ??
+        props.properties?.siteConfig?.virtualApplications,
+      vnetName:
+        props.vnetName ??
+        props.siteConfig?.vnetName ??
+        props.properties?.siteConfig?.vnetName,
+      vnetRouteAllEnabled:
+        props.vnetRouteAllEnabled ??
+        props.siteConfig?.vnetRouteAllEnabled ??
+        props.properties?.siteConfig?.vnetRouteAllEnabled,
+      webSocketsEnabled:
+        props.webSocketsEnabled ??
+        props.siteConfig?.webSocketsEnabled ??
+        props.properties?.siteConfig?.webSocketsEnabled,
+      windowsFxVersion:
+        props.windowsFxVersion ??
+        props.siteConfig?.windowsFxVersion ??
+        props.properties?.siteConfig?.windowsFxVersion,
     };
 
     // Build SiteProperties from flattened properties and legacy properties
@@ -1169,18 +1304,33 @@ export class FunctionApp extends AzureResource {
       // Override with flattened properties if provided
       enabled: props.enabled ?? props.properties?.enabled ?? true,
       httpsOnly: props.httpsOnly ?? props.properties?.httpsOnly,
-      clientCertEnabled: props.clientCertEnabled ?? props.clientCertificateEnabled ?? props.properties?.clientCertEnabled,
-      clientCertExclusionPaths: props.clientCertExclusionPaths ?? props.properties?.clientCertExclusionPaths,
-      clientCertMode: props.clientCertMode ?? props.clientCertificateMode ?? props.properties?.clientCertMode,
+      clientCertEnabled:
+        props.clientCertEnabled ??
+        props.clientCertificateEnabled ??
+        props.properties?.clientCertEnabled,
+      clientCertExclusionPaths:
+        props.clientCertExclusionPaths ??
+        props.properties?.clientCertExclusionPaths,
+      clientCertMode:
+        props.clientCertMode ??
+        props.clientCertificateMode ??
+        props.properties?.clientCertMode,
       containerSize: props.containerSize ?? props.properties?.containerSize,
-      dailyMemoryTimeQuota: props.dailyMemoryTimeQuota ?? props.properties?.dailyMemoryTimeQuota,
-      hostNamesDisabled: props.hostNamesDisabled ?? props.properties?.hostNamesDisabled,
+      dailyMemoryTimeQuota:
+        props.dailyMemoryTimeQuota ?? props.properties?.dailyMemoryTimeQuota,
+      hostNamesDisabled:
+        props.hostNamesDisabled ?? props.properties?.hostNamesDisabled,
       hyperV: props.hyperV ?? props.properties?.hyperV,
-      keyVaultReferenceIdentity: props.keyVaultReferenceIdentity ?? props.properties?.keyVaultReferenceIdentity,
-      maxNumberOfWorkers: props.maxNumberOfWorkers ?? props.properties?.maxNumberOfWorkers,
-      publicNetworkAccess: props.publicNetworkAccess ?? props.properties?.publicNetworkAccess,
+      keyVaultReferenceIdentity:
+        props.keyVaultReferenceIdentity ??
+        props.properties?.keyVaultReferenceIdentity,
+      maxNumberOfWorkers:
+        props.maxNumberOfWorkers ?? props.properties?.maxNumberOfWorkers,
+      publicNetworkAccess:
+        props.publicNetworkAccess ?? props.properties?.publicNetworkAccess,
       reserved: props.reserved ?? props.properties?.reserved,
-      scmSiteAlsoStopped: props.scmSiteAlsoStopped ?? props.properties?.scmSiteAlsoStopped,
+      scmSiteAlsoStopped:
+        props.scmSiteAlsoStopped ?? props.properties?.scmSiteAlsoStopped,
       serverFarmId: props.serverFarmId ?? props.properties?.serverFarmId,
       siteConfig: siteConfig,
     };
