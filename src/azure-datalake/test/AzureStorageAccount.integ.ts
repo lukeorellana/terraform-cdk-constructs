@@ -1,8 +1,8 @@
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
 import * as storage from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
@@ -26,10 +26,7 @@ describe("Example of deploying Datalake", () => {
       {},
     );
 
-    new AzurermProvider(stack, "azureFeature", {
-      features: {},
-      storageUseAzuread: true,
-    });
+    new AzapiProvider(stack, "azapi", {});
 
     // Create a resource group
     const resourceGroup = new ResourceGroup(stack, "rg", {

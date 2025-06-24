@@ -1,7 +1,6 @@
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { StorageDataLakeGen2FilesystemConfig } from "@cdktf/provider-azurerm/lib/storage-data-lake-gen2-filesystem";
 import { Construct } from "constructs";
 import { DataLakeFilesystem, DataLakeFilesystemConfig } from "./filesystem";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import * as sa from "../../azure-storageaccount";
 import { AzureResource } from "../../core-azure";
 
@@ -46,13 +45,20 @@ export class DataLake extends AzureResource {
     this.filesystems = new Map<string, DataLakeFilesystem>();
     // Default values
     this.props = {
-      name: "test42348808",
+      name: "storageaccount42348808",
       location: "eastus",
       ...props,
     };
 
-    this.resourceGroup = this.setupResourceGroup(props);
-    this.resourceGroupName = this.resourceGroup.name;
+    // Create or use existing resource group
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        name: `rg-${this.props.name}`,
+        location: this.props.location,
+        tags: this.props.tags,
+      });
+    this.resourceGroupName = this.resourceGroup.resourceGroup.name;
 
     this.storageAccount = new sa.Account(scope, id + "storageAccount", {
       ...this.props,
@@ -94,7 +100,7 @@ export class DataLake extends AzureResource {
       throw new Error(`Filesystem '${name}' already exists.`);
     }
 
-    var config: StorageDataLakeGen2FilesystemConfig = {
+    const config = {
       name: name,
       storageAccountId: this.storageAccount.id,
       ...props,

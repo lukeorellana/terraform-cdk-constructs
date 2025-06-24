@@ -1,8 +1,10 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as storage from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
-import "cdktf/lib/testing/adapters/jest";
+
+setupJest();
 
 describe("Azure Datalake With Defaults", () => {
   let stack: TerraformStack;
@@ -12,11 +14,11 @@ describe("Azure Datalake With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     // Create a Storage Account with the defined rules
     new storage.DataLake(stack, "storageaccount", {
-      name: "test42348808",
+      name: "storageaccount42348808",
       location: "eastus",
     });
 

@@ -1,22 +1,37 @@
-import {
-  StorageDataLakeGen2Filesystem,
-  StorageDataLakeGen2FilesystemConfig,
-  StorageDataLakeGen2FilesystemAce,
-} from "@cdktf/provider-azurerm/lib/storage-data-lake-gen2-filesystem";
-import { StorageDataLakeGen2PathConfig } from "@cdktf/provider-azurerm/lib/storage-data-lake-gen2-path";
 import { Construct } from "constructs";
 import { DataLakePath, DataLakePathConfig } from "./path";
+import * as resource from "../../../.gen/providers/azapi/resource";
+
+/**
+ * Access Control Entry for Data Lake Filesystem (AzAPI schema).
+ */
+export interface DataLakeFilesystemAce {
+  /**
+   * The type of ACE (access control entry).
+   */
+  type?: string;
+  /**
+   * The ID of the user or group.
+   */
+  id?: string;
+  /**
+   * The permissions for this ACE.
+   */
+  permissions?: string;
+}
 
 export interface DataLakeFilesystemConfig {
   readonly group?: string;
   readonly owner?: string;
   readonly properties?: { [key: string]: string };
-  readonly ace?: StorageDataLakeGen2FilesystemAce[];
+  readonly ace?: DataLakeFilesystemAce[];
+  readonly name?: string;
+  readonly storageAccountId?: string;
 }
 
 export class DataLakeFilesystem extends Construct {
   public readonly name: string;
-  public readonly filesystem: StorageDataLakeGen2Filesystem;
+  public readonly filesystem: resource.Resource;
   public readonly paths: Map<string, DataLakePath>;
 
   private storageAccountId: string;
@@ -50,16 +65,23 @@ export class DataLakeFilesystem extends Construct {
    * ```
    * This class initializes a filesystem with specified configurations such as name, storage account ID, and optional properties like encryption scope and custom properties.
    */
-  constructor(
-    scope: Construct,
-    id: string,
-    props: StorageDataLakeGen2FilesystemConfig,
-  ) {
+  constructor(scope: Construct, id: string, props: DataLakeFilesystemConfig) {
     super(scope, id);
-    this.name = id;
+    this.name = props.name || id;
     this.paths = new Map<string, DataLakePath>();
-    this.storageAccountId = props.storageAccountId;
-    this.filesystem = new StorageDataLakeGen2Filesystem(this, id, props);
+    this.storageAccountId = props.storageAccountId || "";
+
+    // Create the Data Lake filesystem using AzAPI
+    this.filesystem = new resource.Resource(this, "filesystem", {
+      type: "Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01",
+      name: this.name,
+      parentId: `${props.storageAccountId}/blobServices/default`,
+      body: {
+        properties: {
+          metadata: props.properties || {},
+        },
+      },
+    });
   }
 
   /**
@@ -92,7 +114,7 @@ export class DataLakeFilesystem extends Construct {
       throw new Error(`Filesystem '${name}' already exists.`);
     }
 
-    var config: StorageDataLakeGen2PathConfig = {
+    const config = {
       filesystemName: this.filesystem.name,
       storageAccountId: this.storageAccountId,
       path: name,
