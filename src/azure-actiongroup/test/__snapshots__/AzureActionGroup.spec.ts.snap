@@ -1,48 +1,59 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Action Group With Defaults 2 renders an Action Group with defaults and checks snapshot 1`] = `
+exports[`Action Group With Custom Properties renders an Action Group with custom properties and checks snapshot 1`] = `
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_monitor_action_group.testAzureActionGroupDefaults_actiongroup_ADD914FD.id}"
+      "value": "\${azapi_resource.testAzureActionGroupCustom_actiongroup_5188ECF3.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureActionGroupCustom_resource-group-resource_FA00D4DC.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureActionGroupCustom_resource-group-resource_FA00D4DC.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_monitor_action_group": {
-      "testAzureActionGroupDefaults_actiongroup_ADD914FD": {
-        "enabled": false,
+    "azapi_resource": {
+      "testAzureActionGroupCustom_actiongroup_5188ECF3": {
+        "body": {
+          "properties": {
+            "enabled": false,
+            "groupShortName": "testshortn"
+          }
+        },
         "location": "global",
         "name": "testactiongroup",
-        "resource_group_name": "\${azurerm_resource_group.testAzureActionGroupDefaults_rg_E07CD696.name}",
-        "short_name": "testshortn",
+        "parent_id": "\${azapi_resource.testAzureActionGroupCustom_resource-group-resource_FA00D4DC.id}",
         "tags": {
           "test": "test"
-        }
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureActionGroupDefaults_rg_E07CD696": {
+        },
+        "type": "Microsoft.Insights/actionGroups@2023-01-01"
+      },
+      "testAzureActionGroupCustom_resource-group-resource_FA00D4DC": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
         "location": "global",
         "name": "rg-testactiongroup",
-        "tags": {
-          "test": "test"
-        }
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }
@@ -53,41 +64,134 @@ exports[`Action Group With Defaults renders an Action Group with defaults and ch
 "{
   "output": {
     "id": {
-      "value": "\${azurerm_monitor_action_group.testAzureActionGroupDefaults_actiongroup_ADD914FD.id}"
+      "value": "\${azapi_resource.testAzureActionGroupDefaults_actiongroup_ADD914FD.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureActionGroupDefaults_resource-group-resource_5C036587.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureActionGroupDefaults_resource-group-resource_5C036587.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_monitor_action_group": {
+    "azapi_resource": {
       "testAzureActionGroupDefaults_actiongroup_ADD914FD": {
-        "enabled": true,
+        "body": {
+          "properties": {
+            "enabled": true,
+            "groupShortName": "testshortn"
+          }
+        },
         "location": "global",
         "name": "testactiongroup",
-        "resource_group_name": "\${azurerm_resource_group.testAzureActionGroupDefaults_rg_E07CD696.name}",
-        "short_name": "testshortn",
-        "tags": {
-        }
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureActionGroupDefaults_rg_E07CD696": {
+        "parent_id": "\${azapi_resource.testAzureActionGroupDefaults_resource-group-resource_5C036587.id}",
+        "type": "Microsoft.Insights/actionGroups@2023-01-01"
+      },
+      "testAzureActionGroupDefaults_resource-group-resource_5C036587": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
         "location": "eastus",
-        "name": "rg-testactiongroup"
+        "name": "rg-testactiongroup",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
+
+exports[`Action Group With Flattened Interface renders an Action Group with flattened interface and checks snapshot 1`] = `
+"{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testAzureActionGroupFlattened_actiongroup_E22FB8F5.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureActionGroupFlattened_resource-group-resource_14646F57.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureActionGroupFlattened_resource-group-resource_14646F57.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testAzureActionGroupFlattened_actiongroup_E22FB8F5": {
+        "body": {
+          "properties": {
+            "emailReceivers": [
+              {
+                "emailAddress": "admin@example.com",
+                "name": "admin",
+                "useCommonAlertSchema": true
+              }
+            ],
+            "enabled": true,
+            "groupShortName": "testshortn",
+            "smsReceivers": [
+              {
+                "countryCode": "1",
+                "name": "adminSms",
+                "phoneNumber": "5551234567"
+              }
+            ],
+            "webhookReceivers": [
+              {
+                "name": "webhook1",
+                "serviceUri": "https://example.com/webhook",
+                "useCommonAlertSchema": false
+              }
+            ]
+          }
+        },
+        "location": "global",
+        "name": "testactiongroup",
+        "parent_id": "\${azapi_resource.testAzureActionGroupFlattened_resource-group-resource_14646F57.id}",
+        "tags": {
+          "environment": "production"
+        },
+        "type": "Microsoft.Insights/actionGroups@2023-01-01"
+      },
+      "testAzureActionGroupFlattened_resource-group-resource_14646F57": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "global",
+        "name": "rg-testactiongroup",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

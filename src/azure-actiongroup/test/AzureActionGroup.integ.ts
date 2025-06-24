@@ -1,7 +1,7 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
 import * as ag from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup";
 
 import {
   TerraformApplyAndCheckIdempotency,
@@ -20,9 +20,9 @@ describe("Example of deploying Action Group", () => {
     stack = new TerraformStack(app, "test");
     const randomName = generateRandomName(12);
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
-    // Create a resource group
+    // Create a resource group using AzAPI construct
     const resourceGroup = new ResourceGroup(stack, "rg", {
       name: `rg-${randomName}`,
       location: "eastus",
