@@ -107,16 +107,6 @@ export interface WorkspaceProps {
    */
   readonly resourceGroup?: ResourceGroup;
   /**
-   * The SKU of the Log Analytics Workspace.
-   * @deprecated Use properties.sku instead
-   */
-  readonly sku?: string;
-  /**
-   * The number of days of retention. Default is 30.
-   * @deprecated Use properties.retentionInDays instead
-   */
-  readonly retention?: number;
-  /**
    * The tags to assign to the Log Analytics Workspace.
    */
   readonly tags?: { [key: string]: string };
@@ -124,10 +114,99 @@ export interface WorkspaceProps {
    * The etag of the workspace.
    */
   readonly etag?: string;
+
+  // ============================================================================
+  // FLATTENED WORKSPACE PROPERTIES (from WorkspaceProperties)
+  // ============================================================================
+
+  /**
+   * The resource ID of the default Data Collection Rule to use for this workspace.
+   */
+  readonly defaultDataCollectionRuleResourceId?: string;
+
+  /**
+   * Indicates whether customer managed storage is mandatory for query management.
+   */
+  readonly forceCmkForQuery?: boolean;
+
+  /**
+   * The network access type for accessing Log Analytics ingestion.
+   */
+  readonly publicNetworkAccessForIngestion?: string;
+
+  /**
+   * The network access type for accessing Log Analytics query.
+   */
+  readonly publicNetworkAccessForQuery?: string;
+
+  /**
+   * The workspace data retention in days. Allowed values are per pricing plan.
+   */
+  readonly retentionInDays?: number;
+
+  /**
+   * The SKU of the workspace.
+   */
+  readonly sku?: WorkspaceSku;
+
+  /**
+   * The daily volume cap for ingestion.
+   */
+  readonly workspaceCapping?: WorkspaceCapping;
+
+  // FLATTENED WORKSPACE FEATURES
+  /**
+   * Dedicated LA cluster resourceId that is linked to the workspaces.
+   */
+  readonly clusterResourceId?: string;
+
+  /**
+   * Disable Non-AAD based Auth.
+   */
+  readonly disableLocalAuth?: boolean;
+
+  /**
+   * Flag that indicate if data should be exported.
+   */
+  readonly enableDataExport?: boolean;
+
+  /**
+   * Flag that indicate which permission to use - resource or workspace or both.
+   */
+  readonly enableLogAccessUsingOnlyResourcePermissions?: boolean;
+
+  /**
+   * Flag that describes if we want to remove the data after 30 days.
+   */
+  readonly immediatePurgeDataOn30Days?: boolean;
+
+  // FLATTENED WORKSPACE CAPPING
+  /**
+   * The workspace daily quota for ingestion in GB.
+   */
+  readonly dailyQuotaGb?: number;
+
+  // ============================================================================
+  // LEGACY PROPERTIES (for backward compatibility)
+  // ============================================================================
+
   /**
    * Workspace properties using AzAPI schema.
+   * @deprecated Use the flattened properties directly instead
    */
   readonly properties?: WorkspaceProperties;
+
+  /**
+   * The SKU of the Log Analytics Workspace.
+   * @deprecated Use sku property instead
+   */
+  readonly skuName?: string;
+
+  /**
+   * The number of days of retention. Default is 30.
+   * @deprecated Use retentionInDays instead
+   */
+  readonly retention?: number;
 }
 
 export class Workspace extends AzureResource {
@@ -184,15 +263,73 @@ export class Workspace extends AzureResource {
       location: props.location || "eastus",
     };
 
-    // Build workspace properties, supporting both new and legacy prop patterns
+    // Build workspace properties from flattened interface, supporting legacy props
     const workspaceProperties: WorkspaceProperties = {
+      // If properties is provided (legacy), use it as base
       ...props.properties,
-      sku:
-        props.properties?.sku ||
-        (props.sku ? { name: props.sku } : { name: "PerGB2018" }),
-      retentionInDays:
-        props.properties?.retentionInDays || props.retention || 30,
+      
+      // Override with flattened properties (new interface)
+      defaultDataCollectionRuleResourceId: 
+        props.defaultDataCollectionRuleResourceId || 
+        props.properties?.defaultDataCollectionRuleResourceId,
+      
+      forceCmkForQuery: 
+        props.forceCmkForQuery ?? 
+        props.properties?.forceCmkForQuery,
+      
+      publicNetworkAccessForIngestion: 
+        props.publicNetworkAccessForIngestion || 
+        props.properties?.publicNetworkAccessForIngestion,
+      
+      publicNetworkAccessForQuery: 
+        props.publicNetworkAccessForQuery || 
+        props.properties?.publicNetworkAccessForQuery,
+      
+      retentionInDays: 
+        props.retentionInDays || 
+        props.properties?.retentionInDays || 
+        props.retention || 
+        30,
+      
+      sku: 
+        props.sku || 
+        props.properties?.sku || 
+        (props.skuName ? { name: props.skuName } : { name: "PerGB2018" }),
+      
+      workspaceCapping: 
+        (props.dailyQuotaGb ? { dailyQuotaGb: props.dailyQuotaGb } : undefined) ||
+        props.properties?.workspaceCapping,
+      
+      // Build features from flattened properties
+      features: {
+        ...props.properties?.features,
+        clusterResourceId: 
+          props.clusterResourceId || 
+          props.properties?.features?.clusterResourceId,
+        
+        disableLocalAuth: 
+          props.disableLocalAuth ?? 
+          props.properties?.features?.disableLocalAuth,
+        
+        enableDataExport: 
+          props.enableDataExport ?? 
+          props.properties?.features?.enableDataExport,
+        
+        enableLogAccessUsingOnlyResourcePermissions: 
+          props.enableLogAccessUsingOnlyResourcePermissions ?? 
+          props.properties?.features?.enableLogAccessUsingOnlyResourcePermissions,
+        
+        immediatePurgeDataOn30Days: 
+          props.immediatePurgeDataOn30Days ?? 
+          props.properties?.features?.immediatePurgeDataOn30Days,
+      },
     };
+
+    // Clean up features object if all properties are undefined
+    if (workspaceProperties.features && 
+        Object.values(workspaceProperties.features).every(v => v === undefined)) {
+      delete workspaceProperties.features;
+    }
 
     // Create the Log Analytics Workspace using AzAPI
     this.workspace = new resource.Resource(this, "workspace", {

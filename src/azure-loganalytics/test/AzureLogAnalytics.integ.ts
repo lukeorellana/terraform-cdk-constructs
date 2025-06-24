@@ -35,14 +35,10 @@ describe("Example of deploying Log Analytics", () => {
       name: `la-${randomName}`,
       location: "eastus",
       resourceGroup: resourceGroup,
-      properties: {
-        sku: { name: "PerGB2018" },
-        retentionInDays: 90,
-        features: {
-          enableDataExport: true,
-          enableLogAccessUsingOnlyResourcePermissions: false,
-        },
-      },
+      sku: { name: "PerGB2018" },
+      retentionInDays: 90,
+      enableDataExport: true,
+      enableLogAccessUsingOnlyResourcePermissions: false,
       tags: {
         test: "true",
         environment: "development",

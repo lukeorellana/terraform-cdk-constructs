@@ -71,3 +71,89 @@ exports[`Log Analytics Workspace With Defaults renders a Log Analytics Workspace
   }
 }"
 `;
+
+exports[`Log Analytics Workspace With Flattened Properties renders a Log Analytics Workspace with flattened properties and checks snapshot 1`] = `
+"{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsFlattened_resource-group-resource_22C087B4.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsFlattened_resource-group-resource_22C087B4.location}"
+    },
+    "log_analytics_id": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsFlattened_workspace_E6281624.id}"
+    },
+    "log_analytics_name": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsFlattened_workspace_E6281624.name}"
+    },
+    "log_analytics_primary_shared_key": {
+      "sensitive": true,
+      "value": "\${jsondecode(azapi_resource.testAzureLogAnalyticsFlattened_workspace_E6281624.output).properties.primarySharedKey}"
+    },
+    "log_analytics_workspace_id": {
+      "value": "\${jsondecode(azapi_resource.testAzureLogAnalyticsFlattened_workspace_E6281624.output).properties.customerId}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureLogAnalyticsFlattened_resource-group-resource_22C087B4.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testAzureLogAnalyticsFlattened_resource-group-resource_22C087B4": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-la-flattened-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      },
+      "testAzureLogAnalyticsFlattened_workspace_E6281624": {
+        "body": {
+          "properties": {
+            "features": {
+              "disableLocalAuth": true,
+              "enableDataExport": true,
+              "enableLogAccessUsingOnlyResourcePermissions": false
+            },
+            "publicNetworkAccessForIngestion": "Enabled",
+            "publicNetworkAccessForQuery": "Enabled",
+            "retentionInDays": 90,
+            "sku": {
+              "name": "PerGB2018"
+            },
+            "workspaceCapping": {
+              "dailyQuotaGb": 5
+            }
+          }
+        },
+        "location": "eastus",
+        "name": "la-flattened-test",
+        "parent_id": "\${azapi_resource.testAzureLogAnalyticsFlattened_resource-group-resource_22C087B4.id}",
+        "tags": {
+          "environment": "test",
+          "team": "platform"
+        },
+        "type": "Microsoft.OperationalInsights/workspaces@2023-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
