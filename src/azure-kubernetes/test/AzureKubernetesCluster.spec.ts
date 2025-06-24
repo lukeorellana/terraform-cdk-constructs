@@ -19,18 +19,16 @@ describe("Azure Kubernetes Cluster With Defaults", () => {
     new aks.Cluster(stack, "testAksCluster", {
       name: "akstest",
       location: "eastus",
-      properties: {
-        agentPoolProfiles: [
-          {
-            name: "default",
-            count: 1,
-            vmSize: "Standard_B2s",
-            type: "VirtualMachineScaleSets",
-          },
-        ],
-        dnsPrefix: "akstest",
-        enableRBAC: true,
-      },
+      agentPoolProfiles: [
+        {
+          name: "default",
+          count: 1,
+          vmSize: "Standard_B2s",
+          type: "VirtualMachineScaleSets",
+        },
+      ],
+      dnsPrefix: "akstest",
+      enableRBAC: true,
       identity: {
         type: "SystemAssigned",
       },

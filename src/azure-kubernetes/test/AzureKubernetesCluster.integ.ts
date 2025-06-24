@@ -43,25 +43,23 @@ describe("Example of deploying a Kubernetes Cluster", () => {
       location: "southcentralus",
       resourceGroup: resourceGroup,
       //apiServerAuthorizedIpRanges: ["0.0.0.0"],
-      properties: {
-        agentPoolProfiles: [
-          {
-            name: "default",
-            count: 1,
-            vmSize: "Standard_D2as_v4",
-            type: "VirtualMachineScaleSets",
-            // TODO: Add upgrade settings when supported in AzAPI schema
-            // upgradeSettings: {
-            //   maxSurge: "10%",
-            // },
-          },
-        ],
-        dnsPrefix: "akstest",
-        enableRBAC: true,
-        aadProfile: {
-          managed: true,
-          enableAzureRbac: true,
+      agentPoolProfiles: [
+        {
+          name: "default",
+          count: 1,
+          vmSize: "Standard_D2as_v4",
+          type: "VirtualMachineScaleSets",
+          // TODO: Add upgrade settings when supported in AzAPI schema
+          // upgradeSettings: {
+          //   maxSurge: "10%",
+          // },
         },
+      ],
+      dnsPrefix: "akstest",
+      enableRBAC: true,
+      aadProfile: {
+        managed: true,
+        enableAzureRbac: true,
       },
       identity: {
         type: "SystemAssigned",

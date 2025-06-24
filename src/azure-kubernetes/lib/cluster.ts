@@ -618,19 +618,7 @@ export interface ClusterProps {
   readonly sku?: ManagedClusterSku;
 
   /**
-   * Properties of a managed cluster using AzAPI schema.
-   */
-  readonly properties?: ManagedClusterProperties;
-
-  /**
-   * Configuration for the default node pool of the AKS cluster.
-   * @deprecated Use properties.agentPoolProfiles instead for AzAPI compatibility
-   */
-  readonly defaultNodePool?: ManagedClusterAgentPoolProfile;
-
-  /**
    * The identity used for the AKS cluster. Can be either SystemAssigned or UserAssigned.
-   * @deprecated Use properties.identityProfile instead for AzAPI compatibility
    */
   readonly identity?: {
     type: string;
@@ -638,22 +626,142 @@ export interface ClusterProps {
   };
 
   /**
+   * Tags to be applied to the AKS cluster resources for organizational purposes.
+   * Key-value pairs. Optional.
+   */
+  readonly tags?: { [key: string]: string };
+
+  // ============================================================================
+  // FLATTENED CLUSTER PROPERTIES (from ManagedClusterProperties)
+  // ============================================================================
+
+  /**
+   * The Azure Active Directory configuration.
+   */
+  readonly aadProfile?: ManagedClusterAadProfile;
+
+  /**
+   * The agent pool properties.
+   */
+  readonly agentPoolProfiles?: ManagedClusterAgentPoolProfile[];
+
+  /**
+   * The access profile for managed cluster API server.
+   */
+  readonly apiServerAccessProfile?: ManagedClusterApiServerAccessProfile;
+
+  /**
+   * Parameters to be applied to the cluster-autoscaler when enabled
+   */
+  readonly autoScalerProfile?: ManagedClusterPropertiesAutoScalerProfile;
+
+  /**
+   * The auto upgrade configuration.
+   */
+  readonly autoUpgradeProfile?: ManagedClusterAutoUpgradeProfile;
+
+  /**
+   * If set to true, getting static credentials will be disabled for this cluster. This must only be used on Managed Clusters that are AAD enabled.
+   */
+  readonly disableLocalAccounts?: boolean;
+
+  /**
+   * This cannot be updated once the Managed Cluster has been created.
+   */
+  readonly dnsPrefix?: string;
+
+  /**
+   * Whether to enable Kubernetes Role-Based Access Control.
+   */
+  readonly enableRBAC?: boolean;
+
+  /**
+   * Identities associated with the cluster.
+   */
+  readonly identityProfile?: { [key: string]: UserAssignedIdentity };
+
+  /**
+   * Kubernetes version. Both patch version and major.minor are supported.
+   */
+  readonly kubernetesVersion?: string;
+
+  /**
+   * The profile for Linux VMs in the Managed Cluster.
+   */
+  readonly linuxProfile?: ContainerServiceLinuxProfile;
+
+  /**
+   * The network configuration profile.
+   */
+  readonly networkProfile?: ContainerServiceNetworkProfile;
+
+  /**
+   * The name of the resource group containing agent pool nodes.
+   */
+  readonly nodeResourceGroup?: string;
+
+  /**
+   * The OIDC issuer profile of the Managed Cluster.
+   */
+  readonly oidcIssuerProfile?: ManagedClusterOidcIssuerProfile;
+
+  /**
+   * Allow or deny public network access for AKS
+   */
+  readonly publicNetworkAccess?: string;
+
+  /**
+   * Security profile for the managed cluster.
+   */
+  readonly securityProfile?: ManagedClusterSecurityProfile;
+
+  /**
+   * Information about a service principal identity for the cluster to use for manipulating Azure APIs.
+   */
+  readonly servicePrincipalProfile?: ManagedClusterServicePrincipalProfile;
+
+  /**
+   * Settings for upgrading a cluster.
+   */
+  readonly upgradeSettings?: ClusterUpgradeSettings;
+
+  /**
+   * The profile for Windows VMs in the Managed Cluster.
+   */
+  readonly windowsProfile?: ManagedClusterWindowsProfile;
+
+  /**
+   * Workload Auto-scaler profile for the managed cluster.
+   */
+  readonly workloadAutoScalerProfile?: ManagedClusterWorkloadAutoScalerProfile;
+
+  // ============================================================================
+  // LEGACY PROPERTIES (for backward compatibility)
+  // ============================================================================
+
+  /**
+   * Properties of a managed cluster using AzAPI schema.
+   * @deprecated Use the flattened properties directly instead
+   */
+  readonly properties?: ManagedClusterProperties;
+
+  /**
+   * Configuration for the default node pool of the AKS cluster.
+   * @deprecated Use agentPoolProfiles instead
+   */
+  readonly defaultNodePool?: ManagedClusterAgentPoolProfile;
+
+  /**
    * Configures integration of Azure Active Directory (AAD) with Kubernetes Role-Based Access Control (RBAC) for the AKS cluster.
-   * @deprecated Use properties.aadProfile instead for AzAPI compatibility
+   * @deprecated Use aadProfile instead
    */
   readonly azureActiveDirectoryRoleBasedAccessControl?: ManagedClusterAadProfile;
 
   /**
    * A list of IP address ranges that are authorized to access the AKS API server.
-   * @deprecated Use properties.apiServerAccessProfile.authorizedIpRanges instead for AzAPI compatibility
+   * @deprecated Use apiServerAccessProfile.authorizedIpRanges instead
    */
   readonly apiServerAuthorizedIpRanges?: string[];
-
-  /**
-   * Tags to be applied to the AKS cluster resources for organizational purposes.
-   * Key-value pairs. Optional.
-   */
-  readonly tags?: { [key: string]: string };
 }
 
 /**
@@ -723,20 +831,41 @@ export class Cluster extends AzureResource {
         name: props.name ? `rg-${props.name}` : undefined,
       });
 
-    // Build cluster properties, supporting both new and legacy prop patterns
+    // Build cluster properties from flattened interface, supporting legacy props
     const clusterProperties: ManagedClusterProperties = {
+      // If properties is provided (legacy), use it as base
       ...props.properties,
-      dnsPrefix: props.properties?.dnsPrefix || props.name,
-      enableRBAC: props.properties?.enableRBAC ?? true,
+      
+      // Override with flattened properties (new interface)
+      aadProfile: props.aadProfile || props.properties?.aadProfile,
+      agentPoolProfiles: props.agentPoolProfiles || props.properties?.agentPoolProfiles,
+      apiServerAccessProfile: props.apiServerAccessProfile || props.properties?.apiServerAccessProfile,
+      autoScalerProfile: props.autoScalerProfile || props.properties?.autoScalerProfile,
+      autoUpgradeProfile: props.autoUpgradeProfile || props.properties?.autoUpgradeProfile,
+      disableLocalAccounts: props.disableLocalAccounts ?? props.properties?.disableLocalAccounts,
+      dnsPrefix: props.dnsPrefix || props.properties?.dnsPrefix || props.name,
+      enableRBAC: props.enableRBAC ?? props.properties?.enableRBAC ?? true,
+      identityProfile: props.identityProfile || props.properties?.identityProfile,
+      kubernetesVersion: props.kubernetesVersion || props.properties?.kubernetesVersion,
+      linuxProfile: props.linuxProfile || props.properties?.linuxProfile,
+      networkProfile: props.networkProfile || props.properties?.networkProfile,
+      nodeResourceGroup: props.nodeResourceGroup || props.properties?.nodeResourceGroup,
+      oidcIssuerProfile: props.oidcIssuerProfile || props.properties?.oidcIssuerProfile,
+      publicNetworkAccess: props.publicNetworkAccess || props.properties?.publicNetworkAccess,
+      securityProfile: props.securityProfile || props.properties?.securityProfile,
+      servicePrincipalProfile: props.servicePrincipalProfile || props.properties?.servicePrincipalProfile,
+      upgradeSettings: props.upgradeSettings || props.properties?.upgradeSettings,
+      windowsProfile: props.windowsProfile || props.properties?.windowsProfile,
+      workloadAutoScalerProfile: props.workloadAutoScalerProfile || props.properties?.workloadAutoScalerProfile,
     };
 
     // Handle legacy defaultNodePool property
-    if (props.defaultNodePool && !props.properties?.agentPoolProfiles) {
+    if (props.defaultNodePool && !clusterProperties.agentPoolProfiles) {
       clusterProperties.agentPoolProfiles = [props.defaultNodePool];
     }
 
-    // Handle legacy identity property
-    if (props.identity && !props.properties?.identityProfile) {
+    // Handle legacy identity property for identityProfile
+    if (props.identity && !clusterProperties.identityProfile) {
       if (props.identity.type === "SystemAssigned") {
         // System assigned identity doesn't need identityProfile
       } else if (props.identity.userAssignedIdentities) {
@@ -754,7 +883,7 @@ export class Cluster extends AzureResource {
     // Handle legacy AAD RBAC property
     if (
       props.azureActiveDirectoryRoleBasedAccessControl &&
-      !props.properties?.aadProfile
+      !clusterProperties.aadProfile
     ) {
       clusterProperties.aadProfile =
         props.azureActiveDirectoryRoleBasedAccessControl;
@@ -763,7 +892,7 @@ export class Cluster extends AzureResource {
     // Handle legacy API server authorized IP ranges
     if (
       props.apiServerAuthorizedIpRanges &&
-      !props.properties?.apiServerAccessProfile
+      !clusterProperties.apiServerAccessProfile
     ) {
       clusterProperties.apiServerAccessProfile = {
         authorizedIpRanges: props.apiServerAuthorizedIpRanges,
