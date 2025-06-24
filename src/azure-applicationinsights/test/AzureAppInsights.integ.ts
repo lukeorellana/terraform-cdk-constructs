@@ -1,9 +1,9 @@
 import { DataAzurermClientConfig } from "@cdktf/provider-azurerm/lib/data-azurerm-client-config";
 import { KeyVault } from "@cdktf/provider-azurerm/lib/key-vault";
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
 import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import { Testing, TerraformStack } from "cdktf";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import {
   TerraformApplyAndCheckIdempotency,
   TerraformDestroy,
@@ -30,15 +30,11 @@ describe("Example of deploying Application Insights", () => {
       {},
     );
 
-    new AzurermProvider(stack, "azureFeature", {
-      features: {
-        resourceGroup: {
-          preventDeletionIfContainsResources: false,
-        },
-      },
-    });
+    new AzurermProvider(stack, "azureFeature", {});
 
-    // Create a resource group
+    new AzapiProvider(stack, "azapi", {});
+
+    // Create a resource group using AzAPI
     const resourceGroup = new ResourceGroup(stack, "rg", {
       name: `rg-${randomName}`,
       location: "eastus",
@@ -46,8 +42,8 @@ describe("Example of deploying Application Insights", () => {
 
     const keyvault = new KeyVault(stack, "key_vault", {
       name: `kv-${randomName}`,
-      location: resourceGroup.location,
-      resourceGroupName: resourceGroup.name,
+      location: "eastus",
+      resourceGroupName: resourceGroup.resourceGroup.name,
       skuName: "standard",
       tenantId: util.getAzureTenantId(),
       purgeProtectionEnabled: true,
@@ -70,41 +66,17 @@ describe("Example of deploying Application Insights", () => {
       ],
     });
 
-    const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
-      stack,
-      "log_analytics",
-      {
-        location: "eastus",
-        name: `la-${randomName}`,
-        resourceGroupName: resourceGroup.name,
-      },
-    );
-
     const applicationInsights = new appi.AppInsights(stack, "testappi", {
       name: `appi-${randomName}`,
       location: "eastus",
       resourceGroup: resourceGroup,
       applicationType: "web",
-      workspaceId: logAnalyticsWorkspace.id,
+      retentionInDays: 90,
     });
 
     // Save Ikey to Key Vault as secret
     applicationInsights.saveIKeyToKeyVault(keyvault.id);
     applicationInsights.saveIKeyToKeyVault(keyvault.id, "customSecretName");
-
-    //Diag Settings
-    applicationInsights.addDiagSettings({
-      name: "diagsettings",
-      logAnalyticsWorkspaceId: logAnalyticsWorkspace.id,
-      metric: [
-        {
-          category: "AllMetrics",
-        },
-      ],
-    });
-
-    //RBAC
-    applicationInsights.addAccess(clientConfig.objectId, "Contributor");
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
   });

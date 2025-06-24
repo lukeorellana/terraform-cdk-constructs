@@ -1,64 +1,256 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Application Insights With Defaults renders an Application Insights with defaults and checks snapshot 1`] = `
+exports[`Application Insights Legacy Properties Compatibility renders Application Insights with legacy properties 1`] = `
 "{
   "output": {
     "app_id": {
-      "value": "\${azurerm_application_insights.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.app_id}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.properties.AppId}"
     },
     "connection_string": {
       "sensitive": true,
-      "value": "\${azurerm_application_insights.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.connection_string}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.properties.ConnectionString}"
     },
     "id": {
-      "value": "\${azurerm_application_insights.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.id}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.id}"
     },
     "instrumentation_key": {
       "sensitive": true,
-      "value": "\${azurerm_application_insights.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.instrumentation_key}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.properties.InstrumentationKey}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testLegacyProps_resource-group-resource_5806D1E0.location}"
     },
     "name": {
-      "value": "\${azurerm_application_insights.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.name}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.name}"
     }
   },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_application_insights": {
-      "testAzureApplicationInsightsDefaults_appinsights_1184F8FC": {
-        "application_type": "web",
+    "azapi_resource": {
+      "testLegacyProps_appinsights_7051221F": {
+        "body": {
+          "kind": "web",
+          "properties": {
+            "Application_Type": "web",
+            "DisableIpMasking": false,
+            "RetentionInDays": 90,
+            "WorkspaceResourceId": "\${azapi_resource.testLegacyProps_log_analytics_A4F9D89B.id}"
+          }
+        },
         "location": "eastus",
-        "name": "appi-test",
-        "resource_group_name": "\${azurerm_resource_group.testAzureApplicationInsightsDefaults_rg_6BE48C73.name}",
-        "workspace_id": "\${azurerm_log_analytics_workspace.testAzureApplicationInsightsDefaults_log_analytics_5C943AED.id}"
-      }
-    },
-    "azurerm_log_analytics_workspace": {
-      "testAzureApplicationInsightsDefaults_log_analytics_5C943AED": {
+        "name": "appi-legacy",
+        "parent_id": "\${azapi_resource.testLegacyProps_resource-group-resource_5806D1E0.id}",
+        "type": "Microsoft.Insights/components@2020-02-02"
+      },
+      "testLegacyProps_log_analytics_A4F9D89B": {
+        "body": {
+          "properties": {
+            "retentionInDays": 90,
+            "sku": {
+              "name": "PerGB2018"
+            }
+          }
+        },
         "location": "eastus",
-        "name": "appi-test-la",
-        "resource_group_name": "\${azurerm_resource_group.testAzureApplicationInsightsDefaults_rg_6BE48C73.name}",
-        "sku": "PerGB2018"
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureApplicationInsightsDefaults_rg_6BE48C73": {
+        "name": "appi-legacy-la",
+        "parent_id": "\${azapi_resource.testLegacyProps_resource-group-resource_5806D1E0.id}",
+        "type": "Microsoft.OperationalInsights/workspaces@2023-09-01"
+      },
+      "testLegacyProps_resource-group-resource_5806D1E0": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
         "location": "eastus",
-        "name": "rg-appi-test"
+        "name": "rg-appi-legacy",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
+
+exports[`Application Insights With Defaults renders an Application Insights with defaults and checks snapshot 1`] = `
+"{
+  "output": {
+    "app_id": {
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.properties.AppId}"
+    },
+    "connection_string": {
+      "sensitive": true,
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.properties.ConnectionString}"
+    },
+    "id": {
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.id}"
+    },
+    "instrumentation_key": {
+      "sensitive": true,
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.properties.InstrumentationKey}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_resource-group-resource_0B31BDC5.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testAzureApplicationInsightsDefaults_appinsights_1184F8FC": {
+        "body": {
+          "kind": "web",
+          "properties": {
+            "Application_Type": "web",
+            "RetentionInDays": 90,
+            "WorkspaceResourceId": "\${azapi_resource.testAzureApplicationInsightsDefaults_log_analytics_5C943AED.id}"
+          }
+        },
+        "location": "eastus",
+        "name": "appi-test",
+        "parent_id": "\${azapi_resource.testAzureApplicationInsightsDefaults_resource-group-resource_0B31BDC5.id}",
+        "type": "Microsoft.Insights/components@2020-02-02"
+      },
+      "testAzureApplicationInsightsDefaults_log_analytics_5C943AED": {
+        "body": {
+          "properties": {
+            "retentionInDays": 90,
+            "sku": {
+              "name": "PerGB2018"
+            }
+          }
+        },
+        "location": "eastus",
+        "name": "appi-test-la",
+        "parent_id": "\${azapi_resource.testAzureApplicationInsightsDefaults_resource-group-resource_0B31BDC5.id}",
+        "type": "Microsoft.OperationalInsights/workspaces@2023-09-01"
+      },
+      "testAzureApplicationInsightsDefaults_resource-group-resource_0B31BDC5": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-appi-test",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
+
+exports[`Application Insights With Flattened Properties renders Application Insights with flattened properties 1`] = `
+"{
+  "output": {
+    "app_id": {
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.properties.AppId}"
+    },
+    "connection_string": {
+      "sensitive": true,
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.properties.ConnectionString}"
+    },
+    "id": {
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.id}"
+    },
+    "instrumentation_key": {
+      "sensitive": true,
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.properties.InstrumentationKey}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testFlattenedProps_resource-group-resource_434A5A92.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testFlattenedProps_appinsights_C6141375": {
+        "body": {
+          "kind": "web",
+          "properties": {
+            "Application_Type": "web",
+            "DisableIpMasking": true,
+            "RetentionInDays": 120,
+            "SamplingPercentage": 50,
+            "WorkspaceResourceId": "\${azapi_resource.testFlattenedProps_log_analytics_698CD7ED.id}",
+            "publicNetworkAccessForIngestion": "Enabled",
+            "publicNetworkAccessForQuery": "Enabled"
+          }
+        },
+        "location": "eastus",
+        "name": "appi-flattened",
+        "parent_id": "\${azapi_resource.testFlattenedProps_resource-group-resource_434A5A92.id}",
+        "type": "Microsoft.Insights/components@2020-02-02"
+      },
+      "testFlattenedProps_log_analytics_698CD7ED": {
+        "body": {
+          "properties": {
+            "retentionInDays": 120,
+            "sku": {
+              "name": "PerGB2018"
+            }
+          }
+        },
+        "location": "eastus",
+        "name": "appi-flattened-la",
+        "parent_id": "\${azapi_resource.testFlattenedProps_resource-group-resource_434A5A92.id}",
+        "type": "Microsoft.OperationalInsights/workspaces@2023-09-01"
+      },
+      "testFlattenedProps_resource-group-resource_434A5A92": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-appi-flattened",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

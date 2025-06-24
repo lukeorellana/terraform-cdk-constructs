@@ -1,8 +1,10 @@
-import { AzurermProvider } from "@cdktf/provider-azurerm/lib/provider";
 import { Testing, TerraformStack } from "cdktf";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as appi from "..";
+import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
-import "cdktf/lib/testing/adapters/jest";
+
+setupJest();
 
 describe("Application Insights With Defaults", () => {
   let stack: TerraformStack;
@@ -12,7 +14,7 @@ describe("Application Insights With Defaults", () => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test");
 
-    new AzurermProvider(stack, "azureFeature", { features: {} });
+    new AzapiProvider(stack, "azapi", {});
 
     new appi.AppInsights(stack, "testAzureApplicationInsightsDefaults", {
       name: "appi-test",
@@ -33,5 +35,80 @@ describe("Application Insights With Defaults", () => {
 
   it("check if this can be planned", () => {
     TerraformPlan(fullSynthResult); // Use the saved result
+  });
+});
+
+describe("Application Insights With Flattened Properties", () => {
+  let stack: TerraformStack;
+  let fullSynthResult: any;
+
+  beforeEach(() => {
+    const app = Testing.app();
+    stack = new TerraformStack(app, "test");
+
+    new AzapiProvider(stack, "azapi", {});
+
+    new appi.AppInsights(stack, "testFlattenedProps", {
+      name: "appi-flattened",
+      location: "eastus",
+      applicationType: "web",
+      retentionInDays: 120,
+      disableIpMasking: true,
+      samplingPercentage: 50,
+      publicNetworkAccessForIngestion: "Enabled",
+      publicNetworkAccessForQuery: "Enabled",
+    });
+
+    fullSynthResult = Testing.fullSynth(stack);
+  });
+
+  it("renders Application Insights with flattened properties", () => {
+    expect(Testing.synth(stack)).toMatchSnapshot();
+  });
+
+  it("check if the produced terraform configuration is valid", () => {
+    expect(fullSynthResult).toBeValidTerraform();
+  });
+
+  it("check if this can be planned", () => {
+    TerraformPlan(fullSynthResult);
+  });
+});
+
+describe("Application Insights Legacy Properties Compatibility", () => {
+  let stack: TerraformStack;
+  let fullSynthResult: any;
+
+  beforeEach(() => {
+    const app = Testing.app();
+    stack = new TerraformStack(app, "test");
+
+    new AzapiProvider(stack, "azapi", {});
+
+    // Test backward compatibility with legacy properties structure
+    new appi.AppInsights(stack, "testLegacyProps", {
+      name: "appi-legacy",
+      location: "eastus",
+      applicationType: "web",
+      properties: {
+        Application_Type: "web",
+        RetentionInDays: 90,
+        DisableIpMasking: false,
+      },
+    });
+
+    fullSynthResult = Testing.fullSynth(stack);
+  });
+
+  it("renders Application Insights with legacy properties", () => {
+    expect(Testing.synth(stack)).toMatchSnapshot();
+  });
+
+  it("check if the produced terraform configuration is valid", () => {
+    expect(fullSynthResult).toBeValidTerraform();
+  });
+
+  it("check if this can be planned", () => {
+    TerraformPlan(fullSynthResult);
   });
 });

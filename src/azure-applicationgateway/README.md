@@ -1,12 +1,16 @@
 # Azure Application Gateway Construct
 
-This class represents an Azure Application Gateway resource. It provides a convenient way to manage Azure Application Gateway resources.
+This class represents an Azure Application Gateway resource. It provides a convenient way to manage Azure Application Gateway resources using the AzAPI provider.
 
 ## What is Azure Application Gateway?
 
 Azure Application Gateway is a web traffic load balancer that enables you to manage traffic to your web applications. It offers various features like URL-based routing, session affinity, secure sockets layer (SSL) termination, Web Application Firewall (WAF), and more. This makes it an ideal choice for optimizing web app performance and reliability.
 
 For more information, refer to the [official Azure documentation on Application Gateway](https://docs.microsoft.com/en-us/azure/application-gateway/).
+
+## AzAPI Migration
+
+This module has been migrated from the AzureRM provider to the AzAPI provider for better Azure REST API compatibility and access to the latest features. The interface has been flattened to provide a more user-friendly experience.
 
 ## Application Gateway Best Practices
 
@@ -15,46 +19,186 @@ For more information, refer to the [official Azure documentation on Application 
 - Use URL-based routing for better control of the traffic distribution.
 - Enable diagnostics and logging for better monitoring and troubleshooting.
 
-## Application Gateway Class Properties
+## Interface
 
-This class encapsulates several properties to configure and manage the Application Gateway:
+This class provides a flattened interface for easier configuration:
+
+### Required Properties
 
 - `name`: The name of the Application Gateway resource.
 - `location`: The Azure region where the Application Gateway will be deployed.
-- `resourceGroup`: The Azure Resource Group to which the Application Gateway belongs.
-- `skuTier`: The pricing tier (e.g., Standard, WAF).
+- `skuTier`: The pricing tier (e.g., Standard_v2, WAF_v2).
 - `skuSize`: The size of the Application Gateway instance.
+
+### Core Configuration
+
 - `capacity`: The number of instances for the Application Gateway.
+- `gatewayIpConfigurations`: Gateway IP configurations (subnet associations).
+- `frontendIpConfigurations`: Frontend IP configurations (public/private IPs).
+- `frontendPorts`: Frontend ports configuration.
 - `backendAddressPools`: Backend address pools for routing traffic.
 - `backendHttpSettings`: HTTP settings for the backend address pool.
 - `httpListeners`: HTTP listeners for processing incoming traffic.
 - `requestRoutingRules`: Routing rules for directing traffic.
-- `frontendPorts`: Frontend ports configuration.
-- `subnet`: Subnet details for the Application Gateway.
+
+### Optional Properties
+
+- `resourceGroup`: The Azure Resource Group (will be created if not provided).
 - `tags`: Tags for identifying and categorizing the Application Gateway.
-- Additional properties for advanced configurations (SSL certificates, WAF configuration, etc.).
+- `enableHttp2`: Enable HTTP/2 support.
+- `enableFips`: Enable FIPS-compliant algorithms.
+- `autoscaleConfiguration`: Autoscaling configuration.
+- `wafConfiguration`: Web Application Firewall configuration.
+- `zones`: Availability zones.
+- `identity`: Managed identity configuration.
+- Additional properties for advanced configurations (SSL certificates, probes, etc.).
 
-## Deploying the Application Gateway
+## Basic Usage
 
-Here's an example of how to deploy an Application Gateway resource using this class:
+Here's an example of how to deploy an Application Gateway using the new flattened interface:
 
 ```typescript
+import { Gateway } from "@microsoft/terraform-cdk-constructs/azure-applicationgateway";
+
 const appGateway = new Gateway(this, 'myAppGateway', {
   name: 'myAppGateway',
-  location: 'East US',
-  resourceGroup: myResourceGroup,
+  location: 'eastus',
   skuTier: 'Standard_v2',
-  skuSize: 'Standard_Small',
+  skuSize: 'Standard_v2',
   capacity: 2,
-  backendAddressPools: [...],
-  backendHttpSettings: [...],
-  httpListeners: [...],
-  requestRoutingRules: [...],
-  frontendPorts: [...],
-  // Additional configurations
+  
+  // Gateway IP configuration (subnet association)
+  gatewayIpConfigurations: [{
+    name: 'gateway-ip-config',
+    subnet: { id: '/subscriptions/.../subnets/gateway-subnet' }
+  }],
+  
+  // Frontend configuration
+  frontendIpConfigurations: [{
+    name: 'frontend-ip-config',
+    publicIPAddress: { id: '/subscriptions/.../publicIPAddresses/gateway-pip' }
+  }],
+  
+  frontendPorts: [
+    { name: 'port-80', port: 80 },
+    { name: 'port-443', port: 443 }
+  ],
+  
+  // Backend configuration
+  backendAddressPools: [{
+    name: 'backend-pool',
+    backendAddresses: [
+      { ipAddress: '10.0.1.4' },
+      { ipAddress: '10.0.1.5' }
+    ]
+  }],
+  
+  backendHttpSettings: [{
+    name: 'backend-http-settings',
+    port: 80,
+    protocol: 'Http',
+    cookieBasedAffinity: 'Disabled',
+    requestTimeout: 20
+  }],
+  
+  // Listeners and routing
+  httpListeners: [{
+    name: 'http-listener',
+    frontendIPConfiguration: { id: 'frontend-ip-config' },
+    frontendPort: { id: 'port-80' },
+    protocol: 'Http'
+  }],
+  
+  requestRoutingRules: [{
+    name: 'routing-rule',
+    ruleType: 'Basic',
+    httpListener: { id: 'http-listener' },
+    backendAddressPool: { id: 'backend-pool' },
+    backendHttpSettings: { id: 'backend-http-settings' }
+  }],
+  
   tags: {
-    'env': 'production',
-  },
+    Environment: 'production',
+    Application: 'web-app'
+  }
 });
+```
 
-This code will create a new Application Gateway named myAppGateway in the East US Azure region within the specified resource group. It will be configured with the Standard v2 pricing tier, small SKU size, and essential settings for backend pools, HTTP settings, listeners, and routing rules. Tags are used for easy identification.
+## Advanced Configuration
+
+### With Web Application Firewall
+
+```typescript
+const wafGateway = new Gateway(this, 'wafGateway', {
+  name: 'waf-gateway',
+  location: 'eastus',
+  skuTier: 'WAF_v2',
+  skuSize: 'WAF_v2',
+  capacity: 2,
+  
+  // ... basic configuration ...
+  
+  wafConfiguration: {
+    enabled: true,
+    firewallMode: 'Prevention',
+    ruleSetType: 'OWASP',
+    ruleSetVersion: '3.2'
+  }
+});
+```
+
+### With Autoscaling
+
+```typescript
+const autoscaleGateway = new Gateway(this, 'autoscaleGateway', {
+  name: 'autoscale-gateway',
+  location: 'eastus',
+  skuTier: 'Standard_v2',
+  skuSize: 'Standard_v2',
+  
+  // ... basic configuration ...
+  
+  autoscaleConfiguration: {
+    minCapacity: 2,
+    maxCapacity: 10
+  }
+});
+```
+
+## Migration from AzureRM
+
+If you're migrating from the previous AzureRM-based version, the legacy `properties` interface is still supported for backward compatibility:
+
+```typescript
+// Legacy interface (deprecated but supported)
+const legacyGateway = new Gateway(this, 'legacyGateway', {
+  name: 'legacy-gateway',
+  location: 'eastus',
+  skuTier: 'Standard_v2',
+  skuSize: 'Standard_v2',
+  
+  properties: {
+    sku: {
+      name: 'Standard_v2',
+      tier: 'Standard_v2',
+      capacity: 2
+    },
+    gatewayIPConfigurations: [/*...*/],
+    frontendIPConfigurations: [/*...*/],
+    // ... other legacy properties
+  }
+});
+```
+
+However, it's recommended to migrate to the new flattened interface for better developer experience and future compatibility.
+
+## Resource Outputs
+
+The construct exposes the following outputs:
+
+- `id`: The resource ID of the Application Gateway
+- `resource`: The underlying AzAPI resource for advanced scenarios
+
+## Examples
+
+For more comprehensive examples, see the test files in the `test/` directory.

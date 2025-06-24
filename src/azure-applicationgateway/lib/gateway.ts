@@ -1,32 +1,543 @@
-import { ApplicationGateway } from "@cdktf/provider-azurerm/lib/application-gateway";
-import * as azapgw from "@cdktf/provider-azurerm/lib/application-gateway";
-import { KeyVault } from "@cdktf/provider-azurerm/lib/key-vault";
-import { KeyVaultAccessPolicyA } from "@cdktf/provider-azurerm/lib/key-vault-access-policy";
-import { PublicIp } from "@cdktf/provider-azurerm/lib/public-ip";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
-import { Subnet } from "@cdktf/provider-azurerm/lib/subnet";
-import { UserAssignedIdentity } from "@cdktf/provider-azurerm/lib/user-assigned-identity";
+import * as cdktf from "cdktf";
 import { Construct } from "constructs";
-import * as vnet from "../../azure-virtualnetwork";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup";
 import { AzureResource } from "../../core-azure";
+
+/**
+ * Application Gateway SKU configuration (AzAPI schema).
+ */
+export interface ApplicationGatewaySku {
+  /**
+   * SKU name of the Application Gateway.
+   */
+  name: string;
+  /**
+   * SKU tier of the Application Gateway.
+   */
+  tier: string;
+  /**
+   * Capacity (instance count) of the Application Gateway.
+   */
+  capacity?: number;
+}
+
+/**
+ * Application Gateway backend address pool (AzAPI schema).
+ */
+export interface ApplicationGatewayBackendAddressPool {
+  /**
+   * Name of the backend address pool.
+   */
+  name: string;
+  /**
+   * Backend addresses.
+   */
+  backendAddresses?: ApplicationGatewayBackendAddress[];
+}
+
+/**
+ * Application Gateway backend address (AzAPI schema).
+ */
+export interface ApplicationGatewayBackendAddress {
+  /**
+   * IP address or FQDN of the backend server.
+   */
+  ipAddress?: string;
+  /**
+   * FQDN of the backend server.
+   */
+  fqdn?: string;
+}
+
+/**
+ * Application Gateway backend HTTP settings (AzAPI schema).
+ */
+export interface ApplicationGatewayBackendHttpSettings {
+  /**
+   * Name of the backend HTTP settings.
+   */
+  name: string;
+  /**
+   * Port number for the backend servers.
+   */
+  port: number;
+  /**
+   * Protocol used to communicate with the backend servers.
+   */
+  protocol: string;
+  /**
+   * Cookie based affinity.
+   */
+  cookieBasedAffinity?: string;
+  /**
+   * Request timeout in seconds.
+   */
+  requestTimeout?: number;
+  /**
+   * Path which should be used as a prefix for all paths.
+   */
+  path?: string;
+  /**
+   * Host header to be sent to the backend servers.
+   */
+  hostName?: string;
+  /**
+   * Whether to pick host header should be picked from the host name of the backend server.
+   */
+  pickHostNameFromBackendAddress?: boolean;
+  /**
+   * Array of references to application gateway probes.
+   */
+  probe?: ApplicationGatewaySubResource;
+  /**
+   * Array of references to application gateway authentication certificates.
+   */
+  authenticationCertificates?: ApplicationGatewaySubResource[];
+  /**
+   * Array of references to application gateway trusted root certificates.
+   */
+  trustedRootCertificates?: ApplicationGatewaySubResource[];
+  /**
+   * Connection draining timeout in seconds.
+   */
+  connectionDraining?: ApplicationGatewayConnectionDraining;
+}
+
+/**
+ * Application Gateway sub resource (AzAPI schema).
+ */
+export interface ApplicationGatewaySubResource {
+  /**
+   * Resource ID.
+   */
+  id: string;
+}
+
+/**
+ * Application Gateway connection draining (AzAPI schema).
+ */
+export interface ApplicationGatewayConnectionDraining {
+  /**
+   * Whether connection draining is enabled or not.
+   */
+  enabled: boolean;
+  /**
+   * The number of seconds connection draining is active.
+   */
+  drainTimeoutInSec: number;
+}
+
+/**
+ * Application Gateway frontend IP configuration (AzAPI schema).
+ */
+export interface ApplicationGatewayFrontendIpConfiguration {
+  /**
+   * Name of the frontend IP configuration.
+   */
+  name: string;
+  /**
+   * Private IP address of the frontend IP configuration.
+   */
+  privateIPAddress?: string;
+  /**
+   * The private IP address allocation method.
+   */
+  privateIPAllocationMethod?: string;
+  /**
+   * Reference to the subnet resource.
+   */
+  subnet?: ApplicationGatewaySubResource;
+  /**
+   * Reference to the PublicIP resource.
+   */
+  publicIPAddress?: ApplicationGatewaySubResource;
+}
+
+/**
+ * Application Gateway frontend port (AzAPI schema).
+ */
+export interface ApplicationGatewayFrontendPort {
+  /**
+   * Name of the frontend port.
+   */
+  name: string;
+  /**
+   * Frontend port number.
+   */
+  port: number;
+}
+
+/**
+ * Application Gateway HTTP listener (AzAPI schema).
+ */
+export interface ApplicationGatewayHttpListener {
+  /**
+   * Name of the HTTP listener.
+   */
+  name: string;
+  /**
+   * Frontend IP configuration of an application gateway.
+   */
+  frontendIPConfiguration: ApplicationGatewaySubResource;
+  /**
+   * Frontend port of an application gateway.
+   */
+  frontendPort: ApplicationGatewaySubResource;
+  /**
+   * Protocol of the HTTP listener.
+   */
+  protocol: string;
+  /**
+   * Host name of HTTP listener.
+   */
+  hostName?: string;
+  /**
+   * Host names of HTTP listener.
+   */
+  hostNames?: string[];
+  /**
+   * SSL certificate of an application gateway.
+   */
+  sslCertificate?: ApplicationGatewaySubResource;
+  /**
+   * SSL profile of the HTTP listener.
+   */
+  sslProfile?: ApplicationGatewaySubResource;
+  /**
+   * Whether the multi-site listener uses Server Name Indication (SNI).
+   */
+  requireServerNameIndication?: boolean;
+  /**
+   * Custom error configurations of the HTTP listener.
+   */
+  customErrorConfigurations?: ApplicationGatewayCustomErrorConfiguration[];
+  /**
+   * Reference to the FirewallPolicy resource.
+   */
+  firewallPolicy?: ApplicationGatewaySubResource;
+}
+
+/**
+ * Application Gateway custom error configuration (AzAPI schema).
+ */
+export interface ApplicationGatewayCustomErrorConfiguration {
+  /**
+   * Status code of the application gateway custom error.
+   */
+  statusCode: string;
+  /**
+   * Error page URL of the application gateway custom error.
+   */
+  customErrorPageUrl: string;
+}
+
+/**
+ * Application Gateway request routing rule (AzAPI schema).
+ */
+export interface ApplicationGatewayRequestRoutingRule {
+  /**
+   * Name of the request routing rule.
+   */
+  name: string;
+  /**
+   * Rule type.
+   */
+  ruleType: string;
+  /**
+   * Priority of the request routing rule.
+   */
+  priority?: number;
+  /**
+   * Backend address pool of the application gateway.
+   */
+  backendAddressPool?: ApplicationGatewaySubResource;
+  /**
+   * Backend http settings of the application gateway.
+   */
+  backendHttpSettings?: ApplicationGatewaySubResource;
+  /**
+   * Http listener of the application gateway.
+   */
+  httpListener: ApplicationGatewaySubResource;
+  /**
+   * URL path map of the application gateway.
+   */
+  urlPathMap?: ApplicationGatewaySubResource;
+  /**
+   * Redirect configuration of the application gateway.
+   */
+  redirectConfiguration?: ApplicationGatewaySubResource;
+  /**
+   * Rewrite Rule Set of the application gateway.
+   */
+  rewriteRuleSet?: ApplicationGatewaySubResource;
+}
+
+/**
+ * Application Gateway gateway IP configuration (AzAPI schema).
+ */
+export interface ApplicationGatewayGatewayIpConfiguration {
+  /**
+   * Name of the IP configuration.
+   */
+  name: string;
+  /**
+   * Reference to the subnet resource.
+   */
+  subnet: ApplicationGatewaySubResource;
+}
+
+/**
+ * Application Gateway identity (AzAPI schema).
+ */
+export interface ApplicationGatewayIdentity {
+  /**
+   * The type of identity used for the resource.
+   */
+  type: string;
+  /**
+   * The list of user identities associated with the resource.
+   */
+  userAssignedIdentities?: {
+    [key: string]: ApplicationGatewayUserAssignedIdentity;
+  };
+}
+
+/**
+ * Application Gateway user assigned identity (AzAPI schema).
+ */
+export interface ApplicationGatewayUserAssignedIdentity {
+  /**
+   * The principal id of user assigned identity.
+   */
+  principalId?: string;
+  /**
+   * The client id of user assigned identity.
+   */
+  clientId?: string;
+}
+
+/**
+ * Application Gateway autoscale configuration (AzAPI schema).
+ */
+export interface ApplicationGatewayAutoscaleConfiguration {
+  /**
+   * Lower bound on number of Application Gateway capacity.
+   */
+  minCapacity: number;
+  /**
+   * Upper bound on number of Application Gateway capacity.
+   */
+  maxCapacity?: number;
+}
+
+/**
+ * Application Gateway WAF configuration (AzAPI schema).
+ */
+export interface ApplicationGatewayWebApplicationFirewallConfiguration {
+  /**
+   * Whether the web application firewall is enabled or not.
+   */
+  enabled: boolean;
+  /**
+   * Web application firewall mode.
+   */
+  firewallMode: string;
+  /**
+   * The type of the web application firewall rule set.
+   */
+  ruleSetType?: string;
+  /**
+   * The version of the rule set type.
+   */
+  ruleSetVersion?: string;
+  /**
+   * Whether allow WAF to check request Body.
+   */
+  requestBodyCheck?: boolean;
+  /**
+   * Maximum request body size in KB for WAF.
+   */
+  maxRequestBodySizeInKb?: number;
+  /**
+   * Maximum file upload size in MB for WAF.
+   */
+  fileUploadLimitInMb?: number;
+  /**
+   * The disabled rule groups.
+   */
+  disabledRuleGroups?: ApplicationGatewayFirewallDisabledRuleGroup[];
+  /**
+   * The exclusion list.
+   */
+  exclusions?: ApplicationGatewayFirewallExclusion[];
+}
+
+/**
+ * Application Gateway firewall disabled rule group (AzAPI schema).
+ */
+export interface ApplicationGatewayFirewallDisabledRuleGroup {
+  /**
+   * The name of the rule group that will be disabled.
+   */
+  ruleGroupName: string;
+  /**
+   * The list of rules that will be disabled.
+   */
+  rules?: number[];
+}
+
+/**
+ * Application Gateway firewall exclusion (AzAPI schema).
+ */
+export interface ApplicationGatewayFirewallExclusion {
+  /**
+   * The variable to be excluded.
+   */
+  matchVariable: string;
+  /**
+   * When matchVariable is a collection, operator used to specify which elements in the collection this exclusion applies to.
+   */
+  selectorMatchOperator: string;
+  /**
+   * When matchVariable is a collection, operate on the selector to specify which elements in the collection this exclusion applies to.
+   */
+  selector: string;
+}
+
+/**
+ * Application Gateway properties (AzAPI schema).
+ */
+export interface ApplicationGatewayProperties {
+  /**
+   * SKU of the application gateway resource.
+   */
+  sku: ApplicationGatewaySku;
+  /**
+   * Subnets of the application gateway resource.
+   */
+  gatewayIPConfigurations: ApplicationGatewayGatewayIpConfiguration[];
+  /**
+   * Authentication certificates of the application gateway resource.
+   */
+  authenticationCertificates?: any[];
+  /**
+   * Trusted root certificates of the application gateway resource.
+   */
+  trustedRootCertificates?: any[];
+  /**
+   * Trusted client certificates of the application gateway resource.
+   */
+  trustedClientCertificates?: any[];
+  /**
+   * SSL certificates of the application gateway resource.
+   */
+  sslCertificates?: any[];
+  /**
+   * Frontend IP addresses of the application gateway resource.
+   */
+  frontendIPConfigurations: ApplicationGatewayFrontendIpConfiguration[];
+  /**
+   * Frontend ports of the application gateway resource.
+   */
+  frontendPorts: ApplicationGatewayFrontendPort[];
+  /**
+   * Probes of the application gateway resource.
+   */
+  probes?: any[];
+  /**
+   * Backend address pool of the application gateway resource.
+   */
+  backendAddressPools: ApplicationGatewayBackendAddressPool[];
+  /**
+   * Backend http settings of the application gateway resource.
+   */
+  backendHttpSettingsCollection: ApplicationGatewayBackendHttpSettings[];
+  /**
+   * Backend settings of the application gateway resource.
+   */
+  backendSettingsCollection?: any[];
+  /**
+   * Http listeners of the application gateway resource.
+   */
+  httpListeners: ApplicationGatewayHttpListener[];
+  /**
+   * Listeners of the application gateway resource.
+   */
+  listeners?: any[];
+  /**
+   * URL path map of the application gateway resource.
+   */
+  urlPathMaps?: any[];
+  /**
+   * Request routing rules of the application gateway resource.
+   */
+  requestRoutingRules: ApplicationGatewayRequestRoutingRule[];
+  /**
+   * Routing rules of the application gateway resource.
+   */
+  routingRules?: any[];
+  /**
+   * Rewrite rules for the application gateway resource.
+   */
+  rewriteRuleSets?: any[];
+  /**
+   * Redirect configurations of the application gateway resource.
+   */
+  redirectConfigurations?: any[];
+  /**
+   * Web application firewall configuration.
+   */
+  webApplicationFirewallConfiguration?: ApplicationGatewayWebApplicationFirewallConfiguration;
+  /**
+   * Reference to the FirewallPolicy resource.
+   */
+  firewallPolicy?: ApplicationGatewaySubResource;
+  /**
+   * Whether HTTP2 is enabled on the application gateway resource.
+   */
+  enableHttp2?: boolean;
+  /**
+   * Whether FIPS is enabled on the application gateway resource.
+   */
+  enableFips?: boolean;
+  /**
+   * Autoscale Configuration.
+   */
+  autoscaleConfiguration?: ApplicationGatewayAutoscaleConfiguration;
+  /**
+   * Private Link configurations on application gateway.
+   */
+  privateLinkConfigurations?: any[];
+  /**
+   * PrivateEndpointConnections on application gateway.
+   */
+  privateEndpointConnections?: any[];
+  /**
+   * Custom error configurations of the application gateway resource.
+   */
+  customErrorConfigurations?: ApplicationGatewayCustomErrorConfiguration[];
+  /**
+   * If true, associates a firewall policy with an application gateway regardless whether the policy differs from the WAF Config.
+   */
+  forceFirewallPolicyAssociation?: boolean;
+  /**
+   * Load distribution policies of the application gateway resource.
+   */
+  loadDistributionPolicies?: any[];
+  /**
+   * Global Configuration.
+   */
+  globalConfiguration?: any;
+  /**
+   * Identity for the application gateway resource.
+   */
+  identity?: ApplicationGatewayIdentity;
+}
 
 // Define the interface for Application Gateway properties
 export interface IGatewayProps {
-  /**
-   * Optional public IP address for the frontend of the Application Gateway.
-   */
-  publicIpAddress?: PublicIp;
-
-  /**
-   * Optional private IP address for the frontend of the Application Gateway.
-   */
-  privateIpAddress?: string;
-
-  /**
-   * Allocation method for the private IP address (e.g., Static, Dynamic).
-   */
-  privateIpAddressAllocation?: string;
-
   /**
    * The name of the Application Gateway.
    */
@@ -44,7 +555,16 @@ export interface IGatewayProps {
   readonly resourceGroup?: ResourceGroup;
 
   /**
-   * The SKU tier of the Application Gateway (e.g., Standard, WAF).
+   * Optional tags for the Application Gateway resource.
+   */
+  readonly tags?: { [key: string]: string };
+
+  // ============================================================================
+  // FLATTENED APPLICATION GATEWAY PROPERTIES
+  // ============================================================================
+
+  /**
+   * The SKU tier of the Application Gateway (e.g., Standard_v2, WAF_v2).
    */
   readonly skuTier: string;
 
@@ -56,42 +576,42 @@ export interface IGatewayProps {
   /**
    * The capacity (instance count) of the Application Gateway.
    */
-  readonly capacity: number;
+  readonly capacity?: number;
 
   /**
    * The backend address pools for the Application Gateway.
    */
-  readonly backendAddressPools: azapgw.ApplicationGatewayBackendAddressPool[];
+  readonly backendAddressPools?: ApplicationGatewayBackendAddressPool[];
 
   /**
    * The backend HTTP settings for the Application Gateway.
    */
-  readonly backendHttpSettings: azapgw.ApplicationGatewayBackendHttpSettings[];
+  readonly backendHttpSettings?: ApplicationGatewayBackendHttpSettings[];
 
   /**
-   * Optional frontend ports for the Application Gateway.
+   * The frontend IP configurations for the Application Gateway.
    */
-  readonly frontendPorts?: azapgw.ApplicationGatewayFrontendPort[];
+  readonly frontendIpConfigurations?: ApplicationGatewayFrontendIpConfiguration[];
+
+  /**
+   * The frontend ports for the Application Gateway.
+   */
+  readonly frontendPorts?: ApplicationGatewayFrontendPort[];
 
   /**
    * The HTTP listeners for the Application Gateway.
    */
-  readonly httpListeners: azapgw.ApplicationGatewayHttpListener[];
+  readonly httpListeners?: ApplicationGatewayHttpListener[];
 
   /**
    * The request routing rules for the Application Gateway.
    */
-  readonly requestRoutingRules: azapgw.ApplicationGatewayRequestRoutingRule[];
+  readonly requestRoutingRules?: ApplicationGatewayRequestRoutingRule[];
 
   /**
-   * Optional subnet for the Application Gateway.
+   * The gateway IP configurations (subnet associations).
    */
-  readonly subnet?: Subnet;
-
-  /**
-   * Optional tenant ID for use with Key Vault, if applicable.
-   */
-  readonly tenantId?: string;
+  readonly gatewayIpConfigurations?: ApplicationGatewayGatewayIpConfiguration[];
 
   /**
    * Flag to enable HTTP2.
@@ -101,7 +621,7 @@ export interface IGatewayProps {
   /**
    * Flag to enable FIPS-compliant algorithms.
    */
-  readonly fipsEnabled?: boolean;
+  readonly enableFips?: boolean;
 
   /**
    * Optional ID of the firewall policy.
@@ -114,99 +634,132 @@ export interface IGatewayProps {
   readonly forceFirewallPolicyAssociation?: boolean;
 
   /**
-   * Optional tags for the Application Gateway resource.
-   */
-  readonly tags?: { [key: string]: string };
-
-  /**
    * Optional availability zones for the Application Gateway.
    */
   readonly zones?: string[];
 
   /**
-   * Optional Key Vault resource for storing SSL certificates.
-   */
-  readonly keyVault?: KeyVault;
-
-  /**
-   * Optional authentication certificates for mutual authentication.
-   */
-  readonly authenticationCertificate?: azapgw.ApplicationGatewayAuthenticationCertificate[];
-
-  /**
    * Optional autoscale configuration for dynamically adjusting the capacity of the Application Gateway.
    */
-  readonly autoscaleConfiguration?: azapgw.ApplicationGatewayAutoscaleConfiguration;
+  readonly autoscaleConfiguration?: ApplicationGatewayAutoscaleConfiguration;
 
   /**
    * Optional custom error configurations to specify custom error pages.
    */
-  readonly customErrorConfiguration?: azapgw.ApplicationGatewayCustomErrorConfiguration[];
+  readonly customErrorConfigurations?: ApplicationGatewayCustomErrorConfiguration[];
 
   /**
    * Optional identity for the Application Gateway, used for accessing other Azure resources.
    */
-  readonly identity?: azapgw.ApplicationGatewayIdentity;
+  readonly identity?: ApplicationGatewayIdentity;
 
   /**
    * Optional configurations for enabling Private Link on the Application Gateway.
    */
-  readonly privateLinkConfiguration?: azapgw.ApplicationGatewayPrivateLinkConfiguration[];
+  readonly privateLinkConfigurations?: any[];
 
   /**
    * Optional probes for health checks of the backend HTTP settings.
    */
-  readonly probe?: azapgw.ApplicationGatewayProbe[];
+  readonly probes?: any[];
 
   /**
    * Optional configurations for redirect rules.
    */
-  readonly redirectConfiguration?: azapgw.ApplicationGatewayRedirectConfiguration[];
+  readonly redirectConfigurations?: any[];
 
   /**
    * Optional rewrite rule sets for modifying HTTP request and response headers and bodies.
    */
-  readonly rewriteRuleSet?: azapgw.ApplicationGatewayRewriteRuleSet[];
+  readonly rewriteRuleSets?: any[];
 
   /**
    * Optional SSL certificates for enabling HTTPS on the Application Gateway.
    */
-  readonly sslCertificate?: azapgw.ApplicationGatewaySslCertificate[];
+  readonly sslCertificates?: any[];
 
   /**
    * Optional SSL policy configurations, defining the protocol and cipher suites used.
    */
-  readonly sslPolicy?: azapgw.ApplicationGatewaySslPolicy;
+  readonly sslPolicy?: any;
 
   /**
    * Optional SSL profiles for managing SSL termination and policy settings.
    */
-  readonly sslProfile?: azapgw.ApplicationGatewaySslProfile[];
-
-  /**
-   * Optional timeout settings for the Application Gateway resources.
-   */
-  readonly timeouts?: azapgw.ApplicationGatewayTimeouts;
+  readonly sslProfiles?: any[];
 
   /**
    * Optional trusted client certificates for mutual authentication.
    */
-  readonly trustedClientCertificate?: azapgw.ApplicationGatewayTrustedClientCertificate[];
+  readonly trustedClientCertificates?: any[];
 
   /**
    * Optional trusted root certificates for backend authentication.
    */
-  readonly trustedRootCertificate?: azapgw.ApplicationGatewayTrustedRootCertificate[];
+  readonly trustedRootCertificates?: any[];
 
   /**
    * Optional URL path map for routing based on URL paths.
    */
-  readonly urlPathMap?: azapgw.ApplicationGatewayUrlPathMap[];
+  readonly urlPathMaps?: any[];
 
   /**
    * Optional Web Application Firewall (WAF) configuration to provide enhanced security.
    */
-  readonly wafConfiguration?: azapgw.ApplicationGatewayWafConfiguration;
+  readonly wafConfiguration?: ApplicationGatewayWebApplicationFirewallConfiguration;
+
+  // ============================================================================
+  // LEGACY PROPERTIES (for backward compatibility)
+  // ============================================================================
+
+  /**
+   * Application Gateway properties using AzAPI schema.
+   * @deprecated Use the flattened properties directly instead
+   */
+  readonly properties?: ApplicationGatewayProperties;
+
+  // Legacy convenience properties
+  /**
+   * Optional public IP address for the frontend of the Application Gateway.
+   * @deprecated Use frontendIpConfigurations instead
+   */
+  readonly publicIpAddress?: any;
+
+  /**
+   * Optional private IP address for the frontend of the Application Gateway.
+   * @deprecated Use frontendIpConfigurations instead
+   */
+  readonly privateIpAddress?: string;
+
+  /**
+   * Allocation method for the private IP address (e.g., Static, Dynamic).
+   * @deprecated Use frontendIpConfigurations instead
+   */
+  readonly privateIpAddressAllocation?: string;
+
+  /**
+   * Optional subnet for the Application Gateway.
+   * @deprecated Use gatewayIpConfigurations instead
+   */
+  readonly subnet?: any;
+
+  /**
+   * Optional tenant ID for use with Key Vault, if applicable.
+   * @deprecated Use identity configuration instead
+   */
+  readonly tenantId?: string;
+
+  /**
+   * Optional Key Vault resource for storing SSL certificates.
+   * @deprecated Use identity-based access instead
+   */
+  readonly keyVault?: any;
+
+  /**
+   * Optional authentication certificates for mutual authentication.
+   * @deprecated Use trustedRootCertificates instead
+   */
+  readonly authenticationCertificate?: any[];
 }
 
 // Define the class for Azure Application Gateway
@@ -214,80 +767,61 @@ export class Gateway extends AzureResource {
   public readonly props: IGatewayProps;
   public resourceGroup: ResourceGroup;
   public id: string;
+  public readonly resource: resource.Resource;
 
   /**
-   * Constructs a new Azure Application Gateway.
+   * Constructs a new Azure Application Gateway using AzAPI.
    *
    * @param scope - The scope in which to define this construct.
    * @param id - The ID of this construct.
-   * @param props - The properties for configuring the Azure Application Gateway. The properties include:
-   *                - `name`: Required. Unique name for the Application Gateway within Azure.
-   *                - `location`: Required. Azure Region for deployment.
-   *                - `resourceGroup`: Optional. Reference to the resource group for deployment.
-   *                - `skuTier`: Required. SKU tier of the Application Gateway (e.g., Standard, WAF).
-   *                - `skuSize`: Required. Size of the SKU for the Application Gateway.
-   *                - `capacity`: Required. Capacity (instance count) of the Application Gateway.
-   *                - `backendAddressPools`: Required. Backend address pools for the Application Gateway.
-   *                - `backendHttpSettings`: Required. Backend HTTP settings for the Application Gateway.
-   *                - `httpListeners`: Required. HTTP listeners for the Application Gateway.
-   *                - `requestRoutingRules`: Required. Request routing rules for the Application Gateway.
-   *                - `publicIpAddress`: Optional. Public IP address for the frontend.
-   *                - `privateIpAddress`: Optional. Private IP address for the frontend.
-   *                - `privateIpAddressAllocation`: Optional. Allocation method for the private IP (Static, Dynamic).
-   *                - `frontendPorts`: Optional. Frontend ports for the Application Gateway.
-   *                - `subnet`: Optional. Subnet for the Application Gateway.
-   *                - `enableHttp2`: Optional. Flag to enable HTTP2.
-   *                - `fipsEnabled`: Optional. Flag to enable FIPS-compliant algorithms.
-   *                - `firewallPolicyId`: Optional. ID of the firewall policy.
-   *                - `forceFirewallPolicyAssociation`: Optional. Flag to enforce association of the firewall policy.
-   *                - `tags`: Optional. Tags for resource management.
-   *                - Additional optional properties as described in `IGatewayProps` interface.
+   * @param props - The properties for configuring the Azure Application Gateway.
    *
    * Example usage:
    * ```typescript
    * new Gateway(this, 'appGateway1', {
    *   name: 'gatewayEast',
-   *   resourceGroup: resourceGroup,
-      location: "eastus",
-      skuTier: "Standard_v2",
-      skuSize: "Standard_v2",
-      capacity: 2,
-      publicIpAddress: publicIp,
-      subnet: subnet,
-      backendAddressPools: [
-        { name: "backend-address-pool-1" },
-        {
-          name: "backend-address-pool-2",
-          ipAddresses: ["10.1.0.4", "10.1.0.5", "10.1.0.6"],
-        },
-      ],
-      httpListeners: [
-        {
-          name: "http-listener",
-          frontendPortName: "80",
-          frontendIpConfigurationName: "Public-frontend-ip-configuration",
-          protocol: "Http",
-        },
-      ],
-      backendHttpSettings: [
-        {
-          name: "backend-http-setting",
-          port: 80,
-          protocol: "Http",
-          requestTimeout: 20,
-          cookieBasedAffinity: "Disabled",
-        },
-      ],
-      requestRoutingRules: [
-        {
-          name: "request-routing-rule-1",
-          httpListenerName: "http-listener",
-          priority: 1,
-          backendAddressPoolName: "backend-address-pool-1",
-          backendHttpSettingsName: "backend-http-setting",
-          ruleType: "Basic",
-        },
-      ],
+   *   location: "eastus",
+   *   skuTier: "Standard_v2",
+   *   skuSize: "Standard_v2",
+   *   capacity: 2,
+   *   gatewayIpConfigurations: [{
+   *     name: "gateway-ip-config",
+   *     subnet: { id: "/subscriptions/.../subnets/gateway-subnet" }
+   *   }],
+   *   frontendIpConfigurations: [{
+   *     name: "frontend-ip-config",
+   *     publicIPAddress: { id: "/subscriptions/.../publicIPAddresses/gateway-pip" }
+   *   }],
+   *   frontendPorts: [{ name: "port-80", port: 80 }],
+   *   backendAddressPools: [
+   *     { name: "backend-pool-1", backendAddresses: [] }
+   *   ],
+   *   backendHttpSettings: [
+   *     {
+   *       name: "backend-http-setting",
+   *       port: 80,
+   *       protocol: "Http",
+   *       requestTimeout: 20,
+   *       cookieBasedAffinity: "Disabled",
+   *     },
+   *   ],
+   *   httpListeners: [
+   *     {
+   *       name: "http-listener",
+   *       frontendIPConfiguration: { id: "frontend-ip-config" },
+   *       frontendPort: { id: "port-80" },
+   *       protocol: "Http",
+   *     },
+   *   ],
+   *   requestRoutingRules: [
+   *     {
+   *       name: "routing-rule-1",
+   *       ruleType: "Basic",
+   *       httpListener: { id: "http-listener" },
+   *       backendAddressPool: { id: "backend-pool-1" },
+   *       backendHttpSettings: { id: "backend-http-setting" },
+   *     },
+   *   ],
    * });
    * ```
    */
@@ -296,135 +830,184 @@ export class Gateway extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
-
-    // Define the identity
-    let identity;
-
-    // Check if Azure Key Vault is used and no identity is provided
-    if (props.keyVault && !props.identity) {
-      // Create a managed identity and add it to identityIds
-      const managedIdentity = new UserAssignedIdentity(
-        this,
-        "ManagedIdentity",
-        {
-          name: `mi-${props.name}`,
-          resourceGroupName: this.resourceGroup.name,
-          location: props.location,
-        },
-      );
-
-      identity = {
-        identityIds: [managedIdentity.id],
-        type: "UserAssigned",
-      };
-
-      new KeyVaultAccessPolicyA(this, "policy", {
-        keyVaultId: props.keyVault.id,
-        tenantId: props.tenantId || "",
-        objectId: managedIdentity.principalId,
-        secretPermissions: ["Get", "List"],
+    
+    // Setup or reuse the provided resource group.
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location || "eastus",
+        name: props.name ? `rg-${props.name}` : undefined,
       });
-    }
 
-    const defaults = {
-      subnetId:
-        props.subnet?.id ||
-        new vnet.Network(this, "vnet", {
-          resourceGroup: this.resourceGroup,
-        }).subnets.default.id,
-      identity: props.identity || identity,
-    };
+    // Build Application Gateway properties from flattened interface, supporting legacy props
+    const gatewayProperties: ApplicationGatewayProperties = {
+      // If properties is provided (legacy), use it as base
+      ...props.properties,
 
-    // WAF configuration
-    let wafConfiguration = props.wafConfiguration
-      ? {
-          enabled: props.wafConfiguration.enabled,
-          firewallMode: props.wafConfiguration.firewallMode || "Detection",
-          ruleSetVersion: props.wafConfiguration.ruleSetVersion || "3.0",
-        }
-      : undefined;
-
-    // Dynamically create frontend IP configurations
-    let frontendIpConfigs: azapgw.ApplicationGatewayFrontendIpConfiguration[] =
-      [];
-
-    // Public IP configuration
-    if (props.publicIpAddress) {
-      frontendIpConfigs.push({
-        name: "Public-frontend-ip-configuration",
-        publicIpAddressId: props.publicIpAddress.id,
-      });
-    }
-
-    // Private IP configuration
-    if (props.privateIpAddress || props.privateIpAddressAllocation) {
-      frontendIpConfigs.push({
-        name: "Private-frontend-ip-configuration",
-        subnetId: defaults.subnetId,
-        privateIpAddress: props.privateIpAddress,
-        privateIpAddressAllocation: props.privateIpAddressAllocation,
-      });
-    }
-
-    // If no frontend ports are provided, use default dummy frontend ip configuration
-    if (frontendIpConfigs.length == 0) {
-      frontendIpConfigs.push({
-        name: "Dummy-frontend-ip-configuration",
-      });
-    }
-
-    // Set default frontend ports if not provided
-    const defaultFrontendPorts = [
-      { name: "80", port: 80 },
-      { name: "443", port: 443 },
-    ];
-
-    const frontendPorts =
-      props.frontendPorts && props.frontendPorts.length > 0
-        ? props.frontendPorts
-        : defaultFrontendPorts;
-
-    // Create the Application Gateway
-    const apgw = new ApplicationGateway(this, "ApplicationGateway", {
-      name: props.name,
-      resourceGroupName: this.resourceGroup.name,
-      location: props.location,
-      sslCertificate: props.sslCertificate,
-      sslPolicy: props.sslPolicy,
-      sslProfile: props.sslProfile,
-      authenticationCertificate: props.authenticationCertificate,
-      autoscaleConfiguration: props.autoscaleConfiguration,
-      customErrorConfiguration: props.customErrorConfiguration,
-      redirectConfiguration: props.redirectConfiguration,
-      rewriteRuleSet: props.rewriteRuleSet,
-      privateLinkConfiguration: props.privateLinkConfiguration,
-      wafConfiguration: wafConfiguration,
+      // Override with flattened properties (new interface)
       sku: {
         name: props.skuSize,
         tier: props.skuTier,
         capacity: props.capacity,
       },
-      gatewayIpConfiguration: [
-        {
-          subnetId: defaults.subnetId,
-          name: `${props.name}-configuration`,
-        },
-      ],
-      frontendPort: frontendPorts,
-      frontendIpConfiguration: frontendIpConfigs,
-      backendAddressPool: props.backendAddressPools,
-      backendHttpSettings: props.backendHttpSettings,
-      httpListener: props.httpListeners,
-      urlPathMap: props.urlPathMap,
-      trustedRootCertificate: props.trustedRootCertificate,
-      requestRoutingRule: props.requestRoutingRules,
-      probe: props.probe,
-      identity: defaults.identity,
-      zones: props.zones,
+      gatewayIPConfigurations:
+        props.gatewayIpConfigurations ||
+        props.properties?.gatewayIPConfigurations ||
+        this.buildDefaultGatewayIpConfiguration(props),
+      frontendIPConfigurations:
+        props.frontendIpConfigurations ||
+        props.properties?.frontendIPConfigurations ||
+        this.buildDefaultFrontendIpConfiguration(props),
+      frontendPorts:
+        props.frontendPorts ||
+        props.properties?.frontendPorts ||
+        this.buildDefaultFrontendPorts(),
+      backendAddressPools:
+        props.backendAddressPools ||
+        props.properties?.backendAddressPools ||
+        [],
+      backendHttpSettingsCollection:
+        props.backendHttpSettings ||
+        props.properties?.backendHttpSettingsCollection ||
+        [],
+      httpListeners:
+        props.httpListeners || props.properties?.httpListeners || [],
+      requestRoutingRules:
+        props.requestRoutingRules ||
+        props.properties?.requestRoutingRules ||
+        [],
+      enableHttp2: props.enableHttp2 ?? props.properties?.enableHttp2,
+      enableFips: props.enableFips ?? props.properties?.enableFips,
+      forceFirewallPolicyAssociation:
+        props.forceFirewallPolicyAssociation ??
+        props.properties?.forceFirewallPolicyAssociation,
+      autoscaleConfiguration:
+        props.autoscaleConfiguration ||
+        props.properties?.autoscaleConfiguration,
+      customErrorConfigurations:
+        props.customErrorConfigurations ||
+        props.properties?.customErrorConfigurations,
+      webApplicationFirewallConfiguration:
+        props.wafConfiguration ||
+        props.properties?.webApplicationFirewallConfiguration,
+      probes: props.probes || props.properties?.probes,
+      redirectConfigurations:
+        props.redirectConfigurations ||
+        props.properties?.redirectConfigurations,
+      rewriteRuleSets:
+        props.rewriteRuleSets || props.properties?.rewriteRuleSets,
+      sslCertificates:
+        props.sslCertificates || props.properties?.sslCertificates,
+      trustedRootCertificates:
+        props.trustedRootCertificates ||
+        props.properties?.trustedRootCertificates,
+      trustedClientCertificates:
+        props.trustedClientCertificates ||
+        props.properties?.trustedClientCertificates,
+      urlPathMaps: props.urlPathMaps || props.properties?.urlPathMaps,
+      privateLinkConfigurations:
+        props.privateLinkConfigurations ||
+        props.properties?.privateLinkConfigurations,
+    };
+
+    // Handle firewall policy
+    if (props.firewallPolicyId) {
+      gatewayProperties.firewallPolicy = { id: props.firewallPolicyId };
+    }
+
+    // Handle identity
+    if (props.identity) {
+      gatewayProperties.identity = props.identity;
+    }
+
+    // Create the Application Gateway using AzAPI
+    this.resource = new resource.Resource(this, "gateway", {
+      type: "Microsoft.Network/applicationGateways@2023-09-01",
+      name: props.name,
+      location: props.location,
+      parentId: this.resourceGroup.resourceGroup.id,
       tags: props.tags,
+      body: {
+        properties: gatewayProperties,
+        zones: props.zones,
+        identity: props.identity,
+      },
     });
 
-    this.id = apgw.id;
+    this.id = this.resource.id;
+
+    // Terraform Outputs
+    const idOutput = new cdktf.TerraformOutput(this, "id", {
+      value: this.id,
+    });
+    const nameOutput = new cdktf.TerraformOutput(this, "name", {
+      value: this.resource.name,
+    });
+
+    idOutput.overrideLogicalId("id");
+    nameOutput.overrideLogicalId("name");
+  }
+
+  private buildDefaultGatewayIpConfiguration(
+    props: IGatewayProps,
+  ): ApplicationGatewayGatewayIpConfiguration[] {
+    // Handle legacy subnet property
+    if (props.subnet) {
+      return [
+        {
+          name: `${props.name}-gateway-ip-config`,
+          subnet: { id: (props.subnet as any).id },
+        },
+      ];
+    }
+
+    // Default subnet configuration would need to be created
+    // For now, require explicit configuration
+    return [
+      {
+        name: `${props.name}-gateway-ip-config`,
+        subnet: { id: "" }, // This should be provided by the user
+      },
+    ];
+  }
+
+  private buildDefaultFrontendIpConfiguration(
+    props: IGatewayProps,
+  ): ApplicationGatewayFrontendIpConfiguration[] {
+    const frontendConfigs: ApplicationGatewayFrontendIpConfiguration[] = [];
+
+    // Handle legacy public IP property
+    if (props.publicIpAddress) {
+      frontendConfigs.push({
+        name: "Public-frontend-ip-configuration",
+        publicIPAddress: { id: (props.publicIpAddress as any).id },
+      });
+    }
+
+    // Handle legacy private IP property
+    if (props.privateIpAddress || props.privateIpAddressAllocation) {
+      frontendConfigs.push({
+        name: "Private-frontend-ip-configuration",
+        privateIPAddress: props.privateIpAddress,
+        privateIPAllocationMethod: props.privateIpAddressAllocation,
+        subnet: props.subnet ? { id: (props.subnet as any).id } : undefined,
+      });
+    }
+
+    // Default configuration if none provided
+    if (frontendConfigs.length === 0) {
+      frontendConfigs.push({
+        name: "Default-frontend-ip-configuration",
+      });
+    }
+
+    return frontendConfigs;
+  }
+
+  private buildDefaultFrontendPorts(): ApplicationGatewayFrontendPort[] {
+    return [
+      { name: "port-80", port: 80 },
+      { name: "port-443", port: 443 },
+    ];
   }
 }

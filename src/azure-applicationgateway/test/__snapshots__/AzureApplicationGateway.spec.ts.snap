@@ -2,126 +2,392 @@
 
 exports[`Application Gateway With Defaults renders an Application Gateway with defaults and checks snapshot 1`] = `
 "{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testAzureApplicationGatewayDefaults2_gateway_EFA30CC9.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testAzureApplicationGatewayDefaults2_resource-group-resource_89D042E1.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testAzureApplicationGatewayDefaults2_gateway_EFA30CC9.name}"
+    }
+  },
   "provider": {
-    "azurerm": [
+    "azapi": [
       {
-        "features": {
-        }
       }
     ]
   },
   "resource": {
-    "azurerm_application_gateway": {
-      "testAzureApplicationGatewayDefaults2_ApplicationGateway_04B13FBA": {
-        "backend_address_pool": [
-          {
-            "name": "backend-address-pool-1"
-          },
-          {
-            "ip_addresses": [
-              "10.0.0.4",
-              "10.0.0.5",
-              "10.0.0.6"
+    "azapi_resource": {
+      "testAzureApplicationGatewayDefaults2_gateway_EFA30CC9": {
+        "body": {
+          "properties": {
+            "backendAddressPools": [
+              {
+                "name": "backend-address-pool-1"
+              },
+              {
+                "backendAddresses": [
+                  {
+                    "ipAddress": "10.0.0.4"
+                  },
+                  {
+                    "ipAddress": "10.0.0.5"
+                  },
+                  {
+                    "ipAddress": "10.0.0.6"
+                  }
+                ],
+                "name": "backend-address-pool-2"
+              }
             ],
-            "name": "backend-address-pool-2"
+            "backendHttpSettingsCollection": [
+              {
+                "cookieBasedAffinity": "Disabled",
+                "name": "backend-http-setting",
+                "port": 80,
+                "protocol": "Http",
+                "requestTimeout": 20
+              }
+            ],
+            "frontendIPConfigurations": [
+              {
+                "name": "Public",
+                "publicIPAddress": {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip"
+                }
+              }
+            ],
+            "frontendPorts": [
+              {
+                "name": "frontend-port",
+                "port": 80
+              }
+            ],
+            "gatewayIPConfigurations": [
+              {
+                "name": "gateway-ip-config",
+                "subnet": {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet"
+                }
+              }
+            ],
+            "httpListeners": [
+              {
+                "frontendIPConfiguration": {
+                  "id": "Public"
+                },
+                "frontendPort": {
+                  "id": "frontend-port"
+                },
+                "name": "http-listener",
+                "protocol": "Http"
+              }
+            ],
+            "requestRoutingRules": [
+              {
+                "backendAddressPool": {
+                  "id": "backend-address-pool-1"
+                },
+                "backendHttpSettings": {
+                  "id": "backend-http-setting"
+                },
+                "httpListener": {
+                  "id": "http-listener"
+                },
+                "name": "request-routing-rule-1",
+                "ruleType": "Basic"
+              },
+              {
+                "backendAddressPool": {
+                  "id": "backend-address-pool-2"
+                },
+                "backendHttpSettings": {
+                  "id": "backend-http-setting"
+                },
+                "httpListener": {
+                  "id": "http-listener"
+                },
+                "name": "request-routing-rule-2",
+                "ruleType": "Basic"
+              }
+            ],
+            "sku": {
+              "capacity": 2,
+              "name": "WAF_v2",
+              "tier": "WAF_v2"
+            }
           }
-        ],
-        "backend_http_settings": [
-          {
-            "cookie_based_affinity": "Disabled",
-            "name": "backend-http-setting",
-            "port": 80,
-            "protocol": "Http",
-            "request_timeout": 20
-          }
-        ],
-        "frontend_ip_configuration": [
-          {
-            "name": "Dummy-frontend-ip-configuration"
-          }
-        ],
-        "frontend_port": [
-          {
-            "name": "80",
-            "port": 80
-          },
-          {
-            "name": "443",
-            "port": 443
-          }
-        ],
-        "gateway_ip_configuration": [
-          {
-            "name": "application-gateway-configuration",
-            "subnet_id": "\${azurerm_subnet.testAzureApplicationGatewayDefaults2_vnet_default_94DB58C1.id}"
-          }
-        ],
-        "http_listener": [
-          {
-            "frontend_ip_configuration_name": "Public",
-            "frontend_port_name": "frontend-port",
-            "name": "http-listener",
-            "protocol": "Http"
-          }
-        ],
+        },
         "location": "eastus",
         "name": "application-gateway",
-        "request_routing_rule": [
+        "parent_id": "\${azapi_resource.testAzureApplicationGatewayDefaults2_resource-group-resource_89D042E1.id}",
+        "type": "Microsoft.Network/applicationGateways@2023-09-01"
+      },
+      "testAzureApplicationGatewayDefaults2_resource-group-resource_89D042E1": {
+        "lifecycle": [
           {
-            "backend_address_pool_name": "backend-address-pool-1",
-            "backend_http_settings_name": "backend-http-setting",
-            "http_listener_name": "http-listener",
-            "name": "request-routing-rule-1",
-            "rule_type": "Basic"
-          },
-          {
-            "backend_address_pool_name": "backend-address-pool-2",
-            "backend_http_settings_name": "backend-http-setting",
-            "http_listener_name": "http-listener",
-            "name": "request-routing-rule-2",
-            "rule_type": "Basic"
+            "ignore_changes": [
+            ]
           }
         ],
-        "resource_group_name": "\${azurerm_resource_group.testAzureApplicationGatewayDefaults2_rg_0D1F3FC1.name}",
-        "sku": {
-          "capacity": 2,
-          "name": "WAF_v2",
-          "tier": "WAF_v2"
-        }
-      }
-    },
-    "azurerm_resource_group": {
-      "testAzureApplicationGatewayDefaults2_rg_0D1F3FC1": {
         "location": "eastus",
-        "name": "rg-application-gateway"
-      }
-    },
-    "azurerm_subnet": {
-      "testAzureApplicationGatewayDefaults2_vnet_default_94DB58C1": {
-        "address_prefixes": [
-          "10.1.0.0/24"
-        ],
-        "name": "default",
-        "resource_group_name": "\${azurerm_resource_group.testAzureApplicationGatewayDefaults2_rg_0D1F3FC1.name}",
-        "virtual_network_name": "\${azurerm_virtual_network.testAzureApplicationGatewayDefaults2_vnet_33CC9CBF.name}"
-      }
-    },
-    "azurerm_virtual_network": {
-      "testAzureApplicationGatewayDefaults2_vnet_33CC9CBF": {
-        "address_space": [
-          "10.0.0.0/16"
-        ],
-        "location": "eastus",
-        "name": "vnet-test",
-        "resource_group_name": "\${azurerm_resource_group.testAzureApplicationGatewayDefaults2_rg_0D1F3FC1.name}"
+        "name": "rg-application-gateway",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }
   },
   "terraform": {
     "required_providers": {
-      "azurerm": {
-        "source": "azurerm",
-        "version": "3.70.0"
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
+
+exports[`Application Gateway with Legacy Properties renders an Application Gateway with legacy properties and checks snapshot 1`] = `
+"{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testLegacyApplicationGateway_gateway_EAD3C814.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testLegacyApplicationGateway_resource-group-resource_D451BA66.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testLegacyApplicationGateway_gateway_EAD3C814.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testLegacyApplicationGateway_gateway_EAD3C814": {
+        "body": {
+          "properties": {
+            "backendAddressPools": [
+              {
+                "name": "legacy-backend-pool"
+              }
+            ],
+            "backendHttpSettingsCollection": [
+              {
+                "cookieBasedAffinity": "Disabled",
+                "name": "legacy-http-settings",
+                "port": 80,
+                "protocol": "Http"
+              }
+            ],
+            "frontendIPConfigurations": [
+              {
+                "name": "legacy-frontend-ip",
+                "publicIPAddress": {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip"
+                }
+              }
+            ],
+            "frontendPorts": [
+              {
+                "name": "legacy-port-80",
+                "port": 80
+              }
+            ],
+            "gatewayIPConfigurations": [
+              {
+                "name": "legacy-gateway-ip-config",
+                "subnet": {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet"
+                }
+              }
+            ],
+            "httpListeners": [
+              {
+                "frontendIPConfiguration": {
+                  "id": "legacy-frontend-ip"
+                },
+                "frontendPort": {
+                  "id": "legacy-port-80"
+                },
+                "name": "legacy-listener",
+                "protocol": "Http"
+              }
+            ],
+            "requestRoutingRules": [
+              {
+                "backendAddressPool": {
+                  "id": "legacy-backend-pool"
+                },
+                "backendHttpSettings": {
+                  "id": "legacy-http-settings"
+                },
+                "httpListener": {
+                  "id": "legacy-listener"
+                },
+                "name": "legacy-routing-rule",
+                "ruleType": "Basic"
+              }
+            ],
+            "sku": {
+              "capacity": 1,
+              "name": "Standard_v2",
+              "tier": "Standard_v2"
+            }
+          }
+        },
+        "location": "eastus",
+        "name": "legacy-application-gateway",
+        "parent_id": "\${azapi_resource.testLegacyApplicationGateway_resource-group-resource_D451BA66.id}",
+        "type": "Microsoft.Network/applicationGateways@2023-09-01"
+      },
+      "testLegacyApplicationGateway_resource-group-resource_D451BA66": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-legacy-application-gateway",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
+      }
+    }
+  }
+}"
+`;
+
+exports[`Application Gateway with Mixed Properties renders an Application Gateway with mixed properties (flattened override legacy) and checks snapshot 1`] = `
+"{
+  "output": {
+    "id": {
+      "value": "\${azapi_resource.testMixedApplicationGateway_gateway_642FA466.id}"
+    },
+    "location": {
+      "value": "\${azapi_resource.testMixedApplicationGateway_resource-group-resource_A91501AA.location}"
+    },
+    "name": {
+      "value": "\${azapi_resource.testMixedApplicationGateway_gateway_642FA466.name}"
+    }
+  },
+  "provider": {
+    "azapi": [
+      {
+      }
+    ]
+  },
+  "resource": {
+    "azapi_resource": {
+      "testMixedApplicationGateway_gateway_642FA466": {
+        "body": {
+          "properties": {
+            "backendAddressPools": [
+              {
+                "name": "legacy-backend-pool"
+              }
+            ],
+            "backendHttpSettingsCollection": [
+              {
+                "cookieBasedAffinity": "Disabled",
+                "name": "legacy-http-settings",
+                "port": 80,
+                "protocol": "Http"
+              }
+            ],
+            "frontendIPConfigurations": [
+              {
+                "name": "legacy-frontend-ip",
+                "publicIPAddress": {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip"
+                }
+              }
+            ],
+            "frontendPorts": [
+              {
+                "name": "legacy-port-80",
+                "port": 80
+              }
+            ],
+            "gatewayIPConfigurations": [
+              {
+                "name": "new-gateway-ip-config",
+                "subnet": {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet"
+                }
+              }
+            ],
+            "httpListeners": [
+              {
+                "frontendIPConfiguration": {
+                  "id": "legacy-frontend-ip"
+                },
+                "frontendPort": {
+                  "id": "legacy-port-80"
+                },
+                "name": "legacy-listener",
+                "protocol": "Http"
+              }
+            ],
+            "requestRoutingRules": [
+              {
+                "backendAddressPool": {
+                  "id": "legacy-backend-pool"
+                },
+                "backendHttpSettings": {
+                  "id": "legacy-http-settings"
+                },
+                "httpListener": {
+                  "id": "legacy-listener"
+                },
+                "name": "legacy-routing-rule",
+                "ruleType": "Basic"
+              }
+            ],
+            "sku": {
+              "capacity": 3,
+              "name": "WAF_v2",
+              "tier": "WAF_v2"
+            }
+          }
+        },
+        "location": "eastus",
+        "name": "mixed-application-gateway",
+        "parent_id": "\${azapi_resource.testMixedApplicationGateway_resource-group-resource_A91501AA.id}",
+        "type": "Microsoft.Network/applicationGateways@2023-09-01"
+      },
+      "testMixedApplicationGateway_resource-group-resource_A91501AA": {
+        "lifecycle": [
+          {
+            "ignore_changes": [
+            ]
+          }
+        ],
+        "location": "eastus",
+        "name": "rg-mixed-application-gateway",
+        "type": "Microsoft.Resources/resourceGroups@2022-09-01"
+      }
+    }
+  },
+  "terraform": {
+    "required_providers": {
+      "azapi": {
+        "source": "Azure/azapi",
+        "version": "2.4.0"
       }
     }
   }

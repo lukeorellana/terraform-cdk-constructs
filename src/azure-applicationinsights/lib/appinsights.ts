@@ -1,58 +1,202 @@
-import { ApplicationInsights } from "@cdktf/provider-azurerm/lib/application-insights";
-import { KeyVaultSecret } from "@cdktf/provider-azurerm/lib/key-vault-secret";
-import { LogAnalyticsWorkspace } from "@cdktf/provider-azurerm/lib/log-analytics-workspace";
-import { ResourceGroup } from "@cdktf/provider-azurerm/lib/resource-group";
 import * as cdktf from "cdktf";
 import { Construct } from "constructs";
+import * as resource from "../../../.gen/providers/azapi/resource";
+import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { AzureResource } from "../../core-azure/lib";
 
-// Construct
 /**
- * Properties for the resource group
+ * Application Insights component properties (AzAPI schema).
  */
-
-export interface AppInsightsProps {
+export interface ApplicationInsightsProperties {
   /**
-   * The Azure Region to deploy.
+   * The kind of application that this component refers to, used to customize UI.
+   * This value is case-sensitive. Values are web, ios, other, store, java, phone.
    */
-  readonly location: string;
+  Application_Type: string;
+  /**
+   * Retention period in days.
+   */
+  RetentionInDays?: number;
+  /**
+   * Application Insights Sampling percentage.
+   */
+  SamplingPercentage?: number;
+  /**
+   * Disable IP masking.
+   */
+  DisableIpMasking?: boolean;
+  /**
+   * Disable local authentication.
+   */
+  DisableLocalAuth?: boolean;
+  /**
+   * Force users to create their own storage account for profiler and debugger.
+   */
+  ForceCustomerStorageForProfiler?: boolean;
+  /**
+   * The network access type for accessing Application Insights ingestion.
+   */
+  IngestionMode?: string;
+  /**
+   * The network access type for accessing Application Insights query.
+   */
+  publicNetworkAccessForIngestion?: string;
+  /**
+   * The network access type for accessing Application Insights query.
+   */
+  publicNetworkAccessForQuery?: string;
+  /**
+   * Resource Id of the log analytics workspace which the data will be ingested to.
+   */
+  WorkspaceResourceId?: string;
+  /**
+   * Describes what tool created this Application Insights component.
+   */
+  Request_Source?: string;
+  /**
+   * Used by the Application Insights portal to determine which type of flow to show the user.
+   */
+  Flow_Type?: string;
+  /**
+   * Unique ID for this component.
+   */
+  HockeyAppId?: string;
+  /**
+   * Token used to authenticate communications with between Application Insights and HockeyApp.
+   */
+  HockeyAppToken?: string;
+}
+
+/**
+ * Properties for the Application Insights component.
+ */
+export interface AppInsightsProps {
   /**
    * The name of the Application Insights resource.
    */
   readonly name: string;
 
   /**
+   * The Azure Region to deploy.
+   */
+  readonly location: string;
+
+  /**
    * An optional reference to the resource group in which to deploy the Application Insights.
    * If not provided, the Application Insights will be deployed in the default resource group.
    */
   readonly resourceGroup?: ResourceGroup;
+
+  /**
+   * The tags to assign to the Application Insights resource.
+   */
+  readonly tags?: { [key: string]: string };
+
+  // ============================================================================
+  // FLATTENED APPLICATION INSIGHTS PROPERTIES
+  // ============================================================================
+
+  /**
+   * The Application type.
+   * This value is case-sensitive. Values are web, ios, other, store, java, phone.
+   */
+  readonly applicationType: string;
+
   /**
    * The number of days of retention.
    * Possible values are 30, 60, 90, 120, 180, 270, 365, 550 or 730. Defaults to 90.
    * @default 90
    */
   readonly retentionInDays?: number;
+
   /**
-   * The tags to assign to the Application Insights resource.
+   * Application Insights Sampling percentage.
    */
-  readonly tags?: { [key: string]: string };
+  readonly samplingPercentage?: number;
+
   /**
-   * The Application type.
+   * Disable IP masking.
    */
-  readonly applicationType: string;
+  readonly disableIpMasking?: boolean;
+
   /**
-   * The Application Insights daily data cap in GB.
+   * Disable local authentication.
    */
-  readonly dailyDataCapInGb?: number;
+  readonly disableLocalAuth?: boolean;
+
   /**
-   * The Application Insights daily data cap notifications disabled.
+   * Force users to create their own storage account for profiler and debugger.
    */
-  readonly dailyDataCapNotificationDisabled?: boolean;
+  readonly forceCustomerStorageForProfiler?: boolean;
+
   /**
-   * The id of the Log Analytics Workspace.
+   * The network access type for accessing Application Insights ingestion.
+   */
+  readonly ingestionMode?: string;
+
+  /**
+   * The network access type for accessing Application Insights ingestion.
+   */
+  readonly publicNetworkAccessForIngestion?: string;
+
+  /**
+   * The network access type for accessing Application Insights query.
+   */
+  readonly publicNetworkAccessForQuery?: string;
+
+  /**
+   * Resource Id of the log analytics workspace which the data will be ingested to.
    * @default - If no workspace id is provided, a new one will be created automatically
    * in the same resource group. The name will be the same as the Application Insights
    * resource with a "-la" suffix.
+   */
+  readonly workspaceResourceId?: string;
+
+  /**
+   * Describes what tool created this Application Insights component.
+   */
+  readonly requestSource?: string;
+
+  /**
+   * Used by the Application Insights portal to determine which type of flow to show the user.
+   */
+  readonly flowType?: string;
+
+  /**
+   * Unique ID for this component.
+   */
+  readonly hockeyAppId?: string;
+
+  /**
+   * Token used to authenticate communications with between Application Insights and HockeyApp.
+   */
+  readonly hockeyAppToken?: string;
+
+  // ============================================================================
+  // LEGACY PROPERTIES (for backward compatibility)
+  // ============================================================================
+
+  /**
+   * Application Insights properties using AzAPI schema.
+   * @deprecated Use the flattened properties directly instead
+   */
+  readonly properties?: ApplicationInsightsProperties;
+
+  /**
+   * The Application Insights daily data cap in GB.
+   * @deprecated Use a separate dailyDataCap configuration
+   */
+  readonly dailyDataCapInGb?: number;
+
+  /**
+   * The Application Insights daily data cap notifications disabled.
+   * @deprecated Use a separate dailyDataCap configuration
+   */
+  readonly dailyDataCapNotificationDisabled?: boolean;
+
+  /**
+   * The id of the Log Analytics Workspace.
+   * @deprecated Use workspaceResourceId instead
    */
   readonly workspaceId?: string;
 }
@@ -61,10 +205,13 @@ export class AppInsights extends AzureResource {
   readonly props: AppInsightsProps;
   public resourceGroup: ResourceGroup;
   public id: string;
-  private readonly instrumentationKey: string;
+  public readonly resource: resource.Resource;
+  public readonly instrumentationKey: string;
+  public readonly connectionString: string;
+  public readonly appId: string;
 
   /**
-   * Constructs a new Azure Application Insights resource.
+   * Constructs a new Azure Application Insights resource using AzAPI.
    *
    * @param scope - The scope in which to define this construct.
    * @param id - The ID of this construct.
@@ -72,27 +219,22 @@ export class AppInsights extends AzureResource {
    *                - `name`: Required. Unique name for the Application Insights resource within Azure.
    *                - `location`: Required. Azure Region for deployment.
    *                - `resourceGroup`: Optional. Reference to the resource group for deployment.
+   *                - `applicationType`: Required. The type of application (e.g., web, other).
    *                - `retentionInDays`: Optional. Number of days to retain data. Default is 90 days.
    *                - `tags`: Optional. Tags for resource management.
-   *                - `applicationType`: Required. The type of application (e.g., web, other).
-   *                - `dailyDataCapInGb`: Optional. Daily data cap in gigabytes.
-   *                - `dailyDataCapNotificationDisabled`: Optional. Flag to disable notifications when the daily data cap is reached.
-   *                - `workspaceId`: Optional. ID of the Log Analytics Workspace to associate with Application Insights. If not provided, a new workspace is created automatically.
+   *                - `workspaceResourceId`: Optional. ID of the Log Analytics Workspace to associate with Application Insights. If not provided, a new workspace is created automatically.
    *
    * Example usage:
    * ```typescript
    * new AppInsights(this, 'myAppInsights', {
    *   name: 'myAppInsightsResource',
-   *   location: 'West US',
+   *   location: 'East US',
    *   resourceGroup: resourceGroup,
+   *   applicationType: 'web',
    *   retentionInDays: 120,
    *   tags: {
    *     "environment": "production"
-   *   },
-   *   applicationType: 'web',
-   *   dailyDataCapInGb: 10,
-   *   dailyDataCapNotificationDisabled: true,
-   *   workspaceId: 'existing-workspace-id'
+   *   }
    * });
    * ```
    */
@@ -101,52 +243,93 @@ export class AppInsights extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    this.resourceGroup = this.setupResourceGroup(props);
+    
+    // Setup or reuse the provided resource group.
+    this.resourceGroup =
+      props.resourceGroup ||
+      new ResourceGroup(this, "resource-group", {
+        location: props.location || "eastus",
+        name: props.name ? `rg-${props.name}` : undefined,
+      });
 
-    const azurermApplicationInsightsAppinsights = new ApplicationInsights(
-      this,
-      "appinsights",
-      {
-        location: props.location,
-        name: props.name,
-        resourceGroupName: this.resourceGroup.name,
-        tags: props.tags,
-        applicationType: props.applicationType,
-        dailyDataCapInGb: props.dailyDataCapInGb,
-        dailyDataCapNotificationsDisabled:
-          props.dailyDataCapNotificationDisabled,
-        retentionInDays: props.retentionInDays,
-        workspaceId: this.setupLogAnalytics(props),
+    // Build Application Insights properties from flattened interface, supporting legacy props
+    const appInsightsProperties: ApplicationInsightsProperties = {
+      // If properties is provided (legacy), use it as base
+      ...props.properties,
+
+      // Override with flattened properties (new interface)
+      Application_Type: props.applicationType,
+      RetentionInDays:
+        props.retentionInDays ?? props.properties?.RetentionInDays ?? 90,
+      SamplingPercentage:
+        props.samplingPercentage ?? props.properties?.SamplingPercentage,
+      DisableIpMasking:
+        props.disableIpMasking ?? props.properties?.DisableIpMasking,
+      DisableLocalAuth:
+        props.disableLocalAuth ?? props.properties?.DisableLocalAuth,
+      ForceCustomerStorageForProfiler:
+        props.forceCustomerStorageForProfiler ??
+        props.properties?.ForceCustomerStorageForProfiler,
+      IngestionMode: props.ingestionMode || props.properties?.IngestionMode,
+      publicNetworkAccessForIngestion:
+        props.publicNetworkAccessForIngestion ||
+        props.properties?.publicNetworkAccessForIngestion,
+      publicNetworkAccessForQuery:
+        props.publicNetworkAccessForQuery ||
+        props.properties?.publicNetworkAccessForQuery,
+      WorkspaceResourceId:
+        props.workspaceResourceId ||
+        props.workspaceId ||
+        props.properties?.WorkspaceResourceId ||
+        this.setupLogAnalytics(props),
+      Request_Source: props.requestSource || props.properties?.Request_Source,
+      Flow_Type: props.flowType || props.properties?.Flow_Type,
+      HockeyAppId: props.hockeyAppId || props.properties?.HockeyAppId,
+      HockeyAppToken: props.hockeyAppToken || props.properties?.HockeyAppToken,
+    };
+
+    // Create the Application Insights component using AzAPI
+    this.resource = new resource.Resource(this, "appinsights", {
+      type: "Microsoft.Insights/components@2020-02-02",
+      name: props.name,
+      location: props.location,
+      parentId: this.resourceGroup.resourceGroup.id,
+      tags: props.tags,
+      body: {
+        kind: props.applicationType,
+        properties: appInsightsProperties,
       },
-    );
+    });
 
-    this.instrumentationKey =
-      azurermApplicationInsightsAppinsights.instrumentationKey;
-    this.id = azurermApplicationInsightsAppinsights.id;
+    // Extract values from the created resource
+    this.id = this.resource.id;
+    this.instrumentationKey = `\${${this.resource.fqn}.properties.InstrumentationKey}`;
+    this.connectionString = `\${${this.resource.fqn}.properties.ConnectionString}`;
+    this.appId = `\${${this.resource.fqn}.properties.AppId}`;
 
     // Terraform Outputs
     const cdktfTerraformOutputAppiID = new cdktf.TerraformOutput(this, "id", {
-      value: azurermApplicationInsightsAppinsights.id,
+      value: this.id,
     });
     const cdktfTerraformOutputAppiName = new cdktf.TerraformOutput(
       this,
       "name",
       {
-        value: azurermApplicationInsightsAppinsights.name,
+        value: this.resource.name,
       },
     );
     const cdktfTerraformOutputAppiAppId = new cdktf.TerraformOutput(
       this,
       "app_id",
       {
-        value: azurermApplicationInsightsAppinsights.appId,
+        value: this.appId,
       },
     );
     const cdktfTerraformOutputAppiIKey = new cdktf.TerraformOutput(
       this,
       "instrumentation_key",
       {
-        value: azurermApplicationInsightsAppinsights.instrumentationKey,
+        value: this.instrumentationKey,
         sensitive: true,
       },
     );
@@ -154,7 +337,7 @@ export class AppInsights extends AzureResource {
       this,
       "connection_string",
       {
-        value: azurermApplicationInsightsAppinsights.connectionString,
+        value: this.connectionString,
         sensitive: true,
       },
     );
@@ -188,29 +371,42 @@ export class AppInsights extends AzureResource {
     keyVaultId: string,
     keyVaultSecretName: string = "instrumentation-key",
   ) {
-    new KeyVaultSecret(this, keyVaultSecretName, {
-      keyVaultId: keyVaultId,
+    // Create a Key Vault secret using AzAPI
+    new resource.Resource(this, keyVaultSecretName, {
+      type: "Microsoft.KeyVault/vaults/secrets@2023-07-01",
       name: keyVaultSecretName,
-      value: this.instrumentationKey,
+      parentId: keyVaultId,
+      body: {
+        properties: {
+          value: this.instrumentationKey,
+        },
+      },
     });
   }
 
   private setupLogAnalytics(props: AppInsightsProps): string {
-    if (cdktf.canInspect(props.workspaceId)) {
+    if (cdktf.canInspect(props.workspaceResourceId || props.workspaceId)) {
       // Use the provided Log Analytics Workspace
-      return props.workspaceId!;
+      return props.workspaceResourceId || props.workspaceId!;
     } else {
-      // Create a new Log Analytics Workspace
-      const logAnalyticsWorkspace = new LogAnalyticsWorkspace(
+      // Create a new Log Analytics Workspace using AzAPI
+      const logAnalyticsWorkspace = new resource.Resource(
         this,
         "log_analytics",
         {
-          location: props.location,
+          type: "Microsoft.OperationalInsights/workspaces@2023-09-01",
           name: `${props.name}-la`,
-          resourceGroupName: this.resourceGroup.name,
-          sku: "PerGB2018",
-          retentionInDays: props.retentionInDays,
+          location: props.location,
+          parentId: this.resourceGroup.resourceGroup.id,
           tags: props.tags,
+          body: {
+            properties: {
+              sku: {
+                name: "PerGB2018",
+              },
+              retentionInDays: props.retentionInDays ?? 90,
+            },
+          },
         },
       );
       return logAnalyticsWorkspace.id;
