@@ -31,13 +31,9 @@ describe("Example of deploying a Function App (AzAPI)", () => {
       name: `func-${randomName}`,
       location: "eastus",
       kind: "functionapp,linux",
-      properties: {
-        enabled: true,
-        siteConfig: {
-          linuxFxVersion: "NODE|18",
-          alwaysOn: false,
-        },
-      },
+      enabled: true,
+      linuxFxVersion: "NODE|18",
+      alwaysOn: false,
       tags: {
         environment: "integration-test",
         owner: "cdktf-team",

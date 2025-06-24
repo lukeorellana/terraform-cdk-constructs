@@ -222,20 +222,63 @@ export interface RegistryProps {
    */
   readonly sku?: Sku;
   /**
-   * The properties of the container registry (AzAPI schema).
-   */
-  readonly properties?: RegistryProperties;
-  /**
    * The tags to assign to the Container Registry.
    */
   readonly tags?: { [key: string]: string };
 
+  // Registry configuration properties (flattened from AzAPI properties)
+  /**
+   * The value that indicates whether the admin user is enabled.
+   */
+  readonly adminUserEnabled?: boolean;
+  /**
+   * Enables registry-wide pull from unauthenticated clients.
+   */
+  readonly anonymousPullEnabled?: boolean;
+  /**
+   * Enable a single data endpoint per region for serving data.
+   */
+  readonly dataEndpointEnabled?: boolean;
+  /**
+   * The encryption settings of container registry.
+   */
+  readonly encryption?: EncryptionProperty;
+  /**
+   * Determines whether registry artifacts are indexed for metadata search.
+   */
+  readonly metadataSearch?: string;
+  /**
+   * Whether to allow trusted Azure services to access a network restricted registry.
+   */
+  readonly networkRuleBypassOptions?: string;
+  /**
+   * The network rule set for a container registry.
+   */
+  readonly networkRuleSet?: NetworkRuleSet;
+  /**
+   * The policies for a container registry.
+   */
+  readonly policies?: Policies;
+  /**
+   * Whether or not public network access is allowed for the container registry.
+   */
+  readonly publicNetworkAccess?: string;
+  /**
+   * Whether or not zone redundancy is enabled for this container registry
+   */
+  readonly zoneRedundancy?: string;
+
   // Legacy properties for backward compatibility
   /**
    * Create enable Admin user.
-   * @deprecated Use properties.adminUserEnabled instead
+   * @deprecated Use adminUserEnabled instead
    */
   readonly adminEnabled?: boolean;
+  /**
+   * The properties of the container registry (AzAPI schema).
+   * @deprecated Use flattened properties instead
+   */
+  readonly properties?: RegistryProperties;
   /**
    * Specify the locations to configure replication.
    * @deprecated Use separate replication resources instead
@@ -299,15 +342,27 @@ export class Registry extends AzureResource {
         name: props.name ? `rg-${props.name}` : undefined,
       });
 
-    // Build registry properties, supporting both new and legacy prop patterns
+    // Build registry properties, supporting both new flattened props and legacy nested props
     const registryProperties: RegistryProperties = {
+      // Start with legacy properties if provided
       ...props.properties,
+      // Override with flattened properties if provided
+      adminUserEnabled: props.adminUserEnabled ?? props.properties?.adminUserEnabled,
+      anonymousPullEnabled: props.anonymousPullEnabled ?? props.properties?.anonymousPullEnabled,
+      dataEndpointEnabled: props.dataEndpointEnabled ?? props.properties?.dataEndpointEnabled,
+      encryption: props.encryption ?? props.properties?.encryption,
+      metadataSearch: props.metadataSearch ?? props.properties?.metadataSearch,
+      networkRuleBypassOptions: props.networkRuleBypassOptions ?? props.properties?.networkRuleBypassOptions,
+      networkRuleSet: props.networkRuleSet ?? props.properties?.networkRuleSet,
+      policies: props.policies ?? props.properties?.policies,
+      publicNetworkAccess: props.publicNetworkAccess ?? props.properties?.publicNetworkAccess,
+      zoneRedundancy: props.zoneRedundancy ?? props.properties?.zoneRedundancy,
     };
 
     // Handle legacy adminEnabled property
     if (
       props.adminEnabled !== undefined &&
-      !props.properties?.adminUserEnabled
+      registryProperties.adminUserEnabled === undefined
     ) {
       registryProperties.adminUserEnabled = props.adminEnabled;
     }
@@ -418,9 +473,17 @@ export interface CacheRuleProps {
    */
   readonly name: string;
   /**
-   * The properties of the cache rule.
+   * The ARM resource ID of the credential store which is associated with the cache rule.
    */
-  readonly properties?: CacheRuleProperties;
+  readonly credentialSetResourceId?: string;
+  /**
+   * Source repository pulled from upstream.
+   */
+  readonly sourceRepository?: string;
+  /**
+   * Target repository specified in docker pull command.
+   */
+  readonly targetRepository?: string;
 }
 
 /**
@@ -455,9 +518,25 @@ export interface WebhookProps {
    */
   readonly name: string;
   /**
-   * The properties that the webhook will be created with.
+   * The list of actions that trigger the webhook to post notifications.
    */
-  readonly properties: WebhookPropertiesCreateParameters;
+  readonly actions: string[];
+  /**
+   * Custom headers that will be added to the webhook notifications.
+   */
+  readonly customHeaders?: { [key: string]: any };
+  /**
+   * The scope of repositories where the event can be triggered.
+   */
+  readonly scope?: string;
+  /**
+   * The service URI for the webhook to post notifications.
+   */
+  readonly serviceUri: string;
+  /**
+   * The status of the webhook at the time the operation was called.
+   */
+  readonly status?: string;
 }
 
 /**
@@ -480,9 +559,13 @@ export interface ScopeMapProps {
    */
   readonly name: string;
   /**
-   * The properties of the scope map.
+   * The list of scoped permissions for registry artifacts.
    */
-  readonly properties: ScopeMapProperties;
+  readonly actions: string[];
+  /**
+   * The user friendly description of the scope map.
+   */
+  readonly description?: string;
 }
 
 /**
@@ -554,9 +637,17 @@ export interface TokenProps {
    */
   readonly name: string;
   /**
-   * The properties of the token.
+   * The credentials that can be used for authenticating the token.
    */
-  readonly properties?: TokenProperties;
+  readonly credentials?: TokenCredentialsProperties;
+  /**
+   * The resource ID of the scope map to which the token will be associated with.
+   */
+  readonly scopeMapId?: string;
+  /**
+   * The status of the token example enabled or disabled.
+   */
+  readonly status?: string;
 }
 
 /**
@@ -583,9 +674,13 @@ export interface ReplicationProps {
    */
   readonly location: string;
   /**
-   * The properties of the replication.
+   * Specifies whether the replication's regional endpoint is enabled.
    */
-  readonly properties?: ReplicationProperties;
+  readonly regionEndpointEnabled?: boolean;
+  /**
+   * Whether or not zone redundancy is enabled for this container registry replication
+   */
+  readonly zoneRedundancy?: string;
   /**
    * The tags to assign to the replication.
    */
@@ -609,7 +704,11 @@ export class CacheRule extends AzureResource {
       name: props.name,
       parentId: parentRegistry.resource.id,
       body: {
-        properties: props.properties,
+        properties: {
+          credentialSetResourceId: props.credentialSetResourceId,
+          sourceRepository: props.sourceRepository,
+          targetRepository: props.targetRepository,
+        },
       },
     });
   }
@@ -629,7 +728,13 @@ export class Webhook extends AzureResource {
       name: props.name,
       parentId: parentRegistry.resource.id,
       body: {
-        properties: props.properties,
+        properties: {
+          actions: props.actions,
+          customHeaders: props.customHeaders,
+          scope: props.scope,
+          serviceUri: props.serviceUri,
+          status: props.status,
+        },
       },
     });
   }
@@ -649,7 +754,10 @@ export class ScopeMap extends AzureResource {
       name: props.name,
       parentId: parentRegistry.resource.id,
       body: {
-        properties: props.properties,
+        properties: {
+          actions: props.actions,
+          description: props.description,
+        },
       },
     });
   }
@@ -669,7 +777,11 @@ export class Token extends AzureResource {
       name: props.name,
       parentId: parentRegistry.resource.id,
       body: {
-        properties: props.properties,
+        properties: {
+          credentials: props.credentials,
+          scopeMapId: props.scopeMapId,
+          status: props.status,
+        },
       },
     });
   }
@@ -690,7 +802,10 @@ export class Replication extends AzureResource {
       location: props.location,
       parentId: parentRegistry.resource.id,
       body: {
-        properties: props.properties,
+        properties: {
+          regionEndpointEnabled: props.regionEndpointEnabled,
+          zoneRedundancy: props.zoneRedundancy,
+        },
       },
       tags: props.tags,
     });

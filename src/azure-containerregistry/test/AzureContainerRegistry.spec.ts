@@ -60,19 +60,15 @@ describe("Azure Container Registry With Child Resources", () => {
     // Add child resources
     registry.addWebhook({
       name: "testwebhook",
-      properties: {
-        actions: ["push", "delete"],
-        serviceUri: "https://example.com/webhook",
-        status: "enabled",
-      },
+      actions: ["push", "delete"],
+      serviceUri: "https://example.com/webhook",
+      status: "enabled",
     });
 
     registry.addScopeMap({
       name: "testscopemap",
-      properties: {
-        actions: ["repositories/*/content/read"],
-        description: "Test scope map",
-      },
+      actions: ["repositories/*/content/read"],
+      description: "Test scope map",
     });
 
     fullSynthResult = Testing.fullSynth(stack);

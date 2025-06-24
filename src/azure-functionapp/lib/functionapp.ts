@@ -658,7 +658,7 @@ export interface HostingEnvironmentProfile {
 }
 
 /**
- * Properties for the Function App (includes both legacy and AzAPI support).
+ * Properties for the Function App (flattened interface to hide AzAPI details).
  */
 export interface FunctionAppProps {
   /**
@@ -686,85 +686,393 @@ export interface FunctionAppProps {
    */
   readonly ignoreChanges?: string[];
 
-  // Legacy properties for backward compatibility
-  /**
-   * Optional runtime version specification for the Function App.
-   */
-  readonly runtimeVersion?: any;
-
-  /**
-   * Optional ID of an existing App Service Plan.
-   */
-  readonly servicePlan?: any;
-
-  /**
-   * Optional SKU for the App Service Plan.
-   */
-  readonly servicePlanSku?: string;
-
-  /**
-   * Optional storage account to be used by the Function App.
-   */
-  readonly storageAccount?: any;
-
-  /**
-   * Optional site configuration.
-   */
-  readonly siteConfig?: any;
-
-  /**
-   * Optional authentication settings.
-   */
-  readonly authSettings?: any;
-
-  /**
-   * Optional identity configuration.
-   */
-  readonly identity?: any;
-
-  /**
-   * Optional flag to enforce HTTPS only traffic.
-   */
-  readonly httpsOnly?: boolean;
-
-  /**
-   * Optional flag to enable client certificate authentication.
-   */
-  readonly clientCertificateEnabled?: boolean;
-
-  /**
-   * Optional mode for client certificate requirement.
-   */
-  readonly clientCertificateMode?: string;
-
-  /**
-   * Optional version setting for the Azure Functions runtime.
-   */
-  readonly functionsExtensionVersion?: string;
-
-  /**
-   * Optional flag to enable or disable the Function App.
-   */
-  readonly enabled?: boolean;
-
-  /**
-   * Optional flag to enable built-in logging capabilities.
-   */
-  readonly builtinLoggingEnabled?: boolean;
-
-  /**
-   * Optional connection strings.
-   */
-  readonly connectionString?: any[];
-
-  // AzAPI properties
+  // Flattened Function App configuration properties
   /**
    * AzAPI: Kind of resource.
    */
   readonly kind?: string;
 
   /**
+   * true if the app is enabled; otherwise, false.
+   */
+  readonly enabled?: boolean;
+
+  /**
+   * true to enforce HTTPS only traffic.
+   */
+  readonly httpsOnly?: boolean;
+
+  /**
+   * true to enable client certificate authentication (TLS mutual authentication).
+   */
+  readonly clientCertEnabled?: boolean;
+
+  /**
+   * client certificate authentication comma-separated exclusion paths
+   */
+  readonly clientCertExclusionPaths?: string;
+
+  /**
+   * Client certificate mode: Required, Optional, or OptionalInteractiveUser.
+   */
+  readonly clientCertMode?: string;
+
+  /**
+   * Size of the function container.
+   */
+  readonly containerSize?: number;
+
+  /**
+   * Maximum allowed daily memory-time quota (applicable on dynamic apps only).
+   */
+  readonly dailyMemoryTimeQuota?: number;
+
+  /**
+   * true to disable the public hostnames of the app.
+   */
+  readonly hostNamesDisabled?: boolean;
+
+  /**
+   * Hyper-V sandbox.
+   */
+  readonly hyperV?: boolean;
+
+  /**
+   * Identity to use for Key Vault Reference authentication.
+   */
+  readonly keyVaultReferenceIdentity?: string;
+
+  /**
+   * Maximum number of workers.
+   */
+  readonly maxNumberOfWorkers?: number;
+
+  /**
+   * Property to allow or block all public traffic.
+   */
+  readonly publicNetworkAccess?: string;
+
+  /**
+   * true if reserved; otherwise, false.
+   */
+  readonly reserved?: boolean;
+
+  /**
+   * true to stop SCM (KUDU) site when the app is stopped.
+   */
+  readonly scmSiteAlsoStopped?: boolean;
+
+  /**
+   * Resource ID of the associated App Service plan.
+   */
+  readonly serverFarmId?: string;
+
+  // Flattened SiteConfig properties
+  /**
+   * true if Always On is enabled; otherwise, false.
+   */
+  readonly alwaysOn?: boolean;
+
+  /**
+   * App command line to launch.
+   */
+  readonly appCommandLine?: string;
+
+  /**
+   * Application settings.
+   */
+  readonly appSettings?: NameValuePair[];
+
+  /**
+   * true if Auto Heal is enabled; otherwise, false.
+   */
+  readonly autoHealEnabled?: boolean;
+
+  /**
+   * Connection strings.
+   */
+  readonly connectionStrings?: ConnStringInfo[];
+
+  /**
+   * Default documents.
+   */
+  readonly defaultDocuments?: string[];
+
+  /**
+   * true if detailed error logging is enabled; otherwise, false.
+   */
+  readonly detailedErrorLoggingEnabled?: boolean;
+
+  /**
+   * Document root.
+   */
+  readonly documentRoot?: string;
+
+  /**
+   * State of FTP / FTPS service
+   */
+  readonly ftpsState?: string;
+
+  /**
+   * Maximum number of workers that a site can scale out to.
+   */
+  readonly functionAppScaleLimit?: number;
+
+  /**
+   * Gets or sets a value indicating whether functions runtime scale monitoring is enabled.
+   */
+  readonly functionsRuntimeScaleMonitoringEnabled?: boolean;
+
+  /**
+   * Http20Enabled: configures a web site to allow clients to connect over http2.0
+   */
+  readonly http20Enabled?: boolean;
+
+  /**
+   * HttpsOnly: configures a web site to accept only https requests.
+   */
+  readonly httpLoggingEnabled?: boolean;
+
+  /**
+   * IP security restrictions for main.
+   */
+  readonly ipSecurityRestrictions?: IpSecurityRestriction[];
+
+  /**
+   * Java container.
+   */
+  readonly javaContainer?: string;
+
+  /**
+   * Java container version.
+   */
+  readonly javaContainerVersion?: string;
+
+  /**
+   * Java version.
+   */
+  readonly javaVersion?: string;
+
+  /**
+   * Site limits.
+   */
+  readonly limits?: SiteLimits;
+
+  /**
+   * Linux App Framework and version
+   */
+  readonly linuxFxVersion?: string;
+
+  /**
+   * Site load balancing.
+   */
+  readonly loadBalancing?: string;
+
+  /**
+   * true to enable local MySQL; otherwise, false.
+   */
+  readonly localMySqlEnabled?: boolean;
+
+  /**
+   * HTTP logs directory size limit.
+   */
+  readonly logsDirectorySizeLimit?: number;
+
+  /**
+   * Managed pipeline mode.
+   */
+  readonly managedPipelineMode?: string;
+
+  /**
+   * MinTlsVersion: configures the minimum version of TLS required for SSL requests
+   */
+  readonly minTlsVersion?: string;
+
+  /**
+   * .NET Framework version.
+   */
+  readonly netFrameworkVersion?: string;
+
+  /**
+   * Version of Node.js.
+   */
+  readonly nodeVersion?: string;
+
+  /**
+   * Number of workers.
+   */
+  readonly numberOfWorkers?: number;
+
+  /**
+   * Version of PHP.
+   */
+  readonly phpVersion?: string;
+
+  /**
+   * Version of PowerShell.
+   */
+  readonly powerShellVersion?: string;
+
+  /**
+   * Number of preWarmed instances.
+   */
+  readonly preWarmedInstanceCount?: number;
+
+  /**
+   * Publishing user name.
+   */
+  readonly publishingUsername?: string;
+
+  /**
+   * Version of Python.
+   */
+  readonly pythonVersion?: string;
+
+  /**
+   * true if remote debugging is enabled; otherwise, false.
+   */
+  readonly remoteDebuggingEnabled?: boolean;
+
+  /**
+   * Remote debugging version.
+   */
+  readonly remoteDebuggingVersion?: string;
+
+  /**
+   * true if request tracing is enabled; otherwise, false.
+   */
+  readonly requestTracingEnabled?: boolean;
+
+  /**
+   * Request tracing expiration time.
+   */
+  readonly requestTracingExpirationTime?: string;
+
+  /**
+   * IP security restrictions for scm.
+   */
+  readonly scmIpSecurityRestrictions?: IpSecurityRestriction[];
+
+  /**
+   * IP security restrictions for scm to use main.
+   */
+  readonly scmIpSecurityRestrictionsUseMain?: boolean;
+
+  /**
+   * ScmMinTlsVersion: configures the minimum version of TLS required for SSL requests for SCM site
+   */
+  readonly scmMinTlsVersion?: string;
+
+  /**
+   * The action to take when an unauthenticated client attempts to access the app.
+   */
+  readonly unauthenticatedClientAction?: string;
+
+  /**
+   * true to use 32-bit worker process; otherwise, false.
+   */
+  readonly use32BitWorkerProcess?: boolean;
+
+  /**
+   * Virtual applications.
+   */
+  readonly virtualApplications?: VirtualApplication[];
+
+  /**
+   * Virtual Network name.
+   */
+  readonly vnetName?: string;
+
+  /**
+   * Virtual Network Route All enabled. This causes all outbound traffic to have Virtual Network Security Groups and User Defined Routes applied.
+   */
+  readonly vnetRouteAllEnabled?: boolean;
+
+  /**
+   * true if WebSocket is enabled; otherwise, false.
+   */
+  readonly webSocketsEnabled?: boolean;
+
+  /**
+   * Xenon App Framework and version.
+   */
+  readonly windowsFxVersion?: string;
+
+  /**
+   * Explicit Managed Service Identity
+   */
+  readonly identity?: ManagedServiceIdentity;
+
+  // Legacy properties for backward compatibility
+  /**
+   * Optional runtime version specification for the Function App.
+   * @deprecated Use specific version properties instead
+   */
+  readonly runtimeVersion?: any;
+
+  /**
+   * Optional ID of an existing App Service Plan.
+   * @deprecated Use serverFarmId instead
+   */
+  readonly servicePlan?: any;
+
+  /**
+   * Optional SKU for the App Service Plan.
+   * @deprecated Use separate service plan resource instead
+   */
+  readonly servicePlanSku?: string;
+
+  /**
+   * Optional storage account to be used by the Function App.
+   * @deprecated Use appSettings to configure storage instead
+   */
+  readonly storageAccount?: any;
+
+  /**
+   * Optional site configuration.
+   * @deprecated Use flattened properties instead
+   */
+  readonly siteConfig?: any;
+
+  /**
+   * Optional authentication settings.
+   * @deprecated Use separate auth resources instead
+   */
+  readonly authSettings?: any;
+
+  /**
+   * Optional flag to enforce HTTPS only traffic.
+   * @deprecated Use httpsOnly instead
+   */
+  readonly clientCertificateEnabled?: boolean;
+
+  /**
+   * Optional mode for client certificate requirement.
+   * @deprecated Use clientCertMode instead
+   */
+  readonly clientCertificateMode?: string;
+
+  /**
+   * Optional version setting for the Azure Functions runtime.
+   * @deprecated Use appSettings instead
+   */
+  readonly functionsExtensionVersion?: string;
+
+  /**
+   * Optional flag to enable built-in logging capabilities.
+   * @deprecated Use appSettings instead
+   */
+  readonly builtinLoggingEnabled?: boolean;
+
+  /**
+   * Optional connection strings.
+   * @deprecated Use connectionStrings instead
+   */
+  readonly connectionString?: any[];
+
+  /**
    * AzAPI: Site properties.
+   * @deprecated Use flattened properties instead
    */
   readonly properties?: SiteProperties;
 }
@@ -804,14 +1112,77 @@ export class FunctionApp extends AzureResource {
         tags: props.tags,
       });
 
-    // Map legacy properties to AzAPI schema for backward compatibility
+    // Build SiteConfig from flattened properties
+    const siteConfig: SiteConfig = {
+      // Use flattened properties first, then fall back to legacy siteConfig or properties.siteConfig
+      alwaysOn: props.alwaysOn ?? props.siteConfig?.alwaysOn ?? props.properties?.siteConfig?.alwaysOn,
+      appCommandLine: props.appCommandLine ?? props.siteConfig?.appCommandLine ?? props.properties?.siteConfig?.appCommandLine,
+      appSettings: props.appSettings ?? props.siteConfig?.appSettings ?? props.properties?.siteConfig?.appSettings,
+      autoHealEnabled: props.autoHealEnabled ?? props.siteConfig?.autoHealEnabled ?? props.properties?.siteConfig?.autoHealEnabled,
+      connectionStrings: props.connectionStrings ?? props.siteConfig?.connectionStrings ?? props.properties?.siteConfig?.connectionStrings,
+      defaultDocuments: props.defaultDocuments ?? props.siteConfig?.defaultDocuments ?? props.properties?.siteConfig?.defaultDocuments,
+      detailedErrorLoggingEnabled: props.detailedErrorLoggingEnabled ?? props.siteConfig?.detailedErrorLoggingEnabled ?? props.properties?.siteConfig?.detailedErrorLoggingEnabled,
+      documentRoot: props.documentRoot ?? props.siteConfig?.documentRoot ?? props.properties?.siteConfig?.documentRoot,
+      ftpsState: props.ftpsState ?? props.siteConfig?.ftpsState ?? props.properties?.siteConfig?.ftpsState,
+      functionAppScaleLimit: props.functionAppScaleLimit ?? props.siteConfig?.functionAppScaleLimit ?? props.properties?.siteConfig?.functionAppScaleLimit,
+      functionsRuntimeScaleMonitoringEnabled: props.functionsRuntimeScaleMonitoringEnabled ?? props.siteConfig?.functionsRuntimeScaleMonitoringEnabled ?? props.properties?.siteConfig?.functionsRuntimeScaleMonitoringEnabled,
+      http20Enabled: props.http20Enabled ?? props.siteConfig?.http20Enabled ?? props.properties?.siteConfig?.http20Enabled,
+      httpLoggingEnabled: props.httpLoggingEnabled ?? props.siteConfig?.httpLoggingEnabled ?? props.properties?.siteConfig?.httpLoggingEnabled,
+      ipSecurityRestrictions: props.ipSecurityRestrictions ?? props.siteConfig?.ipSecurityRestrictions ?? props.properties?.siteConfig?.ipSecurityRestrictions,
+      javaContainer: props.javaContainer ?? props.siteConfig?.javaContainer ?? props.properties?.siteConfig?.javaContainer,
+      javaContainerVersion: props.javaContainerVersion ?? props.siteConfig?.javaContainerVersion ?? props.properties?.siteConfig?.javaContainerVersion,
+      javaVersion: props.javaVersion ?? props.siteConfig?.javaVersion ?? props.properties?.siteConfig?.javaVersion,
+      limits: props.limits ?? props.siteConfig?.limits ?? props.properties?.siteConfig?.limits,
+      linuxFxVersion: props.linuxFxVersion ?? props.siteConfig?.linuxFxVersion ?? props.properties?.siteConfig?.linuxFxVersion,
+      loadBalancing: props.loadBalancing ?? props.siteConfig?.loadBalancing ?? props.properties?.siteConfig?.loadBalancing,
+      localMySqlEnabled: props.localMySqlEnabled ?? props.siteConfig?.localMySqlEnabled ?? props.properties?.siteConfig?.localMySqlEnabled,
+      logsDirectorySizeLimit: props.logsDirectorySizeLimit ?? props.siteConfig?.logsDirectorySizeLimit ?? props.properties?.siteConfig?.logsDirectorySizeLimit,
+      managedPipelineMode: props.managedPipelineMode ?? props.siteConfig?.managedPipelineMode ?? props.properties?.siteConfig?.managedPipelineMode,
+      minTlsVersion: props.minTlsVersion ?? props.siteConfig?.minTlsVersion ?? props.properties?.siteConfig?.minTlsVersion,
+      netFrameworkVersion: props.netFrameworkVersion ?? props.siteConfig?.netFrameworkVersion ?? props.properties?.siteConfig?.netFrameworkVersion,
+      nodeVersion: props.nodeVersion ?? props.siteConfig?.nodeVersion ?? props.properties?.siteConfig?.nodeVersion,
+      numberOfWorkers: props.numberOfWorkers ?? props.siteConfig?.numberOfWorkers ?? props.properties?.siteConfig?.numberOfWorkers,
+      phpVersion: props.phpVersion ?? props.siteConfig?.phpVersion ?? props.properties?.siteConfig?.phpVersion,
+      powerShellVersion: props.powerShellVersion ?? props.siteConfig?.powerShellVersion ?? props.properties?.siteConfig?.powerShellVersion,
+      preWarmedInstanceCount: props.preWarmedInstanceCount ?? props.siteConfig?.preWarmedInstanceCount ?? props.properties?.siteConfig?.preWarmedInstanceCount,
+      publishingUsername: props.publishingUsername ?? props.siteConfig?.publishingUsername ?? props.properties?.siteConfig?.publishingUsername,
+      pythonVersion: props.pythonVersion ?? props.siteConfig?.pythonVersion ?? props.properties?.siteConfig?.pythonVersion,
+      remoteDebuggingEnabled: props.remoteDebuggingEnabled ?? props.siteConfig?.remoteDebuggingEnabled ?? props.properties?.siteConfig?.remoteDebuggingEnabled,
+      remoteDebuggingVersion: props.remoteDebuggingVersion ?? props.siteConfig?.remoteDebuggingVersion ?? props.properties?.siteConfig?.remoteDebuggingVersion,
+      requestTracingEnabled: props.requestTracingEnabled ?? props.siteConfig?.requestTracingEnabled ?? props.properties?.siteConfig?.requestTracingEnabled,
+      requestTracingExpirationTime: props.requestTracingExpirationTime ?? props.siteConfig?.requestTracingExpirationTime ?? props.properties?.siteConfig?.requestTracingExpirationTime,
+      scmIpSecurityRestrictions: props.scmIpSecurityRestrictions ?? props.siteConfig?.scmIpSecurityRestrictions ?? props.properties?.siteConfig?.scmIpSecurityRestrictions,
+      scmIpSecurityRestrictionsUseMain: props.scmIpSecurityRestrictionsUseMain ?? props.siteConfig?.scmIpSecurityRestrictionsUseMain ?? props.properties?.siteConfig?.scmIpSecurityRestrictionsUseMain,
+      scmMinTlsVersion: props.scmMinTlsVersion ?? props.siteConfig?.scmMinTlsVersion ?? props.properties?.siteConfig?.scmMinTlsVersion,
+      use32BitWorkerProcess: props.use32BitWorkerProcess ?? props.siteConfig?.use32BitWorkerProcess ?? props.properties?.siteConfig?.use32BitWorkerProcess,
+      virtualApplications: props.virtualApplications ?? props.siteConfig?.virtualApplications ?? props.properties?.siteConfig?.virtualApplications,
+      vnetName: props.vnetName ?? props.siteConfig?.vnetName ?? props.properties?.siteConfig?.vnetName,
+      vnetRouteAllEnabled: props.vnetRouteAllEnabled ?? props.siteConfig?.vnetRouteAllEnabled ?? props.properties?.siteConfig?.vnetRouteAllEnabled,
+      webSocketsEnabled: props.webSocketsEnabled ?? props.siteConfig?.webSocketsEnabled ?? props.properties?.siteConfig?.webSocketsEnabled,
+      windowsFxVersion: props.windowsFxVersion ?? props.siteConfig?.windowsFxVersion ?? props.properties?.siteConfig?.windowsFxVersion,
+    };
+
+    // Build SiteProperties from flattened properties and legacy properties
     const siteProperties: SiteProperties = {
-      enabled: props.enabled !== false,
-      httpsOnly: props.httpsOnly,
-      clientCertEnabled: props.clientCertificateEnabled,
-      clientCertMode: props.clientCertificateMode,
-      siteConfig: props.siteConfig || props.properties?.siteConfig,
+      // Start with legacy properties if provided
       ...props.properties,
+      // Override with flattened properties if provided
+      enabled: props.enabled ?? props.properties?.enabled ?? true,
+      httpsOnly: props.httpsOnly ?? props.properties?.httpsOnly,
+      clientCertEnabled: props.clientCertEnabled ?? props.clientCertificateEnabled ?? props.properties?.clientCertEnabled,
+      clientCertExclusionPaths: props.clientCertExclusionPaths ?? props.properties?.clientCertExclusionPaths,
+      clientCertMode: props.clientCertMode ?? props.clientCertificateMode ?? props.properties?.clientCertMode,
+      containerSize: props.containerSize ?? props.properties?.containerSize,
+      dailyMemoryTimeQuota: props.dailyMemoryTimeQuota ?? props.properties?.dailyMemoryTimeQuota,
+      hostNamesDisabled: props.hostNamesDisabled ?? props.properties?.hostNamesDisabled,
+      hyperV: props.hyperV ?? props.properties?.hyperV,
+      keyVaultReferenceIdentity: props.keyVaultReferenceIdentity ?? props.properties?.keyVaultReferenceIdentity,
+      maxNumberOfWorkers: props.maxNumberOfWorkers ?? props.properties?.maxNumberOfWorkers,
+      publicNetworkAccess: props.publicNetworkAccess ?? props.properties?.publicNetworkAccess,
+      reserved: props.reserved ?? props.properties?.reserved,
+      scmSiteAlsoStopped: props.scmSiteAlsoStopped ?? props.properties?.scmSiteAlsoStopped,
+      serverFarmId: props.serverFarmId ?? props.properties?.serverFarmId,
+      siteConfig: siteConfig,
     };
 
     // Handle legacy identity mapping

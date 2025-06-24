@@ -31,22 +31,20 @@ describe("Example of deploying a Container Registry", () => {
       location: "eastus",
       resourceGroup: resourceGroup,
       sku: { name: "Premium" },
-      properties: {
-        adminUserEnabled: false,
-        publicNetworkAccess: "Enabled",
-        policies: {
-          retentionPolicy: {
-            status: "enabled",
-            days: 7,
-          },
-          trustPolicy: {
-            status: "enabled",
-            type: "Notary",
-          },
+      adminUserEnabled: false,
+      publicNetworkAccess: "Enabled",
+      policies: {
+        retentionPolicy: {
+          status: "enabled",
+          days: 7,
         },
-        networkRuleSet: {
-          defaultAction: "Allow",
+        trustPolicy: {
+          status: "enabled",
+          type: "Notary",
         },
+      },
+      networkRuleSet: {
+        defaultAction: "Allow",
       },
       tags: {
         environment: "test",
@@ -56,22 +54,18 @@ describe("Example of deploying a Container Registry", () => {
     // Add child resources to demonstrate the enhanced functionality
     azureContainerRegistry.addScopeMap({
       name: "testScopeMap",
-      properties: {
-        actions: [
-          "repositories/*/content/read",
-          "repositories/*/content/write",
-        ],
-        description: "Test scope map for integration test",
-      },
+      actions: [
+        "repositories/*/content/read",
+        "repositories/*/content/write",
+      ],
+      description: "Test scope map for integration test",
     });
 
     azureContainerRegistry.addReplication({
       name: "westus2replication",
       location: "westus2",
-      properties: {
-        regionEndpointEnabled: true,
-        zoneRedundancy: "Disabled",
-      },
+      regionEndpointEnabled: true,
+      zoneRedundancy: "Disabled",
       tags: {
         purpose: "replication",
       },

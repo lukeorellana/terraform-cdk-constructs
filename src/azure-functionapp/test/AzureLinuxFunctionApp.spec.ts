@@ -20,13 +20,9 @@ describe("Azure Function App With Defaults (AzAPI)", () => {
       name: "fatest",
       location: "eastus",
       kind: "functionapp,linux",
-      properties: {
-        enabled: true,
-        siteConfig: {
-          linuxFxVersion: "NODE|18",
-          alwaysOn: false,
-        },
-      },
+      enabled: true,
+      linuxFxVersion: "NODE|18",
+      alwaysOn: false,
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
