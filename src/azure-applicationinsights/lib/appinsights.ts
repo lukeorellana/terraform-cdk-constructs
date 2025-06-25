@@ -243,7 +243,7 @@ export class AppInsights extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    
+
     // Setup or reuse the provided resource group.
     this.resourceGroup =
       props.resourceGroup ||
@@ -303,9 +303,9 @@ export class AppInsights extends AzureResource {
 
     // Extract values from the created resource
     this.id = this.resource.id;
-    this.instrumentationKey = `\${${this.resource.fqn}.properties.InstrumentationKey}`;
-    this.connectionString = `\${${this.resource.fqn}.properties.ConnectionString}`;
-    this.appId = `\${${this.resource.fqn}.properties.AppId}`;
+    this.instrumentationKey = `\${${this.resource.fqn}.output.InstrumentationKey}`;
+    this.connectionString = `\${${this.resource.fqn}.output.ConnectionString}`;
+    this.appId = `\${${this.resource.fqn}.output.AppId}`;
 
     // Terraform Outputs
     const cdktfTerraformOutputAppiID = new cdktf.TerraformOutput(this, "id", {

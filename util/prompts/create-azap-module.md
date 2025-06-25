@@ -18,7 +18,7 @@ Convert `src/[MODULE_NAME]` from AzureRM provider to AzAPI provider.
 - Replace AzureRM provider imports with AzAPI `resource.Resource`
 - Use appropriate Azure REST API version (e.g., `Microsoft.Insights/components@2020-02-02`)
 - Update resource creation to use `parentId` instead of `resourceGroupName`
-- Handle resource outputs using `${resource.fqn}.properties.PropertyName` pattern
+- Handle resource outputs using `${resource.fqn}.output.PropertyName` pattern
 
 #### 2. Flattened Properties Interface (Critical)
 - **Flatten all nested `properties` fields** to top-level interface properties
@@ -103,7 +103,7 @@ npx tsc --noEmit src/[MODULE_NAME]/lib/*.ts
 - [ ] Integration test updated (but not executed)
 
 ### Common Gotchas
-1. Resource outputs: Use `${resource.fqn}.properties.PropertyName` not `resource.output.properties`
+1. Resource outputs: Use `${resource.fqn}.output.PropertyName` not `resource.properties.PropertyName`
 2. Resource group reference: Use `resourceGroup.resourceGroup.id` not `resourceGroup.id`
 3. Property precedence: Flattened properties should override legacy properties
 4. Test provider: Use `AzapiProvider` not `AzurermProvider` in spec tests

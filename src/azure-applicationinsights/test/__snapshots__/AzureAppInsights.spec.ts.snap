@@ -4,18 +4,18 @@ exports[`Application Insights Legacy Properties Compatibility renders Applicatio
 "{
   "output": {
     "app_id": {
-      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.properties.AppId}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.output.AppId}"
     },
     "connection_string": {
       "sensitive": true,
-      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.properties.ConnectionString}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.output.ConnectionString}"
     },
     "id": {
       "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.id}"
     },
     "instrumentation_key": {
       "sensitive": true,
-      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.properties.InstrumentationKey}"
+      "value": "\${azapi_resource.testLegacyProps_appinsights_7051221F.output.InstrumentationKey}"
     },
     "location": {
       "value": "\${azapi_resource.testLegacyProps_resource-group-resource_5806D1E0.location}"
@@ -89,18 +89,18 @@ exports[`Application Insights With Defaults renders an Application Insights with
 "{
   "output": {
     "app_id": {
-      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.properties.AppId}"
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.output.AppId}"
     },
     "connection_string": {
       "sensitive": true,
-      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.properties.ConnectionString}"
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.output.ConnectionString}"
     },
     "id": {
       "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.id}"
     },
     "instrumentation_key": {
       "sensitive": true,
-      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.properties.InstrumentationKey}"
+      "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_appinsights_1184F8FC.output.InstrumentationKey}"
     },
     "location": {
       "value": "\${azapi_resource.testAzureApplicationInsightsDefaults_resource-group-resource_0B31BDC5.location}"
@@ -173,18 +173,18 @@ exports[`Application Insights With Flattened Properties renders Application Insi
 "{
   "output": {
     "app_id": {
-      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.properties.AppId}"
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.output.AppId}"
     },
     "connection_string": {
       "sensitive": true,
-      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.properties.ConnectionString}"
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.output.ConnectionString}"
     },
     "id": {
       "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.id}"
     },
     "instrumentation_key": {
       "sensitive": true,
-      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.properties.InstrumentationKey}"
+      "value": "\${azapi_resource.testFlattenedProps_appinsights_C6141375.output.InstrumentationKey}"
     },
     "location": {
       "value": "\${azapi_resource.testFlattenedProps_resource-group-resource_434A5A92.location}"

@@ -830,7 +830,7 @@ export class Gateway extends AzureResource {
     super(scope, id);
 
     this.props = props;
-    
+
     // Setup or reuse the provided resource group.
     this.resourceGroup =
       props.resourceGroup ||
@@ -927,6 +927,7 @@ export class Gateway extends AzureResource {
       location: props.location,
       parentId: this.resourceGroup.resourceGroup.id,
       tags: props.tags,
+      schemaValidationEnabled: false, // Disable schema validation due to complex nested structure migration in progress
       body: {
         properties: gatewayProperties,
         zones: props.zones,

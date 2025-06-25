@@ -101,27 +101,35 @@ export class MetricAlert extends AzureResource {
 
     // Add criteria if provided
     if (props.criteria && props.criteria.length > 0) {
-      metricAlertProperties.criteria = props.criteria.map((criterion: any) => ({
-        criterionType: "StaticThresholdCriterion",
-        name: criterion.name || criterion.metricName,
-        metricName: criterion.metricName,
-        metricNamespace: criterion.metricNamespace,
-        operator: criterion.operator,
-        threshold: criterion.threshold,
-        timeAggregation: criterion.aggregation,
-        dimensions:
-          criterion.dimension?.map((dim: any) => ({
-            name: dim.name,
-            operator: dim.operator,
-            values: dim.values,
-          })) || [],
-      }));
+      // For AzAPI, criteria is a single object containing all criterion
+      metricAlertProperties.criteria = {
+        "odata.type":
+          "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria",
+        allOf: props.criteria.map((criterion: any) => ({
+          criterionType: "StaticThresholdCriterion",
+          name: criterion.name || criterion.metricName,
+          metricName: criterion.metricName,
+          metricNamespace: criterion.metricNamespace,
+          operator: criterion.operator,
+          threshold: criterion.threshold,
+          timeAggregation: criterion.aggregation,
+          dimensions:
+            criterion.dimension?.map((dim: any) => ({
+              name: dim.name,
+              operator: dim.operator,
+              values: dim.values,
+            })) || [],
+        })),
+      };
     }
 
     // Add dynamic criteria if provided
     if (props.dynamicCriteria && props.dynamicCriteria.length > 0) {
-      metricAlertProperties.criteria = props.dynamicCriteria.map(
-        (criterion: any) => ({
+      // For AzAPI, criteria is a single object containing all criterion
+      metricAlertProperties.criteria = {
+        "odata.type":
+          "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria",
+        allOf: props.dynamicCriteria.map((criterion: any) => ({
           criterionType: "DynamicThresholdCriterion",
           name: criterion.name || criterion.metricName,
           metricName: criterion.metricName,
@@ -141,8 +149,8 @@ export class MetricAlert extends AzureResource {
             minFailingPeriodsToAlert:
               criterion.failingPeriods?.minFailingPeriodsToAlert || 3,
           },
-        }),
-      );
+        })),
+      };
     }
 
     // Add actions if provided

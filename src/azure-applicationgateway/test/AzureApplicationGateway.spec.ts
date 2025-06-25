@@ -1,8 +1,10 @@
 import { Testing, TerraformStack } from "cdktf";
-import "cdktf/lib/testing/adapters/jest";
+import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as apgw from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import { TerraformPlan } from "../../testing";
+
+setupJest();
 
 describe("Application Gateway With Defaults", () => {
   let stack: TerraformStack;
@@ -23,18 +25,20 @@ describe("Application Gateway With Defaults", () => {
       gatewayIpConfigurations: [
         {
           name: "gateway-ip-config",
-          subnet: { id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet" },
+          subnet: {
+            id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet",
+          },
         },
       ],
       frontendIpConfigurations: [
         {
           name: "Public",
-          publicIPAddress: { id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip" },
+          publicIPAddress: {
+            id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip",
+          },
         },
       ],
-      frontendPorts: [
-        { name: "frontend-port", port: 80 },
-      ],
+      frontendPorts: [{ name: "frontend-port", port: 80 }],
       backendAddressPools: [
         { name: "backend-address-pool-1" },
         {
@@ -123,21 +127,21 @@ describe("Application Gateway with Legacy Properties", () => {
         gatewayIPConfigurations: [
           {
             name: "legacy-gateway-ip-config",
-            subnet: { id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet" },
+            subnet: {
+              id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet",
+            },
           },
         ],
         frontendIPConfigurations: [
           {
             name: "legacy-frontend-ip",
-            publicIPAddress: { id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip" },
+            publicIPAddress: {
+              id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip",
+            },
           },
         ],
-        frontendPorts: [
-          { name: "legacy-port-80", port: 80 },
-        ],
-        backendAddressPools: [
-          { name: "legacy-backend-pool" },
-        ],
+        frontendPorts: [{ name: "legacy-port-80", port: 80 }],
+        backendAddressPools: [{ name: "legacy-backend-pool" }],
         backendHttpSettingsCollection: [
           {
             name: "legacy-http-settings",
@@ -202,7 +206,9 @@ describe("Application Gateway with Mixed Properties", () => {
       gatewayIpConfigurations: [
         {
           name: "new-gateway-ip-config",
-          subnet: { id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet" },
+          subnet: {
+            id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/subnet",
+          },
         },
       ],
       // Legacy properties (should be overridden by flattened properties above)
@@ -221,15 +227,13 @@ describe("Application Gateway with Mixed Properties", () => {
         frontendIPConfigurations: [
           {
             name: "legacy-frontend-ip",
-            publicIPAddress: { id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip" },
+            publicIPAddress: {
+              id: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip",
+            },
           },
         ],
-        frontendPorts: [
-          { name: "legacy-port-80", port: 80 },
-        ],
-        backendAddressPools: [
-          { name: "legacy-backend-pool" },
-        ],
+        frontendPorts: [{ name: "legacy-port-80", port: 80 }],
+        backendAddressPools: [{ name: "legacy-backend-pool" }],
         backendHttpSettingsCollection: [
           {
             name: "legacy-http-settings",

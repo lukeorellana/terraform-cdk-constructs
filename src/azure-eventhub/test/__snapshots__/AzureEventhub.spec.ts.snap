@@ -7,13 +7,10 @@ exports[`Azure Eventhub With Defaults renders an Azure Eventhub with defaults an
       "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.id}"
     },
     "location": {
-      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.location}"
+      "value": "\${azapi_resource.testAzureEventhubDefaults_resource-group-resource_572C8529.location}"
     },
     "name": {
-      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.name}"
-    },
-    "service_bus_endpoint": {
-      "value": "\${azapi_resource.testAzureEventhubDefaults_namespace_C9414279.output}"
+      "value": "\${azapi_resource.testAzureEventhubDefaults_resource-group-resource_572C8529.name}"
     }
   },
   "provider": {
@@ -27,9 +24,13 @@ exports[`Azure Eventhub With Defaults renders an Azure Eventhub with defaults an
       "testAzureEventhubDefaults_namespace_C9414279": {
         "body": {
           "properties": {
-            "disableLocalAuth": false,
-            "minimumTlsVersion": "1.2",
-            "publicNetworkAccess": "Enabled"
+            "encryption": {
+              "keySource": "Microsoft.KeyVault"
+            },
+            "isAutoInflateEnabled": false,
+            "kafkaEnabled": false,
+            "maximumThroughputUnits": 0,
+            "zoneRedundant": false
           },
           "sku": {
             "capacity": 1,
@@ -43,7 +44,7 @@ exports[`Azure Eventhub With Defaults renders an Azure Eventhub with defaults an
         "tags": {
           "test": "test"
         },
-        "type": "Microsoft.EventHub/namespaces@2023-01-01-preview"
+        "type": "Microsoft.EventHub/namespaces@2021-11-01"
       },
       "testAzureEventhubDefaults_resource-group-resource_572C8529": {
         "lifecycle": [
@@ -54,9 +55,6 @@ exports[`Azure Eventhub With Defaults renders an Azure Eventhub with defaults an
         ],
         "location": "eastus",
         "name": "rg-eh-test-namespace",
-        "tags": {
-          "test": "test"
-        },
         "type": "Microsoft.Resources/resourceGroups@2022-09-01"
       }
     }

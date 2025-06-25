@@ -36,19 +36,22 @@ exports[`Azure Metric Alert With Defaults renders an Azure Metric Alert with def
         "body": {
           "properties": {
             "autoMitigate": true,
-            "criteria": [
-              {
-                "criterionType": "StaticThresholdCriterion",
-                "dimensions": [
-                ],
-                "metricName": "Heartbeat",
-                "metricNamespace": "Microsoft.operationalinsights/workspaces",
-                "name": "Heartbeat",
-                "operator": "LessThan",
-                "threshold": 0,
-                "timeAggregation": "Average"
-              }
-            ],
+            "criteria": {
+              "allOf": [
+                {
+                  "criterionType": "StaticThresholdCriterion",
+                  "dimensions": [
+                  ],
+                  "metricName": "Heartbeat",
+                  "metricNamespace": "Microsoft.operationalinsights/workspaces",
+                  "name": "Heartbeat",
+                  "operator": "LessThan",
+                  "threshold": 0,
+                  "timeAggregation": "Average"
+                }
+              ],
+              "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+            },
             "enabled": true,
             "evaluationFrequency": "PT5M",
             "scopes": [
