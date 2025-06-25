@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as acr from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 
 setupJest();
 
@@ -22,6 +22,10 @@ describe("Azure Container Registry With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Container Registry with defaults and checks snapshot", () => {
@@ -72,6 +76,10 @@ describe("Azure Container Registry With Child Resources", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack);
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Container Registry with child resources and checks snapshot", () => {

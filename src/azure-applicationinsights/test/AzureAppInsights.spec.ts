@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as appi from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 
 setupJest();
 
@@ -23,6 +23,11 @@ describe("Application Insights With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Application Insights with defaults and checks snapshot", () => {
@@ -62,6 +67,11 @@ describe("Application Insights With Flattened Properties", () => {
     fullSynthResult = Testing.fullSynth(stack);
   });
 
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
+  });
+
   it("renders Application Insights with flattened properties", () => {
     expect(Testing.synth(stack)).toMatchSnapshot();
   });
@@ -98,6 +108,11 @@ describe("Application Insights Legacy Properties Compatibility", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack);
+  });
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
   });
 
   it("renders Application Insights with legacy properties", () => {

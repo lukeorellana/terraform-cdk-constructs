@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as eh from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 
 setupJest();
 
@@ -24,6 +24,10 @@ describe("Azure Eventhub With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Eventhub with defaults and checks snapshot", () => {

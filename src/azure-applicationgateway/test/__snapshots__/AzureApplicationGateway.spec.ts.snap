@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Application Gateway With Defaults renders an Application Gateway with defaults and checks snapshot 1`] = `
 "{
@@ -124,6 +124,7 @@ exports[`Application Gateway With Defaults renders an Application Gateway with d
         "location": "eastus",
         "name": "application-gateway",
         "parent_id": "\${azapi_resource.testAzureApplicationGatewayDefaults2_resource-group-resource_89D042E1.id}",
+        "schema_validation_enabled": false,
         "type": "Microsoft.Network/applicationGateways@2023-09-01"
       },
       "testAzureApplicationGatewayDefaults2_resource-group-resource_89D042E1": {
@@ -246,6 +247,7 @@ exports[`Application Gateway with Legacy Properties renders an Application Gatew
         "location": "eastus",
         "name": "legacy-application-gateway",
         "parent_id": "\${azapi_resource.testLegacyApplicationGateway_resource-group-resource_D451BA66.id}",
+        "schema_validation_enabled": false,
         "type": "Microsoft.Network/applicationGateways@2023-09-01"
       },
       "testLegacyApplicationGateway_resource-group-resource_D451BA66": {
@@ -368,6 +370,7 @@ exports[`Application Gateway with Mixed Properties renders an Application Gatewa
         "location": "eastus",
         "name": "mixed-application-gateway",
         "parent_id": "\${azapi_resource.testMixedApplicationGateway_resource-group-resource_A91501AA.id}",
+        "schema_validation_enabled": false,
         "type": "Microsoft.Network/applicationGateways@2023-09-01"
       },
       "testMixedApplicationGateway_resource-group-resource_A91501AA": {

@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import "cdktf/lib/testing/adapters/jest";
 import { ActionGroup } from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 
 describe("Action Group With Defaults", () => {
   let stack: TerraformStack;
@@ -20,6 +20,11 @@ describe("Action Group With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack);
+  });
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Action Group with defaults and checks snapshot", () => {
@@ -54,6 +59,11 @@ describe("Action Group With Custom Properties", () => {
     fullSynthResult = Testing.fullSynth(stack);
   });
 
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
+  });
+
   it("renders an Action Group with custom properties and checks snapshot", () => {
     expect(Testing.synth(stack)).toMatchSnapshot();
   });
@@ -66,6 +76,11 @@ describe("Action Group With Custom Properties", () => {
 describe("Action Group With Flattened Interface", () => {
   let stack: TerraformStack;
   let fullSynthResult: any;
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
+  });
 
   beforeEach(() => {
     const app = Testing.app();

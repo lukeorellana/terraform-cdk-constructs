@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as network from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 setupJest();
 
 describe("Azure Network Security Group With Defaults", () => {
@@ -28,6 +28,10 @@ describe("Azure Network Security Group With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Network Security Group with defaults and checks snapshot", () => {

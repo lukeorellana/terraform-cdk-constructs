@@ -2,13 +2,18 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as apgw from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 
 setupJest();
 
 describe("Application Gateway With Defaults", () => {
   let stack: TerraformStack;
   let fullSynthResult: any;
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
+  });
 
   beforeEach(() => {
     const app = Testing.app();
@@ -105,6 +110,11 @@ describe("Application Gateway with Legacy Properties", () => {
   let stack: TerraformStack;
   let fullSynthResult: any;
 
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
+  });
+
   beforeEach(() => {
     const app = Testing.app();
     stack = new TerraformStack(app, "test-legacy");
@@ -189,6 +199,11 @@ describe("Application Gateway with Legacy Properties", () => {
 describe("Application Gateway with Mixed Properties", () => {
   let stack: TerraformStack;
   let fullSynthResult: any;
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
+  });
 
   beforeEach(() => {
     const app = Testing.app();

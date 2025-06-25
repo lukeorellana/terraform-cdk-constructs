@@ -3,7 +3,7 @@ import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import * as metricalert from "../../azure-metricalert";
 import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 setupJest();
 
 describe("Azure Metric Alert With Defaults", () => {
@@ -37,6 +37,11 @@ describe("Azure Metric Alert With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    // Clean up after all tests in this suite have run
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Metric Alert with defaults and checks snapshot", () => {

@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as la from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 
 setupJest();
 
@@ -22,6 +22,10 @@ describe("Log Analytics Workspace With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders a Log Analytics Workspace with defaults and checks snapshot", () => {
@@ -65,6 +69,10 @@ describe("Log Analytics Workspace With Flattened Properties", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders a Log Analytics Workspace with flattened properties and checks snapshot", () => {

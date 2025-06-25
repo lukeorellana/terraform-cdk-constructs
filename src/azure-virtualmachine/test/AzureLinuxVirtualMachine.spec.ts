@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as vm from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 setupJest();
 
 describe("Azure Linux Virtual Machine With Defaults", () => {
@@ -18,6 +18,10 @@ describe("Azure Linux Virtual Machine With Defaults", () => {
     new vm.LinuxVM(stack, "testVirtualMachine", {});
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Linux Virtual Machine with defaults and checks snapshot", () => {

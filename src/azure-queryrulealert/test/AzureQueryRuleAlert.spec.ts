@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
 import * as queryalert from "../../azure-queryrulealert";
 import * as azureResourceGroup from "../../azure-resourcegroup";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 import "cdktf/lib/testing/adapters/jest";
 
 describe("Azure Query Rule Alert With Defaults", () => {
@@ -40,6 +40,10 @@ AppExceptions
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Query Rule Alert with defaults and checks snapshot", () => {

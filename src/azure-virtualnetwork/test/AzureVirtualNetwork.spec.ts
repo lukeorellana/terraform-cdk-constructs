@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as vnet from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 setupJest();
 
 describe("Azure Virtual Network With Defaults", () => {
@@ -18,6 +18,10 @@ describe("Azure Virtual Network With Defaults", () => {
     new vnet.Network(stack, "testAzureVirtualNetworkDefaults", {});
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Virtual Network with defaults and checks snapshot", () => {

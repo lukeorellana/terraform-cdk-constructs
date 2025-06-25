@@ -2,7 +2,7 @@ import { Testing, TerraformStack } from "cdktf";
 import { setupJest } from "cdktf/lib/testing/adapters/jest";
 import * as vmss from "..";
 import { AzapiProvider } from "../../../.gen/providers/azapi/provider";
-import { TerraformPlan } from "../../testing";
+import { TerraformPlan, cleanupCdkTfOutDirs } from "../../testing";
 setupJest();
 
 describe("Azure Windows Virtual Machine Scale Set With Defaults", () => {
@@ -21,6 +21,10 @@ describe("Azure Windows Virtual Machine Scale Set With Defaults", () => {
     });
 
     fullSynthResult = Testing.fullSynth(stack); // Save the result for reuse
+  });
+
+  afterAll(() => {
+    cleanupCdkTfOutDirs();
   });
 
   it("renders an Azure Windows Virtual Machine  Scale Set with defaults and checks snapshot", () => {
