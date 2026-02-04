@@ -826,4 +826,140 @@ describe("VirtualNetworkGateway - Implementation", () => {
       expect(vng.props.vpnGatewayGeneration).toBe("Generation2");
     });
   });
+
+  describe("ExpressRoute Gateway Without Public IP", () => {
+    it("should create ExpressRoute gateway without public IP (auto-assigned)", () => {
+      const vng = new VirtualNetworkGateway(stack, "ErGatewayNoPublicIp", {
+        name: "vng-er-no-pip",
+        location: "eastus",
+        gatewayType: "ExpressRoute",
+        sku: {
+          name: "ErGw1AZ",
+          tier: "ErGw1AZ",
+        },
+        ipConfigurations: [
+          {
+            name: "default",
+            subnetId:
+              "/subscriptions/sub-id/resourceGroups/test-rg/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/GatewaySubnet",
+            // publicIPAddressId intentionally omitted
+          },
+        ],
+      });
+
+      expect(vng).toBeDefined();
+      expect(vng).toBeInstanceOf(VirtualNetworkGateway);
+      expect(vng.props.gatewayType).toBe("ExpressRoute");
+      expect(vng.props.ipConfigurations).toHaveLength(1);
+      expect(vng.props.ipConfigurations[0].publicIPAddressId).toBeUndefined();
+    });
+
+    it("should omit publicIPAddress from synthesized JSON when not provided", () => {
+      new VirtualNetworkGateway(stack, "ErGatewayNoPublicIpSynth", {
+        name: "vng-er-no-pip-synth",
+        location: "eastus",
+        gatewayType: "ExpressRoute",
+        sku: {
+          name: "ErGw1AZ",
+          tier: "ErGw1AZ",
+        },
+        ipConfigurations: [
+          {
+            name: "default",
+            subnetId:
+              "/subscriptions/sub-id/resourceGroups/test-rg/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/GatewaySubnet",
+            // publicIPAddressId intentionally omitted
+          },
+        ],
+      });
+
+      const synthesized = Testing.synth(stack);
+      const stackConfig = JSON.parse(synthesized);
+
+      // Find the azapi_resource for the gateway
+      const azapiResources = stackConfig.resource?.azapi_resource;
+      expect(azapiResources).toBeDefined();
+
+      // Find the gateway resource by looking for any key containing the identifier
+      const resourceKeys = Object.keys(azapiResources);
+      const gatewayKey = resourceKeys.find(
+        (key) =>
+          key.toLowerCase().includes("ergatewaynopublicipsynth") ||
+          key.toLowerCase().includes("er_gateway_no_public_ip_synth"),
+      );
+      expect(gatewayKey).toBeDefined();
+      const gatewayResource = azapiResources[gatewayKey!];
+      expect(gatewayResource).toBeDefined();
+
+      // Access the body (it may be a string or object depending on synthesis)
+      const body =
+        typeof gatewayResource.body === "string"
+          ? JSON.parse(gatewayResource.body)
+          : gatewayResource.body;
+      expect(body.properties.ipConfigurations).toBeDefined();
+      expect(body.properties.ipConfigurations).toHaveLength(1);
+
+      // Verify publicIPAddress is not present in the ipConfiguration
+      const ipConfig = body.properties.ipConfigurations[0];
+      expect(ipConfig.name).toBe("default");
+      expect(ipConfig.properties.subnet).toBeDefined();
+      expect(ipConfig.properties.publicIPAddress).toBeUndefined();
+    });
+
+    it("should include publicIPAddress in synthesized JSON when provided", () => {
+      new VirtualNetworkGateway(stack, "ErGatewayWithPublicIp", {
+        name: "vng-er-with-pip",
+        location: "eastus",
+        gatewayType: "ExpressRoute",
+        sku: {
+          name: "ErGw1AZ",
+          tier: "ErGw1AZ",
+        },
+        ipConfigurations: [
+          {
+            name: "default",
+            subnetId:
+              "/subscriptions/sub-id/resourceGroups/test-rg/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/GatewaySubnet",
+            publicIPAddressId:
+              "/subscriptions/sub-id/resourceGroups/test-rg/providers/Microsoft.Network/publicIPAddresses/test-pip",
+          },
+        ],
+      });
+
+      const synthesized = Testing.synth(stack);
+      const stackConfig = JSON.parse(synthesized);
+
+      // Find the azapi_resource for the gateway
+      const azapiResources = stackConfig.resource?.azapi_resource;
+      expect(azapiResources).toBeDefined();
+
+      // Find the gateway resource by looking for any key containing the identifier
+      const resourceKeys = Object.keys(azapiResources);
+      const gatewayKey = resourceKeys.find(
+        (key) =>
+          key.toLowerCase().includes("ergatewaywithpublicip") ||
+          key.toLowerCase().includes("er_gateway_with_public_ip"),
+      );
+      expect(gatewayKey).toBeDefined();
+      const gatewayResource = azapiResources[gatewayKey!];
+      expect(gatewayResource).toBeDefined();
+
+      // Access the body (it may be a string or object depending on synthesis)
+      const body =
+        typeof gatewayResource.body === "string"
+          ? JSON.parse(gatewayResource.body)
+          : gatewayResource.body;
+      expect(body.properties.ipConfigurations).toBeDefined();
+      expect(body.properties.ipConfigurations).toHaveLength(1);
+
+      // Verify publicIPAddress IS present in the ipConfiguration
+      const ipConfig = body.properties.ipConfigurations[0];
+      expect(ipConfig.name).toBe("default");
+      expect(ipConfig.properties.subnet).toBeDefined();
+      expect(ipConfig.properties.publicIPAddress).toBeDefined();
+      expect(ipConfig.properties.publicIPAddress.id).toBe(
+        "/subscriptions/sub-id/resourceGroups/test-rg/providers/Microsoft.Network/publicIPAddresses/test-pip",
+      );
+    });
+  });
 });

@@ -89,7 +89,8 @@ const COMMON_VNG_PROPERTIES: { [key: string]: PropertyDefinition } = {
   ipConfigurations: {
     dataType: PropertyType.ARRAY,
     required: true,
-    description: "IP configurations for the virtual network gateway",
+    description:
+      "IP configurations for the virtual network gateway. Each configuration requires a name and subnetId. The publicIPAddressId is optional for ExpressRoute gateways - if omitted, Azure will auto-assign a managed public IP. VPN gateways still require a public IP address.",
     validation: [
       {
         ruleType: ValidationRuleType.REQUIRED,

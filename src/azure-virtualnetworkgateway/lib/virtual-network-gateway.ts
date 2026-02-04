@@ -67,9 +67,11 @@ export interface VirtualNetworkGatewayIpConfiguration {
   readonly subnetId: string;
 
   /**
-   * ID of the public IP address to use
+   * ID of the public IP address to use.
+   * Optional for ExpressRoute gateways - if omitted, Azure will auto-assign a managed public IP.
+   * Required for VPN gateways.
    */
-  readonly publicIPAddressId: string;
+  readonly publicIPAddressId?: string;
 }
 
 /**
@@ -462,9 +464,12 @@ export class VirtualNetworkGateway extends AzapiResource {
         subnet: {
           id: config.subnetId,
         },
-        publicIPAddress: {
-          id: config.publicIPAddressId,
-        },
+        // Only include publicIPAddress if a publicIPAddressId is provided
+        ...(config.publicIPAddressId && {
+          publicIPAddress: {
+            id: config.publicIPAddressId,
+          },
+        }),
       },
     }));
 

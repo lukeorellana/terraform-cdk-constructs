@@ -217,7 +217,7 @@ const erGateway = new VirtualNetworkGateway(this, 'er-gateway', {
   ipConfigurations: [{
     name: 'default',
     subnetId: gatewaySubnet.id,
-    publicIPAddressId: publicIp.id
+    publicIPAddressId: publicIp.id  // Optional for ExpressRoute - can be omitted
   }],
   tags: {
     environment: 'production',
@@ -225,6 +225,36 @@ const erGateway = new VirtualNetworkGateway(this, 'er-gateway', {
   }
 });
 ```
+
+### ExpressRoute Gateway with Auto-Assigned Public IP
+
+For ExpressRoute gateways, you can omit the `publicIPAddressId` property. Azure will automatically provision and manage a public IP address on your behalf. This approach:
+
+- **Improves security** by not exposing public IP resources in your subscription
+- **Simplifies management** as Microsoft handles the public IP lifecycle
+- **Ensures zone redundancy** as auto-assigned IPs are automatically zone-redundant
+
+```typescript
+const expressRouteGateway = new VirtualNetworkGateway(this, 'ErGateway', {
+  name: 'vng-expressroute',
+  location: 'eastus',
+  resourceGroupName: resourceGroup.name,
+  gatewayType: 'ExpressRoute',
+  sku: {
+    name: 'ErGw1AZ',
+    tier: 'ErGw1AZ',
+  },
+  ipConfigurations: [
+    {
+      name: 'default',
+      subnetId: gatewaySubnet.id,
+      // publicIPAddressId is optional - Azure will auto-assign
+    },
+  ],
+});
+```
+
+> **Note:** VPN gateways still require a customer-provided public IP address. The auto-assigned public IP feature is only available for ExpressRoute gateways.
 
 ### Generation 2 VPN Gateway
 
@@ -272,6 +302,15 @@ const vpnGateway = new VirtualNetworkGateway(this, 'vpn-gateway-gen2', {
 | `tags` | Record<string, string> | No | {} | Resource tags |
 | `apiVersion` | string | No | "2024-05-01" | API version to use |
 | `ignoreChanges` | string[] | No | [] | Properties to ignore |
+
+### VirtualNetworkGatewayIpConfiguration
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `name` | string | Yes | Name of the IP configuration |
+| `subnetId` | string | Yes | The resource ID of the GatewaySubnet |
+| `publicIPAddressId` | string | No* | The resource ID of a public IP address. *Optional for ExpressRoute gateways - Azure will auto-assign if omitted. Required for VPN gateways. |
+| `privateIPAllocationMethod` | string | No | Private IP allocation method (Static or Dynamic) |
 
 ### SKU Options
 
