@@ -14,7 +14,7 @@
  * API Version: 2024-06-01
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_PRIVATE_DNS_A_RECORD_VERSIONS,
@@ -122,25 +122,25 @@ export class PrivateDnsARecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsARecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsARecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the A Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the A Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the A Record",
     });
@@ -254,25 +254,25 @@ export class PrivateDnsAaaaRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsAaaaRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsAaaaRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the AAAA Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the AAAA Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the AAAA Record",
     });
@@ -375,25 +375,25 @@ export class PrivateDnsCnameRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsCnameRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsCnameRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the CNAME Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the CNAME Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the CNAME Record",
     });
@@ -514,25 +514,25 @@ export class PrivateDnsMxRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsMxRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsMxRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the MX Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the MX Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the MX Record",
     });
@@ -647,25 +647,25 @@ export class PrivateDnsPtrRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsPtrRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsPtrRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the PTR Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the PTR Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the PTR Record",
     });
@@ -812,25 +812,25 @@ export class PrivateDnsSoaRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsSoaRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsSoaRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the SOA Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the SOA Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the SOA Record",
     });
@@ -982,25 +982,25 @@ export class PrivateDnsSrvRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsSrvRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsSrvRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the SRV Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the SRV Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the SRV Record",
     });
@@ -1118,25 +1118,25 @@ export class PrivateDnsTxtRecord extends AzapiResource {
   }
 
   public readonly props: PrivateDnsTxtRecordProps;
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   constructor(scope: Construct, id: string, props: PrivateDnsTxtRecordProps) {
     super(scope, id, props);
     this.props = props;
 
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the TXT Record",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the TXT Record",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the TXT Record",
     });

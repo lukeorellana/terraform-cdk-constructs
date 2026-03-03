@@ -17,8 +17,6 @@
     "eslint": "npx projen eslint",
     "package": "npx projen package",
     "package-all": "npx projen package-all",
-    "package:dotnet": "npx projen package:dotnet",
-    "package:java": "npx projen package:java",
     "package:js": "npx projen package:js",
     "package:python": "npx projen package:python",
     "post-compile": "npx projen post-compile",
@@ -48,8 +46,8 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
-    "cdktf": "0.20.8",
-    "constructs": "10.3.0",
+    "cdktn": "0.22.0",
+    "constructs": "10.4.2",
     "eslint": "^8",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -70,11 +68,11 @@
     "typescript": "~5.9.3"
   },
   "peerDependencies": {
-    "cdktf": "0.20.8",
-    "constructs": "^10.3.0"
+    "cdktn": "0.22.0",
+    "constructs": "^10.4.2"
   },
   "dependencies": {
-    "cdktf": "0.20.8",
+    "cdktn": "0.22.0",
     "uuid": "^11.0.3"
   },
   "bundledDependencies": [
@@ -84,12 +82,13 @@
     "azapi",
     "azure",
     "cdk",
-    "cdktf",
+    "cdktn",
     "cloud",
     "devops",
     "infrastructure",
     "rest-api",
-    "terraform"
+    "terraform",
+    "opentofu"
   ],
   "engines": {
     "node": ">= 20.16.0"
@@ -152,20 +151,9 @@
   "jsii": {
     "outdir": "dist",
     "targets": {
-      "java": {
-        "package": "com.microsoft.terraformcdkconstructs",
-        "maven": {
-          "groupId": "com.microsoft.terraformcdkconstructs",
-          "artifactId": "cdktf-azure-constructs"
-        }
-      },
       "python": {
         "distName": "microsoft-cdktfconstructs",
         "module": "microsoft_cdktfconstructs"
-      },
-      "dotnet": {
-        "namespace": "Microsoft.Cdktf.Azure.TFConstructs",
-        "packageId": "Microsoft.Cdktf.Azure.TFConstructs"
       }
     },
     "tsc": {

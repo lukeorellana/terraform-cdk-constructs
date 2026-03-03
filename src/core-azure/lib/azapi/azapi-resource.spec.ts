@@ -5,8 +5,8 @@
  * including version resolution, schema validation, property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import { AzapiResource, AzapiResourceProps } from "./azapi-resource";
 import { ApiVersionManager } from "../version-manager/api-version-manager";
@@ -47,8 +47,8 @@ class TestVersionedResource extends AzapiResource {
 }
 
 describe("AzapiResource", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   // Test data setup
@@ -121,7 +121,7 @@ describe("AzapiResource", () => {
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Register test versions

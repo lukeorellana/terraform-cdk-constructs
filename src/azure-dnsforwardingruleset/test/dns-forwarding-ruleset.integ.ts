@@ -7,9 +7,9 @@
  * Run with: npm run integration:nostream
  */
 
-import { Testing } from "cdktf";
+import { Testing } from "cdktn";
 import { Construct } from "constructs";
-import "cdktf/lib/testing/adapters/jest";
+import "cdktn/lib/testing/adapters/jest";
 import { DnsResolver } from "../../azure-dnsresolver/lib/dns-resolver";
 import { DnsResolverOutboundEndpoint } from "../../azure-dnsresolver/lib/outbound-endpoint";
 import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";

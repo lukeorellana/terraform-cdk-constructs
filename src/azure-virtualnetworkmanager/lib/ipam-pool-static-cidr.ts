@@ -19,7 +19,7 @@
  * - JSII compliance for multi-language support
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_STATIC_CIDR_VERSIONS,
@@ -147,9 +147,9 @@ export class IpamPoolStaticCidr extends AzapiResource {
   public readonly props: IpamPoolStaticCidrProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly addressPrefixOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly addressPrefixOutput: cdktn.TerraformOutput;
 
   // Public properties
   public readonly resourceName: string;
@@ -186,17 +186,17 @@ export class IpamPoolStaticCidr extends AzapiResource {
     this.resourceName = `\${${this.terraformResource.fqn}.name}`;
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Static CIDR",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: this.resourceName,
       description: "The name of the Static CIDR",
     });
 
-    this.addressPrefixOutput = new cdktf.TerraformOutput(
+    this.addressPrefixOutput = new cdktn.TerraformOutput(
       this,
       "addressPrefixes",
       {

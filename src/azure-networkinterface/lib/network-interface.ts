@@ -18,7 +18,7 @@
  * - JSII compliance for multi-language support
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_NETWORK_INTERFACE_VERSIONS,
@@ -243,10 +243,10 @@ export class NetworkInterface extends AzapiResource {
   public readonly props: NetworkInterfaceProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly tagsOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly tagsOutput: cdktn.TerraformOutput;
 
   // Public properties
 
@@ -265,22 +265,22 @@ export class NetworkInterface extends AzapiResource {
     // Extract properties from the AZAPI resource outputs
 
     // Create Terraform outputs
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Network Interface",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the Network Interface",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the Network Interface",
     });
 
-    this.tagsOutput = new cdktf.TerraformOutput(this, "tags", {
+    this.tagsOutput = new cdktn.TerraformOutput(this, "tags", {
       value: `\${${this.terraformResource.fqn}.tags}`,
       description: "The tags assigned to the Network Interface",
     });

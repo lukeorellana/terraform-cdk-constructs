@@ -2,11 +2,11 @@
 // generated from terraform resource schema
 
 import { Construct } from 'constructs';
-import * as cdktf from 'cdktf';
+import * as cdktn from 'cdktn';
 
 // Configuration
 
-export interface DataAzapiResourceIdConfig extends cdktf.TerraformMetaArguments {
+export interface DataAzapiResourceIdConfig extends cdktn.TerraformMetaArguments {
   /**
   * The name of the Azure resource.
   *
@@ -57,25 +57,25 @@ export interface DataAzapiResourceIdTimeouts {
   readonly read?: string;
 }
 
-export function dataAzapiResourceIdTimeoutsToTerraform(struct?: DataAzapiResourceIdTimeouts | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function dataAzapiResourceIdTimeoutsToTerraform(struct?: DataAzapiResourceIdTimeouts | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   return {
-    read: cdktf.stringToTerraform(struct!.read),
+    read: cdktn.stringToTerraform(struct!.read),
   }
 }
 
 
-export function dataAzapiResourceIdTimeoutsToHclTerraform(struct?: DataAzapiResourceIdTimeouts | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function dataAzapiResourceIdTimeoutsToHclTerraform(struct?: DataAzapiResourceIdTimeouts | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   const attrs = {
     read: {
-      value: cdktf.stringToHclTerraform(struct!.read),
+      value: cdktn.stringToHclTerraform(struct!.read),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
@@ -86,19 +86,19 @@ export function dataAzapiResourceIdTimeoutsToHclTerraform(struct?: DataAzapiReso
   return Object.fromEntries(Object.entries(attrs).filter(([_, value]) => value !== undefined && value.value !== undefined));
 }
 
-export class DataAzapiResourceIdTimeoutsOutputReference extends cdktf.ComplexObject {
+export class DataAzapiResourceIdTimeoutsOutputReference extends cdktn.ComplexObject {
   private isEmptyObject = false;
-  private resolvableValue?: cdktf.IResolvable;
+  private resolvableValue?: cdktn.IResolvable;
 
   /**
   * @param terraformResource The parent resource
   * @param terraformAttribute The attribute on the parent resource this class is referencing
   */
-  public constructor(terraformResource: cdktf.IInterpolatingParent, terraformAttribute: string) {
+  public constructor(terraformResource: cdktn.IInterpolatingParent, terraformAttribute: string) {
     super(terraformResource, terraformAttribute, false);
   }
 
-  public get internalValue(): DataAzapiResourceIdTimeouts | cdktf.IResolvable | undefined {
+  public get internalValue(): DataAzapiResourceIdTimeouts | cdktn.IResolvable | undefined {
     if (this.resolvableValue) {
       return this.resolvableValue;
     }
@@ -111,13 +111,13 @@ export class DataAzapiResourceIdTimeoutsOutputReference extends cdktf.ComplexObj
     return hasAnyValues ? internalValueResult : undefined;
   }
 
-  public set internalValue(value: DataAzapiResourceIdTimeouts | cdktf.IResolvable | undefined) {
+  public set internalValue(value: DataAzapiResourceIdTimeouts | cdktn.IResolvable | undefined) {
     if (value === undefined) {
       this.isEmptyObject = false;
       this.resolvableValue = undefined;
       this._read = undefined;
     }
-    else if (cdktf.Tokenization.isResolvable(value)) {
+    else if (cdktn.Tokenization.isResolvable(value)) {
       this.isEmptyObject = false;
       this.resolvableValue = value;
     }
@@ -148,7 +148,7 @@ export class DataAzapiResourceIdTimeoutsOutputReference extends cdktf.ComplexObj
 /**
 * Represents a {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/data-sources/resource_id azapi_resource_id}
 */
-export class DataAzapiResourceId extends cdktf.TerraformDataSource {
+export class DataAzapiResourceId extends cdktn.TerraformDataSource {
 
   // =================
   // STATIC PROPERTIES
@@ -159,14 +159,14 @@ export class DataAzapiResourceId extends cdktf.TerraformDataSource {
   // STATIC Methods
   // ==============
   /**
-  * Generates CDKTF code for importing a DataAzapiResourceId resource upon running "cdktf plan <stack-name>"
+  * Generates CDKTN code for importing a DataAzapiResourceId resource upon running "cdktn plan <stack-name>"
   * @param scope The scope in which to define this construct
   * @param importToId The construct id used in the generated config for the DataAzapiResourceId to import
   * @param importFromId The id of the existing DataAzapiResourceId that should be imported. Refer to the {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/data-sources/resource_id#import import section} in the documentation of this resource for the id to use
   * @param provider? Optional instance of the provider where the DataAzapiResourceId to import is found
   */
-  public static generateConfigForImport(scope: Construct, importToId: string, importFromId: string, provider?: cdktf.TerraformProvider) {
-        return new cdktf.ImportableResource(scope, importToId, { terraformResourceType: "azapi_resource_id", importId: importFromId, provider });
+  public static generateConfigForImport(scope: Construct, importToId: string, importFromId: string, provider?: cdktn.TerraformProvider) {
+        return new cdktn.ImportableResource(scope, importToId, { terraformResourceType: "azapi_resource_id", importId: importFromId, provider });
       }
 
   // ===========
@@ -245,7 +245,7 @@ export class DataAzapiResourceId extends cdktf.TerraformDataSource {
   }
 
   // parts - computed: true, optional: false, required: false
-  private _parts = new cdktf.StringMap(this, "parts");
+  private _parts = new cdktn.StringMap(this, "parts");
   public get parts() {
     return this._parts;
   }
@@ -316,10 +316,10 @@ export class DataAzapiResourceId extends cdktf.TerraformDataSource {
 
   protected synthesizeAttributes(): { [name: string]: any } {
     return {
-      name: cdktf.stringToTerraform(this._name),
-      parent_id: cdktf.stringToTerraform(this._parentId),
-      resource_id: cdktf.stringToTerraform(this._resourceId),
-      type: cdktf.stringToTerraform(this._type),
+      name: cdktn.stringToTerraform(this._name),
+      parent_id: cdktn.stringToTerraform(this._parentId),
+      resource_id: cdktn.stringToTerraform(this._resourceId),
+      type: cdktn.stringToTerraform(this._type),
       timeouts: dataAzapiResourceIdTimeoutsToTerraform(this._timeouts.internalValue),
     };
   }
@@ -327,25 +327,25 @@ export class DataAzapiResourceId extends cdktf.TerraformDataSource {
   protected synthesizeHclAttributes(): { [name: string]: any } {
     const attrs = {
       name: {
-        value: cdktf.stringToHclTerraform(this._name),
+        value: cdktn.stringToHclTerraform(this._name),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       parent_id: {
-        value: cdktf.stringToHclTerraform(this._parentId),
+        value: cdktn.stringToHclTerraform(this._parentId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       resource_id: {
-        value: cdktf.stringToHclTerraform(this._resourceId),
+        value: cdktn.stringToHclTerraform(this._resourceId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       type: {
-        value: cdktf.stringToHclTerraform(this._type),
+        value: cdktn.stringToHclTerraform(this._type),
         isBlock: false,
         type: "simple",
         storageClassType: "string",

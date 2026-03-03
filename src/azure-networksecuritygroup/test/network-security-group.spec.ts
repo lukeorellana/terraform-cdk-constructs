@@ -6,20 +6,20 @@
  * security rules configuration, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   NetworkSecurityGroup,
   NetworkSecurityGroupProps,
 } from "../lib/network-security-group";
 
 describe("NetworkSecurityGroup - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Constructor and Basic Properties", () => {
@@ -621,11 +621,11 @@ describe("NetworkSecurityGroup - Implementation", () => {
         location: "eastus",
       });
 
-      expect(nsg.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nsg.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nsg.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nsg.securityRulesOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nsg.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(nsg.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nsg.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nsg.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nsg.securityRulesOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nsg.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {

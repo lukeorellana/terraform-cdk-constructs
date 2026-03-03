@@ -13,20 +13,20 @@
  * - Tags management
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   PublicIPAddress,
   PublicIPAddressProps,
 } from "../lib/public-ip-address";
 
 describe("PublicIPAddress", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Resource Type", () => {
@@ -481,10 +481,10 @@ describe("PublicIPAddress", () => {
       });
 
       expect(publicIp.id).toBeDefined();
-      expect(publicIp.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(publicIp.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(publicIp.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(publicIp.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(publicIp.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(publicIp.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(publicIp.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(publicIp.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {

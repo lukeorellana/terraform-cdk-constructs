@@ -6,17 +6,17 @@
  * property transformation, and resource creation including parent-child relationship.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { Subnet, SubnetProps } from "../lib/subnet";
 
 describe("Subnet - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Constructor and Basic Properties", () => {
@@ -334,8 +334,8 @@ describe("Subnet - Implementation", () => {
         addressPrefix: "10.0.1.0/24",
       });
 
-      expect(subnet.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(subnet.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(subnet.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(subnet.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {

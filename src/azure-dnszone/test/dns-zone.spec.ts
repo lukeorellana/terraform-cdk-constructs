@@ -7,21 +7,21 @@
  * full backward compatibility.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import { DnsZone, DnsZoneProps } from "../lib/dns-zone";
 import { ALL_DNS_ZONE_VERSIONS, DNS_ZONE_TYPE } from "../lib/dns-zone-schemas";
 
 describe("DnsZone - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure schemas are registered

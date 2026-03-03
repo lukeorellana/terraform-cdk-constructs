@@ -7,9 +7,9 @@
  * Run with: npm run integration:nostream
  */
 
-import { Testing } from "cdktf";
+import { Testing } from "cdktn";
 import { Construct } from "constructs";
-import "cdktf/lib/testing/adapters/jest";
+import "cdktn/lib/testing/adapters/jest";
 import { PrivateDnsZone } from "../../azure-privatednszone/lib/private-dns-zone";
 import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { VirtualNetwork } from "../../azure-virtualnetwork/lib/virtual-network";

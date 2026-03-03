@@ -7,8 +7,8 @@
  * policy assignment-specific functionality.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import {
@@ -21,13 +21,13 @@ import {
 } from "../lib/policy-assignment-schemas";
 
 describe("PolicyAssignment - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure Policy Assignment schemas are registered
@@ -367,8 +367,8 @@ describe("PolicyAssignment - Unified Implementation", () => {
         scope: "/subscriptions/00000000-0000-0000-0000-000000000000",
       });
 
-      expect(assignment.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(assignment.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(assignment.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(assignment.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
   });
 
@@ -725,8 +725,8 @@ describe("PolicyAssignment - Unified Implementation", () => {
     });
 
     it("should work in complex CDK constructs", () => {
-      class ComplexConstruct extends cdktf.TerraformStack {
-        constructor(scope: cdktf.App, id: string) {
+      class ComplexConstruct extends cdktn.TerraformStack {
+        constructor(scope: cdktn.App, id: string) {
           super(scope, id);
 
           const assignment1 = new PolicyAssignment(this, "Assignment1", {
@@ -747,11 +747,11 @@ describe("PolicyAssignment - Unified Implementation", () => {
             apiVersion: "2022-06-01",
           });
 
-          new cdktf.TerraformOutput(this, "Assignment1Id", {
+          new cdktn.TerraformOutput(this, "Assignment1Id", {
             value: assignment1.id,
           });
 
-          new cdktf.TerraformOutput(this, "Assignment2Id", {
+          new cdktn.TerraformOutput(this, "Assignment2Id", {
             value: assignment2.id,
           });
         }

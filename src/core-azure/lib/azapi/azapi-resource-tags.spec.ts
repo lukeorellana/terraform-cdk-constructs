@@ -8,17 +8,17 @@
  * - The allTags() method used in createResourceBody includes all tags
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ResourceGroup } from "../../../azure-resourcegroup/lib/resource-group";
 
 describe("AzapiResource - Tag Management", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Tag Immutability", () => {

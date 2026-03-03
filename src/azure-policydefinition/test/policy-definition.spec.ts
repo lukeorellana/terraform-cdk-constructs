@@ -7,8 +7,8 @@
  * policy-specific functionality.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import {
@@ -21,13 +21,13 @@ import {
 } from "../lib/policy-definition-schemas";
 
 describe("PolicyDefinition - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure Policy Definition schemas are registered
@@ -413,8 +413,8 @@ describe("PolicyDefinition - Unified Implementation", () => {
         },
       );
 
-      expect(policyDefinition.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(policyDefinition.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(policyDefinition.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(policyDefinition.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
   });
 
@@ -967,8 +967,8 @@ describe("PolicyDefinition - Unified Implementation", () => {
     });
 
     it("should work in complex CDK constructs", () => {
-      class ComplexConstruct extends cdktf.TerraformStack {
-        constructor(scope: cdktf.App, id: string) {
+      class ComplexConstruct extends cdktn.TerraformStack {
+        constructor(scope: cdktn.App, id: string) {
           super(scope, id);
 
           const policy1 = new PolicyDefinition(this, "Policy1", {
@@ -984,11 +984,11 @@ describe("PolicyDefinition - Unified Implementation", () => {
             apiVersion: "2021-06-01",
           });
 
-          new cdktf.TerraformOutput(this, "Policy1Id", {
+          new cdktn.TerraformOutput(this, "Policy1Id", {
             value: policy1.id,
           });
 
-          new cdktf.TerraformOutput(this, "Policy2Id", {
+          new cdktn.TerraformOutput(this, "Policy2Id", {
             value: policy2.id,
           });
         }

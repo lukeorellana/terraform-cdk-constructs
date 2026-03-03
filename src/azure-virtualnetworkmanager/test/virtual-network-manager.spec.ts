@@ -7,8 +7,8 @@
  * and parent-child relationships.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   ConnectivityConfiguration,
   ConnectivityConfigurationProps,
@@ -37,12 +37,12 @@ import {
 } from "../lib/virtual-network-manager";
 
 describe("VirtualNetworkManager", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
   });
 
   describe("Basic Instantiation Tests", () => {
@@ -373,12 +373,12 @@ describe("VirtualNetworkManager", () => {
 
       const manager = new VirtualNetworkManager(stack, "TestManager", props);
 
-      expect(manager.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(manager.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(manager.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(manager.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(manager.scopeOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(manager.scopeAccessesOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(manager.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(manager.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(manager.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(manager.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(manager.scopeOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(manager.scopeAccessesOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have proper resource references in outputs", () => {
@@ -570,7 +570,7 @@ describe("VirtualNetworkManager", () => {
       const versions = ["2023-11-01", "2024-05-01"];
 
       versions.forEach((version) => {
-        const testStack = new cdktf.TerraformStack(app, `Stack-${version}`);
+        const testStack = new cdktn.TerraformStack(app, `Stack-${version}`);
         const manager = new VirtualNetworkManager(
           testStack,
           `Manager-${version}`,
@@ -908,13 +908,13 @@ describe("VirtualNetworkManager", () => {
 });
 
 describe("NetworkGroup", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -1000,10 +1000,10 @@ describe("NetworkGroup", () => {
         networkManagerId: manager.id,
       });
 
-      expect(networkGroup.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(networkGroup.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(networkGroup.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(networkGroup.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(networkGroup.provisioningStateOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
 
@@ -1050,14 +1050,14 @@ describe("NetworkGroup", () => {
 });
 
 describe("NetworkGroupStaticMember", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
   let networkGroup: NetworkGroup;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -1136,9 +1136,9 @@ describe("NetworkGroupStaticMember", () => {
         resourceId: "/subscriptions/test/virtualNetworks/vnet1",
       });
 
-      expect(member.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(member.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(member.resourceIdOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(member.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(member.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(member.resourceIdOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have proper resource references", () => {
@@ -1187,14 +1187,14 @@ describe("NetworkGroupStaticMember", () => {
 });
 
 describe("ConnectivityConfiguration", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
   let networkGroup: NetworkGroup;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -1387,10 +1387,10 @@ describe("ConnectivityConfiguration", () => {
         appliesToGroups: [{ networkGroupId: networkGroup.id }],
       });
 
-      expect(config.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(config.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(config.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(config.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(config.provisioningStateOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
   });
@@ -1413,13 +1413,13 @@ describe("ConnectivityConfiguration", () => {
 });
 
 describe("SecurityAdminConfiguration", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -1498,10 +1498,10 @@ describe("SecurityAdminConfiguration", () => {
         networkManagerId: manager.id,
       });
 
-      expect(config.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(config.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(config.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(config.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(config.provisioningStateOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
 
@@ -1536,15 +1536,15 @@ describe("SecurityAdminConfiguration", () => {
 });
 
 describe("SecurityAdminRuleCollection", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
   let securityConfig: SecurityAdminConfiguration;
   let networkGroup: NetworkGroup;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -1670,10 +1670,10 @@ describe("SecurityAdminRuleCollection", () => {
         },
       );
 
-      expect(collection.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(collection.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(collection.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(collection.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(collection.provisioningStateOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
   });
@@ -1713,8 +1713,8 @@ describe("SecurityAdminRuleCollection", () => {
 });
 
 describe("SecurityAdminRule", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
   let securityConfig: SecurityAdminConfiguration;
   let networkGroup: NetworkGroup;
@@ -1722,7 +1722,7 @@ describe("SecurityAdminRule", () => {
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -2099,10 +2099,10 @@ describe("SecurityAdminRule", () => {
         protocol: "Tcp",
       });
 
-      expect(rule.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(rule.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(rule.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(rule.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(rule.provisioningStateOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
 

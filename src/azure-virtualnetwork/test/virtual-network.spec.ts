@@ -6,17 +6,17 @@
  * property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { VirtualNetwork, VirtualNetworkProps } from "../lib/virtual-network";
 
 describe("VirtualNetwork - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Constructor and Basic Properties", () => {
@@ -309,11 +309,11 @@ describe("VirtualNetwork - Implementation", () => {
         },
       });
 
-      expect(vnet.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vnet.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vnet.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vnet.addressSpaceOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vnet.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(vnet.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vnet.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vnet.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vnet.addressSpaceOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vnet.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {

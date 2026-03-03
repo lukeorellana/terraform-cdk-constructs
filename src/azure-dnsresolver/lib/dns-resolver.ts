@@ -17,7 +17,7 @@
  * - Hybrid DNS scenarios with conditional forwarding
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_DNS_RESOLVER_VERSIONS,
@@ -123,13 +123,13 @@ export class DnsResolver extends AzapiResource {
   public readonly props: DnsResolverProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly tagsOutput: cdktf.TerraformOutput;
-  public readonly dnsResolverStateOutput: cdktf.TerraformOutput;
-  public readonly provisioningStateOutput: cdktf.TerraformOutput;
-  public readonly resourceGuidOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly tagsOutput: cdktn.TerraformOutput;
+  public readonly dnsResolverStateOutput: cdktn.TerraformOutput;
+  public readonly provisioningStateOutput: cdktn.TerraformOutput;
+  public readonly resourceGuidOutput: cdktn.TerraformOutput;
 
   // Public properties
   public readonly virtualNetworkId: string;
@@ -150,27 +150,27 @@ export class DnsResolver extends AzapiResource {
     this.virtualNetworkId = props.virtualNetworkId;
 
     // Create Terraform outputs
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the DNS Resolver",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the DNS Resolver",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the DNS Resolver",
     });
 
-    this.tagsOutput = new cdktf.TerraformOutput(this, "tags", {
+    this.tagsOutput = new cdktn.TerraformOutput(this, "tags", {
       value: `\${${this.terraformResource.fqn}.tags}`,
       description: "The tags assigned to the DNS Resolver",
     });
 
-    this.dnsResolverStateOutput = new cdktf.TerraformOutput(
+    this.dnsResolverStateOutput = new cdktn.TerraformOutput(
       this,
       "dns_resolver_state",
       {
@@ -180,7 +180,7 @@ export class DnsResolver extends AzapiResource {
       },
     );
 
-    this.provisioningStateOutput = new cdktf.TerraformOutput(
+    this.provisioningStateOutput = new cdktn.TerraformOutput(
       this,
       "provisioning_state",
       {
@@ -189,7 +189,7 @@ export class DnsResolver extends AzapiResource {
       },
     );
 
-    this.resourceGuidOutput = new cdktf.TerraformOutput(this, "resource_guid", {
+    this.resourceGuidOutput = new cdktn.TerraformOutput(this, "resource_guid", {
       value: `\${${this.terraformResource.fqn}.output.properties.resourceGuid}`,
       description: "The unique identifier for the DNS Resolver resource",
     });

@@ -17,7 +17,7 @@
  * - JSII compliance for multi-language support
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import { ALL_IPAM_POOL_VERSIONS, IPAM_POOL_TYPE } from "./ipam-pool-schemas";
 import {
@@ -174,9 +174,9 @@ export class IpamPool extends AzapiResource {
   public readonly props: IpamPoolProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
 
   // Public properties
   public readonly resourceName: string;
@@ -200,17 +200,17 @@ export class IpamPool extends AzapiResource {
     this.resourceName = `\${${this.terraformResource.fqn}.name}`;
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the IPAM Pool",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: this.resourceName,
       description: "The name of the IPAM Pool",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the IPAM Pool",
     });

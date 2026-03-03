@@ -7,8 +7,8 @@
  * role definition-specific functionality.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import { RoleDefinition, RoleDefinitionProps } from "../lib/role-definition";
@@ -18,13 +18,13 @@ import {
 } from "../lib/role-definition-schemas";
 
 describe("RoleDefinition - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure Role Definition schemas are registered
@@ -476,8 +476,8 @@ describe("RoleDefinition - Unified Implementation", () => {
         ],
       });
 
-      expect(roleDefinition.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(roleDefinition.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(roleDefinition.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(roleDefinition.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
   });
 
@@ -990,8 +990,8 @@ describe("RoleDefinition - Unified Implementation", () => {
     });
 
     it("should work in complex CDK constructs", () => {
-      class ComplexConstruct extends cdktf.TerraformStack {
-        constructor(scope: cdktf.App, id: string) {
+      class ComplexConstruct extends cdktn.TerraformStack {
+        constructor(scope: cdktn.App, id: string) {
           super(scope, id);
 
           const role1 = new RoleDefinition(this, "Role1", {
@@ -1021,11 +1021,11 @@ describe("RoleDefinition - Unified Implementation", () => {
             apiVersion: "2022-04-01",
           });
 
-          new cdktf.TerraformOutput(this, "Role1Id", {
+          new cdktn.TerraformOutput(this, "Role1Id", {
             value: role1.id,
           });
 
-          new cdktf.TerraformOutput(this, "Role2Id", {
+          new cdktn.TerraformOutput(this, "Role2Id", {
             value: role2.id,
           });
         }

@@ -4,21 +4,21 @@
  * Unit tests for the IPAM Pool Static CIDR construct
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { IpamPool } from "../lib/ipam-pool";
 import { IpamPoolStaticCidr } from "../lib/ipam-pool-static-cidr";
 import { VirtualNetworkManager } from "../lib/virtual-network-manager";
 
 describe("IpamPoolStaticCidr", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
   let pool: IpamPool;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -241,10 +241,10 @@ describe("IpamPoolStaticCidr", () => {
         addressPrefixes: ["10.0.1.0/24"],
       });
 
-      expect(staticCidr.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(staticCidr.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(staticCidr.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(staticCidr.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(staticCidr.addressPrefixOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
 

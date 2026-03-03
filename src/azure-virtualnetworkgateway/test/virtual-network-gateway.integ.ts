@@ -10,9 +10,9 @@
  * Run with: npm run integration:nostream
  */
 
-import { Testing } from "cdktf";
+import { Testing } from "cdktn";
 import { Construct } from "constructs";
-import "cdktf/lib/testing/adapters/jest";
+import "cdktn/lib/testing/adapters/jest";
 import { PublicIPAddress } from "../../azure-publicipaddress";
 import { ResourceGroup } from "../../azure-resourcegroup";
 import { Subnet } from "../../azure-subnet";

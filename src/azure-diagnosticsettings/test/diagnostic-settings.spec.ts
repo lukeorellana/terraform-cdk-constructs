@@ -6,8 +6,8 @@
  * destination configurations, property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   DiagnosticLogConfig,
   DiagnosticMetricConfig,
@@ -18,12 +18,12 @@ import {
 } from "../lib/diagnostic-settings";
 
 describe("DiagnosticSettings - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   // =============================================================================
@@ -457,8 +457,8 @@ describe("DiagnosticSettings - Implementation", () => {
           "/subscriptions/test-sub/resourceGroups/test-rg/providers/Microsoft.OperationalInsights/workspaces/test-workspace",
       });
 
-      expect(diagnostics.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(diagnostics.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(diagnostics.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(diagnostics.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(diagnostics.id).toMatch(/^\$\{.*\.id\}$/);
     });
   });

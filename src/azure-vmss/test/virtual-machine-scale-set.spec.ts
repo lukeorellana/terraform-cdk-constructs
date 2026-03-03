@@ -6,8 +6,8 @@
  * property transformation, orchestration modes, and full backward compatibility.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import { VirtualMachineScaleSet } from "../lib/virtual-machine-scale-set";
@@ -18,13 +18,13 @@ import {
 } from "../lib/vmss-schemas";
 
 describe("VirtualMachineScaleSet - Comprehensive Tests", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure VMSS schemas are registered
@@ -912,11 +912,11 @@ describe("VirtualMachineScaleSet - Comprehensive Tests", () => {
         sku: { name: "Standard_D2s_v3", capacity: 3 },
       });
 
-      expect(vmss.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vmss.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vmss.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vmss.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vmss.uniqueIdOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(vmss.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vmss.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vmss.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vmss.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vmss.uniqueIdOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should handle minimal resource creation", () => {

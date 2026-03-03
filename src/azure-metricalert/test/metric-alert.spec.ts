@@ -7,8 +7,8 @@
  * property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   MetricAlert,
   MetricAlertProps,
@@ -19,12 +19,12 @@ import {
 } from "../lib/metric-alert";
 
 describe("MetricAlert - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   // =============================================================================
@@ -1143,8 +1143,8 @@ describe("MetricAlert - Implementation", () => {
         criteria,
       });
 
-      expect(metricAlert.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(metricAlert.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(metricAlert.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(metricAlert.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(metricAlert.id).toMatch(/^\$\{.*\.id\}$/);
     });
   });

@@ -18,7 +18,7 @@
  * - JSII compliance for multi-language support
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_STORAGE_ACCOUNT_VERSIONS,
@@ -447,11 +447,11 @@ export class StorageAccount extends AzapiResource {
   public readonly props: StorageAccountProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly tagsOutput: cdktf.TerraformOutput;
-  public readonly primaryEndpointsOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly tagsOutput: cdktn.TerraformOutput;
+  public readonly primaryEndpointsOutput: cdktn.TerraformOutput;
 
   // Public properties
 
@@ -470,27 +470,27 @@ export class StorageAccount extends AzapiResource {
     // Extract properties from the AZAPI resource outputs
 
     // Create Terraform outputs
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Storage Account",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the Storage Account",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the Storage Account",
     });
 
-    this.tagsOutput = new cdktf.TerraformOutput(this, "tags", {
+    this.tagsOutput = new cdktn.TerraformOutput(this, "tags", {
       value: `\${${this.terraformResource.fqn}.tags}`,
       description: "The tags assigned to the Storage Account",
     });
 
-    this.primaryEndpointsOutput = new cdktf.TerraformOutput(
+    this.primaryEndpointsOutput = new cdktn.TerraformOutput(
       this,
       "primary_endpoints",
       {
