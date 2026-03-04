@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.10.0
+          node-version: 20.16.0
       - name: Authenticate with Azure
         id: azure_login
         uses: azure/login@v2
@@ -76,7 +76,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.10.0
+          node-version: 20.16.0
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
