@@ -234,6 +234,11 @@ if (upgradeWorkflow) {
   );
 }
 
+// Override GitHub Actions versions to v4 to prevent self-mutation issues
+// This ensures projen generates @v4 versions instead of @v3 defaults
+project.github?.actions.set("actions/setup-java", "actions/setup-java@v4");
+project.github?.actions.set("actions/setup-dotnet", "actions/setup-dotnet@v4");
+
 // Add .gitignore entries
 project.gitignore.include("cdk.out");
 project.gitignore.exclude("cdktf.out");
