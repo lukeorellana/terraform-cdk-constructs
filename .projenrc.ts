@@ -22,7 +22,7 @@ const project = new cdktf.ConstructLibraryCdktf({
   ],
   constructsVersion: "^10.3.0",
   typescriptVersion: "~5.9.3", // should always be the same major/minor as JSII
-  minNodeVersion: "20.10.0",
+  minNodeVersion: "20.16.0",
   defaultReleaseBranch: "main",
   name: "@microsoft/terraform-cdk-constructs",
   majorVersion: 1, // Set to version 1.0.0 for AZAPI migration
