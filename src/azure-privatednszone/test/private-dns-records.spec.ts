@@ -16,8 +16,8 @@
  * record-specific properties, and metadata handling.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   PrivateDnsARecord,
   PrivateDnsAaaaRecord,
@@ -44,12 +44,12 @@ const SAMPLE_ZONE_ID =
   "/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/rg-test/providers/Microsoft.Network/privateDnsZones/example.com";
 
 describe("PrivateDnsARecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -203,9 +203,9 @@ describe("PrivateDnsARecord", () => {
         records: [{ ipv4Address: "10.0.1.4" }],
       });
 
-      expect(record.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(record.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(record.fqdnOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(record.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(record.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(record.fqdnOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should provide fqdn property", () => {
@@ -222,12 +222,12 @@ describe("PrivateDnsARecord", () => {
 });
 
 describe("PrivateDnsAaaaRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -313,12 +313,12 @@ describe("PrivateDnsAaaaRecord", () => {
 });
 
 describe("PrivateDnsCnameRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -391,12 +391,12 @@ describe("PrivateDnsCnameRecord", () => {
 });
 
 describe("PrivateDnsMxRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -469,12 +469,12 @@ describe("PrivateDnsMxRecord", () => {
 });
 
 describe("PrivateDnsPtrRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -545,12 +545,12 @@ describe("PrivateDnsPtrRecord", () => {
 });
 
 describe("PrivateDnsSoaRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -638,12 +638,12 @@ describe("PrivateDnsSoaRecord", () => {
 });
 
 describe("PrivateDnsSrvRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -758,12 +758,12 @@ describe("PrivateDnsSrvRecord", () => {
 });
 
 describe("PrivateDnsTxtRecord", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Basic Creation", () => {
@@ -854,12 +854,12 @@ describe("PrivateDnsTxtRecord", () => {
 });
 
 describe("Private DNS Records - Cross-cutting Concerns", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Multiple Record Types in Same Stack", () => {

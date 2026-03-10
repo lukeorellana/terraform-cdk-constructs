@@ -18,7 +18,7 @@
  * - Used with forwarding rules for conditional DNS forwarding
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_DNS_RESOLVER_OUTBOUND_ENDPOINT_VERSIONS,
@@ -128,12 +128,12 @@ export class DnsResolverOutboundEndpoint extends AzapiResource {
   public readonly props: DnsResolverOutboundEndpointProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
-  public readonly tagsOutput: cdktf.TerraformOutput;
-  public readonly provisioningStateOutput: cdktf.TerraformOutput;
-  public readonly resourceGuidOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
+  public readonly tagsOutput: cdktn.TerraformOutput;
+  public readonly provisioningStateOutput: cdktn.TerraformOutput;
+  public readonly resourceGuidOutput: cdktn.TerraformOutput;
 
   // Public properties
 
@@ -156,27 +156,27 @@ export class DnsResolverOutboundEndpoint extends AzapiResource {
     // Extract properties from the AZAPI resource outputs using Terraform interpolation
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Outbound Endpoint",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the Outbound Endpoint",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the Outbound Endpoint",
     });
 
-    this.tagsOutput = new cdktf.TerraformOutput(this, "tags", {
+    this.tagsOutput = new cdktn.TerraformOutput(this, "tags", {
       value: `\${${this.terraformResource.fqn}.tags}`,
       description: "The tags assigned to the Outbound Endpoint",
     });
 
-    this.provisioningStateOutput = new cdktf.TerraformOutput(
+    this.provisioningStateOutput = new cdktn.TerraformOutput(
       this,
       "provisioning_state",
       {
@@ -185,7 +185,7 @@ export class DnsResolverOutboundEndpoint extends AzapiResource {
       },
     );
 
-    this.resourceGuidOutput = new cdktf.TerraformOutput(this, "resource_guid", {
+    this.resourceGuidOutput = new cdktn.TerraformOutput(this, "resource_guid", {
       value: `\${${this.terraformResource.fqn}.output.properties.resourceGuid}`,
       description: "The unique identifier for the Outbound Endpoint",
     });

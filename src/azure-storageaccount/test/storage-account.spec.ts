@@ -2,18 +2,18 @@
  * Unit tests for Azure Storage Account using VersionedAzapiResource framework
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ResourceGroup } from "../../azure-resourcegroup";
 import { StorageAccount, StorageAccountProps } from "../lib/storage-account";
 
 describe("StorageAccount", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("constructor", () => {
@@ -104,14 +104,14 @@ describe("StorageAccount", () => {
 
       const storageAccount = new StorageAccount(stack, "TestStorage", props);
 
-      expect(storageAccount.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(storageAccount.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(storageAccount.locationOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
-      expect(storageAccount.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(storageAccount.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(storageAccount.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(storageAccount.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(storageAccount.primaryEndpointsOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
     });
   });

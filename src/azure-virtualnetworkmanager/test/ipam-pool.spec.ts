@@ -4,19 +4,19 @@
  * Unit tests for the IPAM Pool construct
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { IpamPool } from "../lib/ipam-pool";
 import { VirtualNetworkManager } from "../lib/virtual-network-manager";
 
 describe("IpamPool", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: VirtualNetworkManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "test-stack");
+    stack = new cdktn.TerraformStack(app, "test-stack");
     manager = new VirtualNetworkManager(stack, "TestManager", {
       name: "test-manager",
       location: "eastus",
@@ -214,9 +214,9 @@ describe("IpamPool", () => {
         addressPrefixes: ["10.0.0.0/8"],
       });
 
-      expect(pool.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(pool.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(pool.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(pool.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(pool.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(pool.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct output logical IDs", () => {

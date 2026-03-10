@@ -7,8 +7,8 @@
  * property transformation, and full backward compatibility.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import { ResourceGroup, ResourceGroupProps } from "../lib/resource-group";
@@ -18,13 +18,13 @@ import {
 } from "../lib/resource-group-schemas";
 
 describe("ResourceGroup - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure Resource Group schemas are registered
@@ -295,12 +295,12 @@ describe("ResourceGroup - Unified Implementation", () => {
         location: "eastus",
       });
 
-      expect(resourceGroup.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(resourceGroup.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(resourceGroup.locationOutput).toBeInstanceOf(
-        cdktf.TerraformOutput,
+        cdktn.TerraformOutput,
       );
-      expect(resourceGroup.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(resourceGroup.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(resourceGroup.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(resourceGroup.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
   });
 
@@ -571,8 +571,8 @@ describe("ResourceGroup - Unified Implementation", () => {
     });
 
     it("should work in complex CDK constructs", () => {
-      class ComplexConstruct extends cdktf.TerraformStack {
-        constructor(scope: cdktf.App, id: string) {
+      class ComplexConstruct extends cdktn.TerraformStack {
+        constructor(scope: cdktn.App, id: string) {
           super(scope, id);
 
           // Create multiple resource groups
@@ -590,11 +590,11 @@ describe("ResourceGroup - Unified Implementation", () => {
           });
 
           // Create outputs that reference the resource groups
-          new cdktf.TerraformOutput(this, "PrimaryRGId", {
+          new cdktn.TerraformOutput(this, "PrimaryRGId", {
             value: rg1.id,
           });
 
-          new cdktf.TerraformOutput(this, "SecondaryRGId", {
+          new cdktn.TerraformOutput(this, "SecondaryRGId", {
             value: rg2.id,
           });
         }

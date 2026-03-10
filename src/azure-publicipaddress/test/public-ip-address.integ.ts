@@ -7,9 +7,9 @@
  * Run with: npm run integration:nostream
  */
 
-import { Testing, TerraformStack } from "cdktf";
+import { Testing, TerraformStack } from "cdktn";
 import { Construct } from "constructs";
-import "cdktf/lib/testing/adapters/jest";
+import "cdktn/lib/testing/adapters/jest";
 import { ResourceGroup } from "../../azure-resourcegroup";
 import { AzapiProvider } from "../../core-azure/lib/azapi/providers-azapi/provider";
 import { TerraformApplyCheckAndDestroy } from "../../testing";

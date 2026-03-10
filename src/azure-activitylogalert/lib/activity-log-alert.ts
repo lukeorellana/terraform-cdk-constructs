@@ -16,7 +16,7 @@
  * - Support for filtering by category, operation, and resource type
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_ACTIVITY_LOG_ALERT_VERSIONS,
@@ -209,8 +209,8 @@ export class ActivityLogAlert extends AzapiResource {
   public readonly props: ActivityLogAlertProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
 
   // Public properties
 
@@ -232,12 +232,12 @@ export class ActivityLogAlert extends AzapiResource {
     // Extract properties from the AZAPI resource outputs using Terraform interpolation
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Activity Log Alert",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the Activity Log Alert",
     });

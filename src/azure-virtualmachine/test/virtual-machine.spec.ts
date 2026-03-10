@@ -7,8 +7,8 @@
  * property transformation, and full backward compatibility.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import { VirtualMachine, VirtualMachineProps } from "../lib/virtual-machine";
@@ -18,13 +18,13 @@ import {
 } from "../lib/virtual-machine-schemas";
 
 describe("VirtualMachine - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure Virtual Machine schemas are registered
@@ -511,11 +511,11 @@ describe("VirtualMachine - Unified Implementation", () => {
         },
       });
 
-      expect(vm.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vm.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vm.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vm.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vm.vmIdOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(vm.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vm.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vm.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vm.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vm.vmIdOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
   });
 
@@ -946,8 +946,8 @@ describe("VirtualMachine - Unified Implementation", () => {
     });
 
     it("should work in complex CDK constructs", () => {
-      class ComplexConstruct extends cdktf.TerraformStack {
-        constructor(scope: cdktf.App, id: string) {
+      class ComplexConstruct extends cdktn.TerraformStack {
+        constructor(scope: cdktn.App, id: string) {
           super(scope, id);
 
           // Create multiple VMs
@@ -975,11 +975,11 @@ describe("VirtualMachine - Unified Implementation", () => {
           });
 
           // Create outputs that reference the VMs
-          new cdktf.TerraformOutput(this, "PrimaryVMId", {
+          new cdktn.TerraformOutput(this, "PrimaryVMId", {
             value: vm1.id,
           });
 
-          new cdktf.TerraformOutput(this, "SecondaryVMId", {
+          new cdktn.TerraformOutput(this, "SecondaryVMId", {
             value: vm2.id,
           });
         }

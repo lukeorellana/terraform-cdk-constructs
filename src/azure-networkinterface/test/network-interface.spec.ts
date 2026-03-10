@@ -6,20 +6,20 @@
  * property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   NetworkInterface,
   NetworkInterfaceProps,
 } from "../lib/network-interface";
 
 describe("NetworkInterface - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Constructor and Basic Properties", () => {
@@ -538,10 +538,10 @@ describe("NetworkInterface - Implementation", () => {
         ],
       });
 
-      expect(nic.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nic.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nic.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(nic.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(nic.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nic.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nic.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(nic.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {

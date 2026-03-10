@@ -7,8 +7,8 @@
  * property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   ActivityLogAlert,
   ActivityLogAlertProps,
@@ -16,12 +16,12 @@ import {
 } from "../lib/activity-log-alert";
 
 describe("ActivityLogAlert - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   // =============================================================================
@@ -1160,8 +1160,8 @@ describe("ActivityLogAlert - Implementation", () => {
         condition,
       });
 
-      expect(activityLogAlert.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(activityLogAlert.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(activityLogAlert.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(activityLogAlert.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(activityLogAlert.id).toMatch(/^\$\{.*\.id\}$/);
     });
   });

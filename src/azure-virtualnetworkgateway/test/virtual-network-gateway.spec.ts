@@ -6,20 +6,20 @@
  * property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   VirtualNetworkGateway,
   VirtualNetworkGatewayProps,
 } from "../lib/virtual-network-gateway";
 
 describe("VirtualNetworkGateway - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Constructor and Basic Properties", () => {
@@ -572,10 +572,10 @@ describe("VirtualNetworkGateway - Implementation", () => {
         ],
       });
 
-      expect(vng.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vng.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vng.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(vng.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(vng.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vng.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vng.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(vng.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {

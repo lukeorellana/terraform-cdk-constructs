@@ -18,7 +18,7 @@
  * - Convenience methods for creating child resources
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import { ConnectivityConfiguration } from "./connectivity-configuration";
 import {
@@ -307,12 +307,12 @@ export class VirtualNetworkManager extends AzapiResource {
   public readonly props: VirtualNetworkManagerProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
-  public readonly tagsOutput: cdktf.TerraformOutput;
-  public readonly scopeOutput: cdktf.TerraformOutput;
-  public readonly scopeAccessesOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
+  public readonly tagsOutput: cdktn.TerraformOutput;
+  public readonly scopeOutput: cdktn.TerraformOutput;
+  public readonly scopeAccessesOutput: cdktn.TerraformOutput;
 
   // Public properties that match the standard interface
   public readonly resourceName: string;
@@ -337,32 +337,32 @@ export class VirtualNetworkManager extends AzapiResource {
     this.resourceName = `\${${this.terraformResource.fqn}.name}`;
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Virtual Network Manager",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: this.resourceName,
       description: "The name of the Virtual Network Manager",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the Virtual Network Manager",
     });
 
-    this.tagsOutput = new cdktf.TerraformOutput(this, "tags", {
+    this.tagsOutput = new cdktn.TerraformOutput(this, "tags", {
       value: `\${${this.terraformResource.fqn}.tags}`,
       description: "The tags assigned to the Virtual Network Manager",
     });
 
-    this.scopeOutput = new cdktf.TerraformOutput(this, "scope", {
+    this.scopeOutput = new cdktn.TerraformOutput(this, "scope", {
       value: `\${${this.terraformResource.fqn}.output.properties.networkManagerScopes}`,
       description: "The management scope of the Virtual Network Manager",
     });
 
-    this.scopeAccessesOutput = new cdktf.TerraformOutput(
+    this.scopeAccessesOutput = new cdktn.TerraformOutput(
       this,
       "scopeAccesses",
       {

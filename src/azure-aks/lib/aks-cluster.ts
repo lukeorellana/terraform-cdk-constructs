@@ -18,7 +18,7 @@
  * - Comprehensive support for AKS features (networking, security, scaling, etc.)
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_AKS_CLUSTER_VERSIONS,
@@ -482,11 +482,11 @@ export class AksCluster extends AzapiResource {
   public readonly props: AksClusterProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly locationOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly tagsOutput: cdktf.TerraformOutput;
-  public readonly fqdnOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly locationOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly tagsOutput: cdktn.TerraformOutput;
+  public readonly fqdnOutput: cdktn.TerraformOutput;
 
   // Public properties that match common AKS interface patterns
 
@@ -520,27 +520,27 @@ export class AksCluster extends AzapiResource {
     });
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the AKS Cluster",
     });
 
-    this.locationOutput = new cdktf.TerraformOutput(this, "location", {
+    this.locationOutput = new cdktn.TerraformOutput(this, "location", {
       value: `\${${this.terraformResource.fqn}.location}`,
       description: "The location of the AKS Cluster",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the AKS Cluster",
     });
 
-    this.tagsOutput = new cdktf.TerraformOutput(this, "tags", {
+    this.tagsOutput = new cdktn.TerraformOutput(this, "tags", {
       value: `\${${this.terraformResource.fqn}.tags}`,
       description: "The tags assigned to the AKS Cluster",
     });
 
-    this.fqdnOutput = new cdktf.TerraformOutput(this, "fqdn", {
+    this.fqdnOutput = new cdktn.TerraformOutput(this, "fqdn", {
       value: `\${${this.terraformResource.fqn}.output.properties.fqdn}`,
       description: "The FQDN of the AKS Cluster",
     });

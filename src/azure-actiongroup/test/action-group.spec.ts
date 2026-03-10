@@ -6,8 +6,8 @@
  * receiver configurations, property transformation, and resource creation.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   ActionGroup,
   ActionGroupProps,
@@ -20,12 +20,12 @@ import {
 } from "../lib/action-group";
 
 describe("ActionGroup - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   // =============================================================================
@@ -485,8 +485,8 @@ describe("ActionGroup - Implementation", () => {
         resourceGroupId: "/subscriptions/test-sub/resourceGroups/test-rg",
       });
 
-      expect(actionGroup.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(actionGroup.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(actionGroup.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(actionGroup.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
       expect(actionGroup.id).toMatch(/^\$\{.*\.id\}$/);
     });
   });

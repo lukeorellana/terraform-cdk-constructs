@@ -6,20 +6,20 @@
  * property transformation, and resource creation for all connection types.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import {
   VirtualNetworkGatewayConnection,
   VirtualNetworkGatewayConnectionProps,
 } from "../lib/virtual-network-gateway-connection";
 
 describe("VirtualNetworkGatewayConnection - Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
   });
 
   describe("Constructor and Basic Properties", () => {
@@ -619,10 +619,10 @@ describe("VirtualNetworkGatewayConnection - Implementation", () => {
         },
       );
 
-      expect(connection.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(connection.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(connection.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(connection.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(connection.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(connection.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(connection.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(connection.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
 
     it("should have correct id format", () => {
@@ -817,7 +817,7 @@ describe("VirtualNetworkGatewayConnection - Implementation", () => {
   describe("Gateway Reference Structure Validation", () => {
     it("should create IPsec connection successfully (fix applied)", () => {
       const testApp = Testing.app();
-      const testStack = new cdktf.TerraformStack(testApp, "IPsecTestStack");
+      const testStack = new cdktn.TerraformStack(testApp, "IPsecTestStack");
 
       const connection = new VirtualNetworkGatewayConnection(
         testStack,
@@ -848,7 +848,7 @@ describe("VirtualNetworkGatewayConnection - Implementation", () => {
 
     it("should create Vnet2Vnet connection successfully (fix applied)", () => {
       const testApp = Testing.app();
-      const testStack = new cdktf.TerraformStack(testApp, "Vnet2VnetTestStack");
+      const testStack = new cdktn.TerraformStack(testApp, "Vnet2VnetTestStack");
 
       const connection = new VirtualNetworkGatewayConnection(
         testStack,
@@ -879,7 +879,7 @@ describe("VirtualNetworkGatewayConnection - Implementation", () => {
 
     it("should create ExpressRoute connection successfully (fix applied)", () => {
       const testApp = Testing.app();
-      const testStack = new cdktf.TerraformStack(
+      const testStack = new cdktn.TerraformStack(
         testApp,
         "ExpressRouteTestStack",
       );

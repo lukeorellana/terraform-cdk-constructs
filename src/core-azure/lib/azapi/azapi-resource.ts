@@ -19,7 +19,7 @@
  * @packageDocumentation
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import { DataAzapiClientConfig } from "./providers-azapi/data-azapi-client-config";
 import { Resource, ResourceConfig } from "./providers-azapi/resource";
@@ -114,7 +114,7 @@ export interface MonitoringConfig {
  * Combines base resource properties with version management capabilities
  * and advanced configuration options for the unified framework.
  */
-export interface AzapiResourceProps extends cdktf.TerraformMetaArguments {
+export interface AzapiResourceProps extends cdktn.TerraformMetaArguments {
   /**
    * The name of the resource
    */
@@ -306,7 +306,7 @@ export abstract class AzapiResource extends Construct {
   /**
    * The underlying AZAPI Terraform resource
    */
-  protected terraformResource!: cdktf.TerraformResource;
+  protected terraformResource!: cdktn.TerraformResource;
 
   /**
    * The name of the resource
@@ -970,9 +970,8 @@ export abstract class AzapiResource extends Construct {
 
     // Create diagnostic settings using dynamic import to avoid circular dependency
     if (config.diagnosticSettings) {
-      const { DiagnosticSettings } = await import(
-        "../../../azure-diagnosticsettings/lib/diagnostic-settings"
-      );
+      const { DiagnosticSettings } =
+        await import("../../../azure-diagnosticsettings/lib/diagnostic-settings");
       new DiagnosticSettings(this, "monitoring-diagnostic-settings", {
         ...config.diagnosticSettings,
         targetResourceId: this.resourceId,
@@ -981,9 +980,8 @@ export abstract class AzapiResource extends Construct {
 
     // Create action groups using dynamic import
     if (config.actionGroups && config.actionGroups.length > 0) {
-      const { ActionGroup } = await import(
-        "../../../azure-actiongroup/lib/action-group"
-      );
+      const { ActionGroup } =
+        await import("../../../azure-actiongroup/lib/action-group");
       config.actionGroups.forEach((actionGroupProps, index) => {
         const actionGroup = new ActionGroup(
           this,
@@ -996,9 +994,8 @@ export abstract class AzapiResource extends Construct {
 
     // Create metric alerts using dynamic import
     if (config.metricAlerts && config.metricAlerts.length > 0) {
-      const { MetricAlert } = await import(
-        "../../../azure-metricalert/lib/metric-alert"
-      );
+      const { MetricAlert } =
+        await import("../../../azure-metricalert/lib/metric-alert");
       config.metricAlerts.forEach((metricAlertProps, index) => {
         // If scopes not provided, default to this resource
         const propsWithScope: MetricAlertProps = {
@@ -1017,9 +1014,8 @@ export abstract class AzapiResource extends Construct {
 
     // Create activity log alerts using dynamic import
     if (config.activityLogAlerts && config.activityLogAlerts.length > 0) {
-      const { ActivityLogAlert } = await import(
-        "../../../azure-activitylogalert/lib/activity-log-alert"
-      );
+      const { ActivityLogAlert } =
+        await import("../../../azure-activitylogalert/lib/activity-log-alert");
       config.activityLogAlerts.forEach((activityLogAlertProps, index) => {
         // If scopes not provided, default to this resource
         const propsWithScope: ActivityLogAlertProps = {
@@ -1084,9 +1080,9 @@ export abstract class AzapiResource extends Construct {
     name: string,
     location?: string,
     parentResource?: AzapiResource,
-    dependsOn?: cdktf.ITerraformDependable[],
+    dependsOn?: cdktn.ITerraformDependable[],
     tags?: Record<string, string>,
-  ): cdktf.TerraformResource {
+  ): cdktn.TerraformResource {
     // Determine if this is a child resource by counting path segments
     // Child resources have multiple segments (e.g., "Microsoft.Network/virtualNetworks/subnets")
     // Top-level resources have one segment (e.g., "Microsoft.Network/virtualNetworks")
@@ -1108,7 +1104,7 @@ export abstract class AzapiResource extends Construct {
     // Child resources inherit location from their parent and should not specify it
 
     // Combine dependsOn arrays: explicit dependencies + parent resource dependency
-    const combinedDependsOn: cdktf.ITerraformDependable[] = [];
+    const combinedDependsOn: cdktn.ITerraformDependable[] = [];
     if (dependsOn && dependsOn.length > 0) {
       combinedDependsOn.push(...dependsOn);
     }
@@ -1150,8 +1146,8 @@ export abstract class AzapiResource extends Construct {
    */
   protected createAzapiDataSource(
     resourceId: string,
-  ): cdktf.TerraformDataSource {
-    const dataSource = new cdktf.TerraformDataSource(this, "data", {
+  ): cdktn.TerraformDataSource {
+    const dataSource = new cdktn.TerraformDataSource(this, "data", {
       terraformResourceType: "azapi_resource",
       terraformGeneratorMetadata: {
         providerName: "azapi",
@@ -1186,15 +1182,15 @@ export abstract class AzapiResource extends Construct {
    * Gets the underlying Terraform resource for use in dependency declarations
    * This allows explicit dependency management between resources
    */
-  public get resource(): cdktf.TerraformResource {
+  public get resource(): cdktn.TerraformResource {
     return this.terraformResource;
   }
 
   /**
    * Gets the resource as a Terraform output value
    */
-  public get output(): cdktf.TerraformOutput {
-    return new cdktf.TerraformOutput(this, "output", {
+  public get output(): cdktn.TerraformOutput {
+    return new cdktn.TerraformOutput(this, "output", {
       value: this.terraformResource?.fqn,
     });
   }

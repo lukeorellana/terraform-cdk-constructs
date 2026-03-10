@@ -17,7 +17,7 @@
  * - JSII compliance for multi-language support
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_STATIC_MEMBER_VERSIONS,
@@ -109,9 +109,9 @@ export class NetworkGroupStaticMember extends AzapiResource {
   public readonly props: NetworkGroupStaticMemberProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly resourceIdOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly resourceIdOutput: cdktn.TerraformOutput;
 
   // Public properties
   public readonly resourceName: string;
@@ -136,18 +136,18 @@ export class NetworkGroupStaticMember extends AzapiResource {
     this.resourceName = `\${${this.terraformResource.fqn}.name}`;
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Static Member",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: this.resourceName,
       description: "The name of the Static Member",
     });
 
     // Use input resourceId since Azure API doesn't return it in the response
-    this.resourceIdOutput = new cdktf.TerraformOutput(this, "resourceId", {
+    this.resourceIdOutput = new cdktn.TerraformOutput(this, "resourceId", {
       value: props.resourceId,
       description: "The resource ID of the member VNet or Subnet",
     });

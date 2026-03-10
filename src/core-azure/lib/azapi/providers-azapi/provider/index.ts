@@ -2,7 +2,7 @@
 // generated from terraform resource schema
 
 import { Construct } from 'constructs';
-import * as cdktf from 'cdktf';
+import * as cdktn from 'cdktn';
 
 // Configuration
 
@@ -84,37 +84,37 @@ export interface AzapiProviderConfig {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#disable_correlation_request_id AzapiProvider#disable_correlation_request_id}
   */
-  readonly disableCorrelationRequestId?: boolean | cdktf.IResolvable;
+  readonly disableCorrelationRequestId?: boolean | cdktn.IResolvable;
   /**
   * Disable default output. The default is false. When set to false, the provider will output the read-only properties if `response_export_values` is not specified in the resource block. When set to true, the provider will disable this output. This can also be sourced from the `ARM_DISABLE_DEFAULT_OUTPUT` Environment Variable.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#disable_default_output AzapiProvider#disable_default_output}
   */
-  readonly disableDefaultOutput?: boolean | cdktf.IResolvable;
+  readonly disableDefaultOutput?: boolean | cdktn.IResolvable;
   /**
   * Disables Instance Discovery, which validates that the Authority is valid and known by the Microsoft Entra instance metadata service at `https://login.microsoft.com` before authenticating. This should only be enabled when the configured authority is known to be valid and trustworthy - such as when running against Azure Stack or when `environment` is set to `custom`. This can also be specified via the `ARM_DISABLE_INSTANCE_DISCOVERY` environment variable. Defaults to `false`.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#disable_instance_discovery AzapiProvider#disable_instance_discovery}
   */
-  readonly disableInstanceDiscovery?: boolean | cdktf.IResolvable;
+  readonly disableInstanceDiscovery?: boolean | cdktn.IResolvable;
   /**
   * Disable sending the Terraform Partner ID if a custom `partner_id` isn't specified, which allows Microsoft to better understand the usage of Terraform. The Partner ID does not give HashiCorp any direct access to usage information. This can also be sourced from the `ARM_DISABLE_TERRAFORM_PARTNER_ID` environment variable. Defaults to `false`.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#disable_terraform_partner_id AzapiProvider#disable_terraform_partner_id}
   */
-  readonly disableTerraformPartnerId?: boolean | cdktf.IResolvable;
+  readonly disableTerraformPartnerId?: boolean | cdktn.IResolvable;
   /**
   * Enable Preflight Validation. The default is false. When set to true, the provider will use Preflight to do static validation before really deploying a new resource. When set to false, the provider will disable this validation. This can also be sourced from the `ARM_ENABLE_PREFLIGHT` Environment Variable.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#enable_preflight AzapiProvider#enable_preflight}
   */
-  readonly enablePreflight?: boolean | cdktf.IResolvable;
+  readonly enablePreflight?: boolean | cdktn.IResolvable;
   /**
   * The Azure API Endpoint Configuration.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#endpoint AzapiProvider#endpoint}
   */
-  readonly endpoint?: AzapiProviderEndpoint[] | cdktf.IResolvable;
+  readonly endpoint?: AzapiProviderEndpoint[] | cdktn.IResolvable;
   /**
   * The Cloud Environment which should be used. Possible values are `public`, `usgovernment`, `china` and `custom`. Defaults to `public`. This can also be sourced from the `ARM_ENVIRONMENT` Environment Variable.
   *
@@ -126,7 +126,7 @@ export interface AzapiProviderConfig {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#ignore_no_op_changes AzapiProvider#ignore_no_op_changes}
   */
-  readonly ignoreNoOpChanges?: boolean | cdktf.IResolvable;
+  readonly ignoreNoOpChanges?: boolean | cdktn.IResolvable;
   /**
   * DEPRECATED - The maximum number of retries to attempt if the Azure API returns an HTTP 408, 429, 500, 502, 503, or 504 response. The default is `32767`, this allows the provider to rely on the resource timeout values rather than a maximum retry count. The resource-specific retry configuration may additionally be used to retry on other errors and conditions. This property will be removed in a future version.
   *
@@ -174,7 +174,7 @@ export interface AzapiProviderConfig {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#skip_provider_registration AzapiProvider#skip_provider_registration}
   */
-  readonly skipProviderRegistration?: boolean | cdktf.IResolvable;
+  readonly skipProviderRegistration?: boolean | cdktn.IResolvable;
   /**
   * The Subscription ID which should be used. This can also be sourced from the `ARM_SUBSCRIPTION_ID` Environment Variable.
   *
@@ -192,25 +192,25 @@ export interface AzapiProviderConfig {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#use_aks_workload_identity AzapiProvider#use_aks_workload_identity}
   */
-  readonly useAksWorkloadIdentity?: boolean | cdktf.IResolvable;
+  readonly useAksWorkloadIdentity?: boolean | cdktn.IResolvable;
   /**
   * Should Azure CLI be used for authentication? This can also be sourced from the `ARM_USE_CLI` environment variable. Defaults to `true`.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#use_cli AzapiProvider#use_cli}
   */
-  readonly useCli?: boolean | cdktf.IResolvable;
+  readonly useCli?: boolean | cdktn.IResolvable;
   /**
   * Should Managed Identity be used for Authentication? This can also be sourced from the `ARM_USE_MSI` Environment Variable. Defaults to `false`.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#use_msi AzapiProvider#use_msi}
   */
-  readonly useMsi?: boolean | cdktf.IResolvable;
+  readonly useMsi?: boolean | cdktn.IResolvable;
   /**
   * Should OIDC be used for Authentication? This can also be sourced from the `ARM_USE_OIDC` Environment Variable. Defaults to `false`.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#use_oidc AzapiProvider#use_oidc}
   */
-  readonly useOidc?: boolean | cdktf.IResolvable;
+  readonly useOidc?: boolean | cdktn.IResolvable;
   /**
   * Alias name
   *
@@ -239,39 +239,39 @@ export interface AzapiProviderEndpoint {
   readonly resourceManagerEndpoint?: string;
 }
 
-export function azapiProviderEndpointToTerraform(struct?: AzapiProviderEndpoint | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function azapiProviderEndpointToTerraform(struct?: AzapiProviderEndpoint | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   return {
-    active_directory_authority_host: cdktf.stringToTerraform(struct!.activeDirectoryAuthorityHost),
-    resource_manager_audience: cdktf.stringToTerraform(struct!.resourceManagerAudience),
-    resource_manager_endpoint: cdktf.stringToTerraform(struct!.resourceManagerEndpoint),
+    active_directory_authority_host: cdktn.stringToTerraform(struct!.activeDirectoryAuthorityHost),
+    resource_manager_audience: cdktn.stringToTerraform(struct!.resourceManagerAudience),
+    resource_manager_endpoint: cdktn.stringToTerraform(struct!.resourceManagerEndpoint),
   }
 }
 
 
-export function azapiProviderEndpointToHclTerraform(struct?: AzapiProviderEndpoint | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function azapiProviderEndpointToHclTerraform(struct?: AzapiProviderEndpoint | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   const attrs = {
     active_directory_authority_host: {
-      value: cdktf.stringToHclTerraform(struct!.activeDirectoryAuthorityHost),
+      value: cdktn.stringToHclTerraform(struct!.activeDirectoryAuthorityHost),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
     },
     resource_manager_audience: {
-      value: cdktf.stringToHclTerraform(struct!.resourceManagerAudience),
+      value: cdktn.stringToHclTerraform(struct!.resourceManagerAudience),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
     },
     resource_manager_endpoint: {
-      value: cdktf.stringToHclTerraform(struct!.resourceManagerEndpoint),
+      value: cdktn.stringToHclTerraform(struct!.resourceManagerEndpoint),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
@@ -286,7 +286,7 @@ export function azapiProviderEndpointToHclTerraform(struct?: AzapiProviderEndpoi
 /**
 * Represents a {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs azapi}
 */
-export class AzapiProvider extends cdktf.TerraformProvider {
+export class AzapiProvider extends cdktn.TerraformProvider {
 
   // =================
   // STATIC PROPERTIES
@@ -297,14 +297,14 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   // STATIC Methods
   // ==============
   /**
-  * Generates CDKTF code for importing a AzapiProvider resource upon running "cdktf plan <stack-name>"
+  * Generates CDKTN code for importing a AzapiProvider resource upon running "cdktn plan <stack-name>"
   * @param scope The scope in which to define this construct
   * @param importToId The construct id used in the generated config for the AzapiProvider to import
   * @param importFromId The id of the existing AzapiProvider that should be imported. Refer to the {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs#import import section} in the documentation of this resource for the id to use
   * @param provider? Optional instance of the provider where the AzapiProvider to import is found
   */
-  public static generateConfigForImport(scope: Construct, importToId: string, importFromId: string, provider?: cdktf.TerraformProvider) {
-        return new cdktf.ImportableResource(scope, importToId, { terraformResourceType: "azapi", importId: importFromId, provider });
+  public static generateConfigForImport(scope: Construct, importToId: string, importFromId: string, provider?: cdktn.TerraformProvider) {
+        return new cdktn.ImportableResource(scope, importToId, { terraformResourceType: "azapi", importId: importFromId, provider });
       }
 
   // ===========
@@ -562,11 +562,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // disable_correlation_request_id - computed: false, optional: true, required: false
-  private _disableCorrelationRequestId?: boolean | cdktf.IResolvable; 
+  private _disableCorrelationRequestId?: boolean | cdktn.IResolvable; 
   public get disableCorrelationRequestId() {
     return this._disableCorrelationRequestId;
   }
-  public set disableCorrelationRequestId(value: boolean | cdktf.IResolvable | undefined) {
+  public set disableCorrelationRequestId(value: boolean | cdktn.IResolvable | undefined) {
     this._disableCorrelationRequestId = value;
   }
   public resetDisableCorrelationRequestId() {
@@ -578,11 +578,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // disable_default_output - computed: false, optional: true, required: false
-  private _disableDefaultOutput?: boolean | cdktf.IResolvable; 
+  private _disableDefaultOutput?: boolean | cdktn.IResolvable; 
   public get disableDefaultOutput() {
     return this._disableDefaultOutput;
   }
-  public set disableDefaultOutput(value: boolean | cdktf.IResolvable | undefined) {
+  public set disableDefaultOutput(value: boolean | cdktn.IResolvable | undefined) {
     this._disableDefaultOutput = value;
   }
   public resetDisableDefaultOutput() {
@@ -594,11 +594,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // disable_instance_discovery - computed: false, optional: true, required: false
-  private _disableInstanceDiscovery?: boolean | cdktf.IResolvable; 
+  private _disableInstanceDiscovery?: boolean | cdktn.IResolvable; 
   public get disableInstanceDiscovery() {
     return this._disableInstanceDiscovery;
   }
-  public set disableInstanceDiscovery(value: boolean | cdktf.IResolvable | undefined) {
+  public set disableInstanceDiscovery(value: boolean | cdktn.IResolvable | undefined) {
     this._disableInstanceDiscovery = value;
   }
   public resetDisableInstanceDiscovery() {
@@ -610,11 +610,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // disable_terraform_partner_id - computed: false, optional: true, required: false
-  private _disableTerraformPartnerId?: boolean | cdktf.IResolvable; 
+  private _disableTerraformPartnerId?: boolean | cdktn.IResolvable; 
   public get disableTerraformPartnerId() {
     return this._disableTerraformPartnerId;
   }
-  public set disableTerraformPartnerId(value: boolean | cdktf.IResolvable | undefined) {
+  public set disableTerraformPartnerId(value: boolean | cdktn.IResolvable | undefined) {
     this._disableTerraformPartnerId = value;
   }
   public resetDisableTerraformPartnerId() {
@@ -626,11 +626,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // enable_preflight - computed: false, optional: true, required: false
-  private _enablePreflight?: boolean | cdktf.IResolvable; 
+  private _enablePreflight?: boolean | cdktn.IResolvable; 
   public get enablePreflight() {
     return this._enablePreflight;
   }
-  public set enablePreflight(value: boolean | cdktf.IResolvable | undefined) {
+  public set enablePreflight(value: boolean | cdktn.IResolvable | undefined) {
     this._enablePreflight = value;
   }
   public resetEnablePreflight() {
@@ -642,11 +642,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // endpoint - computed: false, optional: true, required: false
-  private _endpoint?: AzapiProviderEndpoint[] | cdktf.IResolvable; 
+  private _endpoint?: AzapiProviderEndpoint[] | cdktn.IResolvable; 
   public get endpoint() {
     return this._endpoint;
   }
-  public set endpoint(value: AzapiProviderEndpoint[] | cdktf.IResolvable | undefined) {
+  public set endpoint(value: AzapiProviderEndpoint[] | cdktn.IResolvable | undefined) {
     this._endpoint = value;
   }
   public resetEndpoint() {
@@ -674,11 +674,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // ignore_no_op_changes - computed: false, optional: true, required: false
-  private _ignoreNoOpChanges?: boolean | cdktf.IResolvable; 
+  private _ignoreNoOpChanges?: boolean | cdktn.IResolvable; 
   public get ignoreNoOpChanges() {
     return this._ignoreNoOpChanges;
   }
-  public set ignoreNoOpChanges(value: boolean | cdktf.IResolvable | undefined) {
+  public set ignoreNoOpChanges(value: boolean | cdktn.IResolvable | undefined) {
     this._ignoreNoOpChanges = value;
   }
   public resetIgnoreNoOpChanges() {
@@ -802,11 +802,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // skip_provider_registration - computed: false, optional: true, required: false
-  private _skipProviderRegistration?: boolean | cdktf.IResolvable; 
+  private _skipProviderRegistration?: boolean | cdktn.IResolvable; 
   public get skipProviderRegistration() {
     return this._skipProviderRegistration;
   }
-  public set skipProviderRegistration(value: boolean | cdktf.IResolvable | undefined) {
+  public set skipProviderRegistration(value: boolean | cdktn.IResolvable | undefined) {
     this._skipProviderRegistration = value;
   }
   public resetSkipProviderRegistration() {
@@ -850,11 +850,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // use_aks_workload_identity - computed: false, optional: true, required: false
-  private _useAksWorkloadIdentity?: boolean | cdktf.IResolvable; 
+  private _useAksWorkloadIdentity?: boolean | cdktn.IResolvable; 
   public get useAksWorkloadIdentity() {
     return this._useAksWorkloadIdentity;
   }
-  public set useAksWorkloadIdentity(value: boolean | cdktf.IResolvable | undefined) {
+  public set useAksWorkloadIdentity(value: boolean | cdktn.IResolvable | undefined) {
     this._useAksWorkloadIdentity = value;
   }
   public resetUseAksWorkloadIdentity() {
@@ -866,11 +866,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // use_cli - computed: false, optional: true, required: false
-  private _useCli?: boolean | cdktf.IResolvable; 
+  private _useCli?: boolean | cdktn.IResolvable; 
   public get useCli() {
     return this._useCli;
   }
-  public set useCli(value: boolean | cdktf.IResolvable | undefined) {
+  public set useCli(value: boolean | cdktn.IResolvable | undefined) {
     this._useCli = value;
   }
   public resetUseCli() {
@@ -882,11 +882,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // use_msi - computed: false, optional: true, required: false
-  private _useMsi?: boolean | cdktf.IResolvable; 
+  private _useMsi?: boolean | cdktn.IResolvable; 
   public get useMsi() {
     return this._useMsi;
   }
-  public set useMsi(value: boolean | cdktf.IResolvable | undefined) {
+  public set useMsi(value: boolean | cdktn.IResolvable | undefined) {
     this._useMsi = value;
   }
   public resetUseMsi() {
@@ -898,11 +898,11 @@ export class AzapiProvider extends cdktf.TerraformProvider {
   }
 
   // use_oidc - computed: false, optional: true, required: false
-  private _useOidc?: boolean | cdktf.IResolvable; 
+  private _useOidc?: boolean | cdktn.IResolvable; 
   public get useOidc() {
     return this._useOidc;
   }
-  public set useOidc(value: boolean | cdktf.IResolvable | undefined) {
+  public set useOidc(value: boolean | cdktn.IResolvable | undefined) {
     this._useOidc = value;
   }
   public resetUseOidc() {
@@ -935,252 +935,252 @@ export class AzapiProvider extends cdktf.TerraformProvider {
 
   protected synthesizeAttributes(): { [name: string]: any } {
     return {
-      auxiliary_tenant_ids: cdktf.listMapper(cdktf.stringToTerraform, false)(this._auxiliaryTenantIds),
-      client_certificate: cdktf.stringToTerraform(this._clientCertificate),
-      client_certificate_password: cdktf.stringToTerraform(this._clientCertificatePassword),
-      client_certificate_path: cdktf.stringToTerraform(this._clientCertificatePath),
-      client_id: cdktf.stringToTerraform(this._clientId),
-      client_id_file_path: cdktf.stringToTerraform(this._clientIdFilePath),
-      client_secret: cdktf.stringToTerraform(this._clientSecret),
-      client_secret_file_path: cdktf.stringToTerraform(this._clientSecretFilePath),
-      custom_correlation_request_id: cdktf.stringToTerraform(this._customCorrelationRequestId),
-      default_location: cdktf.stringToTerraform(this._defaultLocation),
-      default_name: cdktf.stringToTerraform(this._defaultName),
-      default_tags: cdktf.hashMapper(cdktf.stringToTerraform)(this._defaultTags),
-      disable_correlation_request_id: cdktf.booleanToTerraform(this._disableCorrelationRequestId),
-      disable_default_output: cdktf.booleanToTerraform(this._disableDefaultOutput),
-      disable_instance_discovery: cdktf.booleanToTerraform(this._disableInstanceDiscovery),
-      disable_terraform_partner_id: cdktf.booleanToTerraform(this._disableTerraformPartnerId),
-      enable_preflight: cdktf.booleanToTerraform(this._enablePreflight),
-      endpoint: cdktf.listMapper(azapiProviderEndpointToTerraform, false)(this._endpoint),
-      environment: cdktf.stringToTerraform(this._environment),
-      ignore_no_op_changes: cdktf.booleanToTerraform(this._ignoreNoOpChanges),
-      maximum_busy_retry_attempts: cdktf.numberToTerraform(this._maximumBusyRetryAttempts),
-      oidc_azure_service_connection_id: cdktf.stringToTerraform(this._oidcAzureServiceConnectionId),
-      oidc_request_token: cdktf.stringToTerraform(this._oidcRequestToken),
-      oidc_request_url: cdktf.stringToTerraform(this._oidcRequestUrl),
-      oidc_token: cdktf.stringToTerraform(this._oidcToken),
-      oidc_token_file_path: cdktf.stringToTerraform(this._oidcTokenFilePath),
-      partner_id: cdktf.stringToTerraform(this._partnerId),
-      skip_provider_registration: cdktf.booleanToTerraform(this._skipProviderRegistration),
-      subscription_id: cdktf.stringToTerraform(this._subscriptionId),
-      tenant_id: cdktf.stringToTerraform(this._tenantId),
-      use_aks_workload_identity: cdktf.booleanToTerraform(this._useAksWorkloadIdentity),
-      use_cli: cdktf.booleanToTerraform(this._useCli),
-      use_msi: cdktf.booleanToTerraform(this._useMsi),
-      use_oidc: cdktf.booleanToTerraform(this._useOidc),
-      alias: cdktf.stringToTerraform(this._alias),
+      auxiliary_tenant_ids: cdktn.listMapper(cdktn.stringToTerraform, false)(this._auxiliaryTenantIds),
+      client_certificate: cdktn.stringToTerraform(this._clientCertificate),
+      client_certificate_password: cdktn.stringToTerraform(this._clientCertificatePassword),
+      client_certificate_path: cdktn.stringToTerraform(this._clientCertificatePath),
+      client_id: cdktn.stringToTerraform(this._clientId),
+      client_id_file_path: cdktn.stringToTerraform(this._clientIdFilePath),
+      client_secret: cdktn.stringToTerraform(this._clientSecret),
+      client_secret_file_path: cdktn.stringToTerraform(this._clientSecretFilePath),
+      custom_correlation_request_id: cdktn.stringToTerraform(this._customCorrelationRequestId),
+      default_location: cdktn.stringToTerraform(this._defaultLocation),
+      default_name: cdktn.stringToTerraform(this._defaultName),
+      default_tags: cdktn.hashMapper(cdktn.stringToTerraform)(this._defaultTags),
+      disable_correlation_request_id: cdktn.booleanToTerraform(this._disableCorrelationRequestId),
+      disable_default_output: cdktn.booleanToTerraform(this._disableDefaultOutput),
+      disable_instance_discovery: cdktn.booleanToTerraform(this._disableInstanceDiscovery),
+      disable_terraform_partner_id: cdktn.booleanToTerraform(this._disableTerraformPartnerId),
+      enable_preflight: cdktn.booleanToTerraform(this._enablePreflight),
+      endpoint: cdktn.listMapper(azapiProviderEndpointToTerraform, false)(this._endpoint),
+      environment: cdktn.stringToTerraform(this._environment),
+      ignore_no_op_changes: cdktn.booleanToTerraform(this._ignoreNoOpChanges),
+      maximum_busy_retry_attempts: cdktn.numberToTerraform(this._maximumBusyRetryAttempts),
+      oidc_azure_service_connection_id: cdktn.stringToTerraform(this._oidcAzureServiceConnectionId),
+      oidc_request_token: cdktn.stringToTerraform(this._oidcRequestToken),
+      oidc_request_url: cdktn.stringToTerraform(this._oidcRequestUrl),
+      oidc_token: cdktn.stringToTerraform(this._oidcToken),
+      oidc_token_file_path: cdktn.stringToTerraform(this._oidcTokenFilePath),
+      partner_id: cdktn.stringToTerraform(this._partnerId),
+      skip_provider_registration: cdktn.booleanToTerraform(this._skipProviderRegistration),
+      subscription_id: cdktn.stringToTerraform(this._subscriptionId),
+      tenant_id: cdktn.stringToTerraform(this._tenantId),
+      use_aks_workload_identity: cdktn.booleanToTerraform(this._useAksWorkloadIdentity),
+      use_cli: cdktn.booleanToTerraform(this._useCli),
+      use_msi: cdktn.booleanToTerraform(this._useMsi),
+      use_oidc: cdktn.booleanToTerraform(this._useOidc),
+      alias: cdktn.stringToTerraform(this._alias),
     };
   }
 
   protected synthesizeHclAttributes(): { [name: string]: any } {
     const attrs = {
       auxiliary_tenant_ids: {
-        value: cdktf.listMapperHcl(cdktf.stringToHclTerraform, false)(this._auxiliaryTenantIds),
+        value: cdktn.listMapperHcl(cdktn.stringToHclTerraform, false)(this._auxiliaryTenantIds),
         isBlock: false,
         type: "list",
         storageClassType: "stringList",
       },
       client_certificate: {
-        value: cdktf.stringToHclTerraform(this._clientCertificate),
+        value: cdktn.stringToHclTerraform(this._clientCertificate),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       client_certificate_password: {
-        value: cdktf.stringToHclTerraform(this._clientCertificatePassword),
+        value: cdktn.stringToHclTerraform(this._clientCertificatePassword),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       client_certificate_path: {
-        value: cdktf.stringToHclTerraform(this._clientCertificatePath),
+        value: cdktn.stringToHclTerraform(this._clientCertificatePath),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       client_id: {
-        value: cdktf.stringToHclTerraform(this._clientId),
+        value: cdktn.stringToHclTerraform(this._clientId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       client_id_file_path: {
-        value: cdktf.stringToHclTerraform(this._clientIdFilePath),
+        value: cdktn.stringToHclTerraform(this._clientIdFilePath),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       client_secret: {
-        value: cdktf.stringToHclTerraform(this._clientSecret),
+        value: cdktn.stringToHclTerraform(this._clientSecret),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       client_secret_file_path: {
-        value: cdktf.stringToHclTerraform(this._clientSecretFilePath),
+        value: cdktn.stringToHclTerraform(this._clientSecretFilePath),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       custom_correlation_request_id: {
-        value: cdktf.stringToHclTerraform(this._customCorrelationRequestId),
+        value: cdktn.stringToHclTerraform(this._customCorrelationRequestId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       default_location: {
-        value: cdktf.stringToHclTerraform(this._defaultLocation),
+        value: cdktn.stringToHclTerraform(this._defaultLocation),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       default_name: {
-        value: cdktf.stringToHclTerraform(this._defaultName),
+        value: cdktn.stringToHclTerraform(this._defaultName),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       default_tags: {
-        value: cdktf.hashMapperHcl(cdktf.stringToHclTerraform)(this._defaultTags),
+        value: cdktn.hashMapperHcl(cdktn.stringToHclTerraform)(this._defaultTags),
         isBlock: false,
         type: "map",
         storageClassType: "stringMap",
       },
       disable_correlation_request_id: {
-        value: cdktf.booleanToHclTerraform(this._disableCorrelationRequestId),
+        value: cdktn.booleanToHclTerraform(this._disableCorrelationRequestId),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       disable_default_output: {
-        value: cdktf.booleanToHclTerraform(this._disableDefaultOutput),
+        value: cdktn.booleanToHclTerraform(this._disableDefaultOutput),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       disable_instance_discovery: {
-        value: cdktf.booleanToHclTerraform(this._disableInstanceDiscovery),
+        value: cdktn.booleanToHclTerraform(this._disableInstanceDiscovery),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       disable_terraform_partner_id: {
-        value: cdktf.booleanToHclTerraform(this._disableTerraformPartnerId),
+        value: cdktn.booleanToHclTerraform(this._disableTerraformPartnerId),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       enable_preflight: {
-        value: cdktf.booleanToHclTerraform(this._enablePreflight),
+        value: cdktn.booleanToHclTerraform(this._enablePreflight),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       endpoint: {
-        value: cdktf.listMapperHcl(azapiProviderEndpointToHclTerraform, false)(this._endpoint),
+        value: cdktn.listMapperHcl(azapiProviderEndpointToHclTerraform, false)(this._endpoint),
         isBlock: true,
         type: "list",
         storageClassType: "AzapiProviderEndpointList",
       },
       environment: {
-        value: cdktf.stringToHclTerraform(this._environment),
+        value: cdktn.stringToHclTerraform(this._environment),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       ignore_no_op_changes: {
-        value: cdktf.booleanToHclTerraform(this._ignoreNoOpChanges),
+        value: cdktn.booleanToHclTerraform(this._ignoreNoOpChanges),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       maximum_busy_retry_attempts: {
-        value: cdktf.numberToHclTerraform(this._maximumBusyRetryAttempts),
+        value: cdktn.numberToHclTerraform(this._maximumBusyRetryAttempts),
         isBlock: false,
         type: "simple",
         storageClassType: "number",
       },
       oidc_azure_service_connection_id: {
-        value: cdktf.stringToHclTerraform(this._oidcAzureServiceConnectionId),
+        value: cdktn.stringToHclTerraform(this._oidcAzureServiceConnectionId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       oidc_request_token: {
-        value: cdktf.stringToHclTerraform(this._oidcRequestToken),
+        value: cdktn.stringToHclTerraform(this._oidcRequestToken),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       oidc_request_url: {
-        value: cdktf.stringToHclTerraform(this._oidcRequestUrl),
+        value: cdktn.stringToHclTerraform(this._oidcRequestUrl),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       oidc_token: {
-        value: cdktf.stringToHclTerraform(this._oidcToken),
+        value: cdktn.stringToHclTerraform(this._oidcToken),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       oidc_token_file_path: {
-        value: cdktf.stringToHclTerraform(this._oidcTokenFilePath),
+        value: cdktn.stringToHclTerraform(this._oidcTokenFilePath),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       partner_id: {
-        value: cdktf.stringToHclTerraform(this._partnerId),
+        value: cdktn.stringToHclTerraform(this._partnerId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       skip_provider_registration: {
-        value: cdktf.booleanToHclTerraform(this._skipProviderRegistration),
+        value: cdktn.booleanToHclTerraform(this._skipProviderRegistration),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       subscription_id: {
-        value: cdktf.stringToHclTerraform(this._subscriptionId),
+        value: cdktn.stringToHclTerraform(this._subscriptionId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       tenant_id: {
-        value: cdktf.stringToHclTerraform(this._tenantId),
+        value: cdktn.stringToHclTerraform(this._tenantId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       use_aks_workload_identity: {
-        value: cdktf.booleanToHclTerraform(this._useAksWorkloadIdentity),
+        value: cdktn.booleanToHclTerraform(this._useAksWorkloadIdentity),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       use_cli: {
-        value: cdktf.booleanToHclTerraform(this._useCli),
+        value: cdktn.booleanToHclTerraform(this._useCli),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       use_msi: {
-        value: cdktf.booleanToHclTerraform(this._useMsi),
+        value: cdktn.booleanToHclTerraform(this._useMsi),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       use_oidc: {
-        value: cdktf.booleanToHclTerraform(this._useOidc),
+        value: cdktn.booleanToHclTerraform(this._useOidc),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       alias: {
-        value: cdktf.stringToHclTerraform(this._alias),
+        value: cdktn.stringToHclTerraform(this._alias),
         isBlock: false,
         type: "simple",
         storageClassType: "string",

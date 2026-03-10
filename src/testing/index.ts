@@ -1,8 +1,8 @@
 import { execSync, ExecSyncOptionsWithStringEncoding } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import * as cdktf from "cdktf";
-import { TerraformStack } from "cdktf";
+import * as cdktn from "cdktn";
+import { TerraformStack } from "cdktn";
 import { Construct } from "constructs";
 import { ResourceMetadata, verifyResourcesDeleted } from "./lib/cleanup";
 import { TestRunMetadata, TestRunOptions } from "./lib/metadata";
@@ -63,7 +63,7 @@ export class BaseTestStack extends TerraformStack {
       }
     }
 
-    const name = new cdktf.TerraformVariable(this, "name", {
+    const name = new cdktn.TerraformVariable(this, "name", {
       type: "string",
       default: this.metadata?.testName || "test",
       description: "System name used to randomize the resources",
@@ -684,7 +684,7 @@ export class AssertionReturn {
  */
 export function cleanupCdkTfOutDirs() {
   try {
-    execSync('find /tmp -name "cdktf.outdir.*" -type d -exec rm -rf {} +');
+    execSync('find /tmp -name "cdktn.outdir.*" -type d -exec rm -rf {} +');
   } catch (error) {
     console.error("Error during cleanup:", error);
   }

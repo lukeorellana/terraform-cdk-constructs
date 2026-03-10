@@ -19,7 +19,7 @@
  * - Child resource with proper parent ID construction
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import { ALL_SUBNET_VERSIONS, SUBNET_TYPE } from "./subnet-schemas";
 import {
@@ -233,8 +233,8 @@ export class Subnet extends AzapiResource {
   public readonly props: SubnetProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
 
   // Public properties that match the original Subnet interface
 
@@ -267,12 +267,12 @@ export class Subnet extends AzapiResource {
     // Extract properties from the AZAPI resource outputs using Terraform interpolation
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Subnet",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: `\${${this.terraformResource.fqn}.name}`,
       description: "The name of the Subnet",
     });

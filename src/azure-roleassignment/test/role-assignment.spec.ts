@@ -7,8 +7,8 @@
  * role assignment-specific functionality.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { VersionSupportLevel } from "../../core-azure/lib/version-manager/interfaces/version-interfaces";
 import { RoleAssignment, RoleAssignmentProps } from "../lib/role-assignment";
@@ -18,8 +18,8 @@ import {
 } from "../lib/role-assignment-schemas";
 
 describe("RoleAssignment - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
 
   // Test constants
@@ -31,7 +31,7 @@ describe("RoleAssignment - Unified Implementation", () => {
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Ensure Role Assignment schemas are registered
@@ -356,8 +356,8 @@ describe("RoleAssignment - Unified Implementation", () => {
         scope: TEST_SUBSCRIPTION_SCOPE,
       });
 
-      expect(roleAssignment.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(roleAssignment.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(roleAssignment.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(roleAssignment.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
     });
   });
 
@@ -733,8 +733,8 @@ describe("RoleAssignment - Unified Implementation", () => {
     });
 
     it("should work in complex CDK constructs", () => {
-      class ComplexConstruct extends cdktf.TerraformStack {
-        constructor(scope: cdktf.App, id: string) {
+      class ComplexConstruct extends cdktn.TerraformStack {
+        constructor(scope: cdktn.App, id: string) {
           super(scope, id);
 
           const assignment1 = new RoleAssignment(this, "Assignment1", {
@@ -753,11 +753,11 @@ describe("RoleAssignment - Unified Implementation", () => {
             apiVersion: "2022-04-01",
           });
 
-          new cdktf.TerraformOutput(this, "Assignment1Id", {
+          new cdktn.TerraformOutput(this, "Assignment1Id", {
             value: assignment1.id,
           });
 
-          new cdktf.TerraformOutput(this, "Assignment2Id", {
+          new cdktn.TerraformOutput(this, "Assignment2Id", {
             value: assignment2.id,
           });
         }

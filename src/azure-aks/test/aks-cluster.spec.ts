@@ -6,8 +6,8 @@
  * property transformation, and full backward compatibility.
  */
 
-import { Testing } from "cdktf";
-import * as cdktf from "cdktf";
+import { Testing } from "cdktn";
+import * as cdktn from "cdktn";
 import { ResourceGroup } from "../../azure-resourcegroup";
 import { ApiVersionManager } from "../../core-azure/lib/version-manager/api-version-manager";
 import { AksCluster, AksClusterProps } from "../lib/aks-cluster";
@@ -17,14 +17,14 @@ import {
 } from "../lib/aks-cluster-schemas";
 
 describe("AksCluster - Unified Implementation", () => {
-  let app: cdktf.App;
-  let stack: cdktf.TerraformStack;
+  let app: cdktn.App;
+  let stack: cdktn.TerraformStack;
   let manager: ApiVersionManager;
   let resourceGroup: ResourceGroup;
 
   beforeEach(() => {
     app = Testing.app();
-    stack = new cdktf.TerraformStack(app, "TestStack");
+    stack = new cdktn.TerraformStack(app, "TestStack");
     manager = ApiVersionManager.instance();
 
     // Create a resource group for AKS cluster tests
@@ -1090,11 +1090,11 @@ describe("AksCluster - Unified Implementation", () => {
         ],
       });
 
-      expect(aksCluster.idOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(aksCluster.locationOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(aksCluster.nameOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(aksCluster.tagsOutput).toBeInstanceOf(cdktf.TerraformOutput);
-      expect(aksCluster.fqdnOutput).toBeInstanceOf(cdktf.TerraformOutput);
+      expect(aksCluster.idOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(aksCluster.locationOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(aksCluster.nameOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(aksCluster.tagsOutput).toBeInstanceOf(cdktn.TerraformOutput);
+      expect(aksCluster.fqdnOutput).toBeInstanceOf(cdktn.TerraformOutput);
       // kubeConfig is retrieved via a resource action (not a direct output)
     });
 

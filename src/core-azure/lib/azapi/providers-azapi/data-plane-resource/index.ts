@@ -2,11 +2,11 @@
 // generated from terraform resource schema
 
 import { Construct } from 'constructs';
-import * as cdktf from 'cdktf';
+import * as cdktn from 'cdktn';
 
 // Configuration
 
-export interface DataPlaneResourceConfig extends cdktf.TerraformMetaArguments {
+export interface DataPlaneResourceConfig extends cdktn.TerraformMetaArguments {
   /**
   * A dynamic attribute that contains the request body.
   *
@@ -24,7 +24,7 @@ export interface DataPlaneResourceConfig extends cdktf.TerraformMetaArguments {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#create_query_parameters DataPlaneResource#create_query_parameters}
   */
-  readonly createQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable;
+  readonly createQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable;
   /**
   * A mapping of headers to be sent with the delete request.
   *
@@ -36,19 +36,19 @@ export interface DataPlaneResourceConfig extends cdktf.TerraformMetaArguments {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#delete_query_parameters DataPlaneResource#delete_query_parameters}
   */
-  readonly deleteQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable;
+  readonly deleteQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable;
   /**
   * A dynamic attribute that contains the request body.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#ignore_casing DataPlaneResource#ignore_casing}
   */
-  readonly ignoreCasing?: boolean | cdktf.IResolvable;
+  readonly ignoreCasing?: boolean | cdktn.IResolvable;
   /**
   * Whether ignore not returned properties like credentials in `body` to suppress plan-diff. Defaults to `true`. It's recommend to enable this option when some sensitive properties are not returned in response body, instead of setting them in `lifecycle.ignore_changes` because it will make the sensitive fields unable to update.
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#ignore_missing_property DataPlaneResource#ignore_missing_property}
   */
-  readonly ignoreMissingProperty?: boolean | cdktf.IResolvable;
+  readonly ignoreMissingProperty?: boolean | cdktn.IResolvable;
   /**
   * A list of ARM resource IDs which are used to avoid create/modify/delete azapi resources at the same time.
   *
@@ -78,7 +78,7 @@ export interface DataPlaneResourceConfig extends cdktf.TerraformMetaArguments {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#read_query_parameters DataPlaneResource#read_query_parameters}
   */
-  readonly readQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable;
+  readonly readQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable;
   /**
   * Will trigger a replace of the resource when the value changes and is not `null`. This can be used by practitioners to force a replace of the resource when certain values change, e.g. changing the SKU of a virtual machine based on the value of variables or locals. The value is a `dynamic`, so practitioners can compose the input however they wish. For a "break glass" set the value to `null` to prevent the plan modifier taking effect. 
   * If you have `null` values that you do want to be tracked as affecting the resource replacement, include these inside an object. 
@@ -170,7 +170,7 @@ export interface DataPlaneResourceConfig extends cdktf.TerraformMetaArguments {
   *
   * Docs at Terraform Registry: {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#update_query_parameters DataPlaneResource#update_query_parameters}
   */
-  readonly updateQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable;
+  readonly updateQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable;
   /**
   * timeouts block
   *
@@ -211,53 +211,53 @@ export interface DataPlaneResourceRetry {
   readonly randomizationFactor?: number;
 }
 
-export function dataPlaneResourceRetryToTerraform(struct?: DataPlaneResourceRetry | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function dataPlaneResourceRetryToTerraform(struct?: DataPlaneResourceRetry | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   return {
-    error_message_regex: cdktf.listMapper(cdktf.stringToTerraform, false)(struct!.errorMessageRegex),
-    interval_seconds: cdktf.numberToTerraform(struct!.intervalSeconds),
-    max_interval_seconds: cdktf.numberToTerraform(struct!.maxIntervalSeconds),
-    multiplier: cdktf.numberToTerraform(struct!.multiplier),
-    randomization_factor: cdktf.numberToTerraform(struct!.randomizationFactor),
+    error_message_regex: cdktn.listMapper(cdktn.stringToTerraform, false)(struct!.errorMessageRegex),
+    interval_seconds: cdktn.numberToTerraform(struct!.intervalSeconds),
+    max_interval_seconds: cdktn.numberToTerraform(struct!.maxIntervalSeconds),
+    multiplier: cdktn.numberToTerraform(struct!.multiplier),
+    randomization_factor: cdktn.numberToTerraform(struct!.randomizationFactor),
   }
 }
 
 
-export function dataPlaneResourceRetryToHclTerraform(struct?: DataPlaneResourceRetry | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function dataPlaneResourceRetryToHclTerraform(struct?: DataPlaneResourceRetry | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   const attrs = {
     error_message_regex: {
-      value: cdktf.listMapperHcl(cdktf.stringToHclTerraform, false)(struct!.errorMessageRegex),
+      value: cdktn.listMapperHcl(cdktn.stringToHclTerraform, false)(struct!.errorMessageRegex),
       isBlock: false,
       type: "list",
       storageClassType: "stringList",
     },
     interval_seconds: {
-      value: cdktf.numberToHclTerraform(struct!.intervalSeconds),
+      value: cdktn.numberToHclTerraform(struct!.intervalSeconds),
       isBlock: false,
       type: "simple",
       storageClassType: "number",
     },
     max_interval_seconds: {
-      value: cdktf.numberToHclTerraform(struct!.maxIntervalSeconds),
+      value: cdktn.numberToHclTerraform(struct!.maxIntervalSeconds),
       isBlock: false,
       type: "simple",
       storageClassType: "number",
     },
     multiplier: {
-      value: cdktf.numberToHclTerraform(struct!.multiplier),
+      value: cdktn.numberToHclTerraform(struct!.multiplier),
       isBlock: false,
       type: "simple",
       storageClassType: "number",
     },
     randomization_factor: {
-      value: cdktf.numberToHclTerraform(struct!.randomizationFactor),
+      value: cdktn.numberToHclTerraform(struct!.randomizationFactor),
       isBlock: false,
       type: "simple",
       storageClassType: "number",
@@ -268,19 +268,19 @@ export function dataPlaneResourceRetryToHclTerraform(struct?: DataPlaneResourceR
   return Object.fromEntries(Object.entries(attrs).filter(([_, value]) => value !== undefined && value.value !== undefined));
 }
 
-export class DataPlaneResourceRetryOutputReference extends cdktf.ComplexObject {
+export class DataPlaneResourceRetryOutputReference extends cdktn.ComplexObject {
   private isEmptyObject = false;
-  private resolvableValue?: cdktf.IResolvable;
+  private resolvableValue?: cdktn.IResolvable;
 
   /**
   * @param terraformResource The parent resource
   * @param terraformAttribute The attribute on the parent resource this class is referencing
   */
-  public constructor(terraformResource: cdktf.IInterpolatingParent, terraformAttribute: string) {
+  public constructor(terraformResource: cdktn.IInterpolatingParent, terraformAttribute: string) {
     super(terraformResource, terraformAttribute, false);
   }
 
-  public get internalValue(): DataPlaneResourceRetry | cdktf.IResolvable | undefined {
+  public get internalValue(): DataPlaneResourceRetry | cdktn.IResolvable | undefined {
     if (this.resolvableValue) {
       return this.resolvableValue;
     }
@@ -309,7 +309,7 @@ export class DataPlaneResourceRetryOutputReference extends cdktf.ComplexObject {
     return hasAnyValues ? internalValueResult : undefined;
   }
 
-  public set internalValue(value: DataPlaneResourceRetry | cdktf.IResolvable | undefined) {
+  public set internalValue(value: DataPlaneResourceRetry | cdktn.IResolvable | undefined) {
     if (value === undefined) {
       this.isEmptyObject = false;
       this.resolvableValue = undefined;
@@ -319,7 +319,7 @@ export class DataPlaneResourceRetryOutputReference extends cdktf.ComplexObject {
       this._multiplier = undefined;
       this._randomizationFactor = undefined;
     }
-    else if (cdktf.Tokenization.isResolvable(value)) {
+    else if (cdktn.Tokenization.isResolvable(value)) {
       this.isEmptyObject = false;
       this.resolvableValue = value;
     }
@@ -438,46 +438,46 @@ export interface DataPlaneResourceTimeouts {
   readonly update?: string;
 }
 
-export function dataPlaneResourceTimeoutsToTerraform(struct?: DataPlaneResourceTimeouts | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function dataPlaneResourceTimeoutsToTerraform(struct?: DataPlaneResourceTimeouts | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   return {
-    create: cdktf.stringToTerraform(struct!.create),
-    delete: cdktf.stringToTerraform(struct!.delete),
-    read: cdktf.stringToTerraform(struct!.read),
-    update: cdktf.stringToTerraform(struct!.update),
+    create: cdktn.stringToTerraform(struct!.create),
+    delete: cdktn.stringToTerraform(struct!.delete),
+    read: cdktn.stringToTerraform(struct!.read),
+    update: cdktn.stringToTerraform(struct!.update),
   }
 }
 
 
-export function dataPlaneResourceTimeoutsToHclTerraform(struct?: DataPlaneResourceTimeouts | cdktf.IResolvable): any {
-  if (!cdktf.canInspect(struct) || cdktf.Tokenization.isResolvable(struct)) { return struct; }
-  if (cdktf.isComplexElement(struct)) {
+export function dataPlaneResourceTimeoutsToHclTerraform(struct?: DataPlaneResourceTimeouts | cdktn.IResolvable): any {
+  if (!cdktn.canInspect(struct) || cdktn.Tokenization.isResolvable(struct)) { return struct; }
+  if (cdktn.isComplexElement(struct)) {
     throw new Error("A complex element was used as configuration, this is not supported: https://cdk.tf/complex-object-as-configuration");
   }
   const attrs = {
     create: {
-      value: cdktf.stringToHclTerraform(struct!.create),
+      value: cdktn.stringToHclTerraform(struct!.create),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
     },
     delete: {
-      value: cdktf.stringToHclTerraform(struct!.delete),
+      value: cdktn.stringToHclTerraform(struct!.delete),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
     },
     read: {
-      value: cdktf.stringToHclTerraform(struct!.read),
+      value: cdktn.stringToHclTerraform(struct!.read),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
     },
     update: {
-      value: cdktf.stringToHclTerraform(struct!.update),
+      value: cdktn.stringToHclTerraform(struct!.update),
       isBlock: false,
       type: "simple",
       storageClassType: "string",
@@ -488,19 +488,19 @@ export function dataPlaneResourceTimeoutsToHclTerraform(struct?: DataPlaneResour
   return Object.fromEntries(Object.entries(attrs).filter(([_, value]) => value !== undefined && value.value !== undefined));
 }
 
-export class DataPlaneResourceTimeoutsOutputReference extends cdktf.ComplexObject {
+export class DataPlaneResourceTimeoutsOutputReference extends cdktn.ComplexObject {
   private isEmptyObject = false;
-  private resolvableValue?: cdktf.IResolvable;
+  private resolvableValue?: cdktn.IResolvable;
 
   /**
   * @param terraformResource The parent resource
   * @param terraformAttribute The attribute on the parent resource this class is referencing
   */
-  public constructor(terraformResource: cdktf.IInterpolatingParent, terraformAttribute: string) {
+  public constructor(terraformResource: cdktn.IInterpolatingParent, terraformAttribute: string) {
     super(terraformResource, terraformAttribute, false);
   }
 
-  public get internalValue(): DataPlaneResourceTimeouts | cdktf.IResolvable | undefined {
+  public get internalValue(): DataPlaneResourceTimeouts | cdktn.IResolvable | undefined {
     if (this.resolvableValue) {
       return this.resolvableValue;
     }
@@ -525,7 +525,7 @@ export class DataPlaneResourceTimeoutsOutputReference extends cdktf.ComplexObjec
     return hasAnyValues ? internalValueResult : undefined;
   }
 
-  public set internalValue(value: DataPlaneResourceTimeouts | cdktf.IResolvable | undefined) {
+  public set internalValue(value: DataPlaneResourceTimeouts | cdktn.IResolvable | undefined) {
     if (value === undefined) {
       this.isEmptyObject = false;
       this.resolvableValue = undefined;
@@ -534,7 +534,7 @@ export class DataPlaneResourceTimeoutsOutputReference extends cdktf.ComplexObjec
       this._read = undefined;
       this._update = undefined;
     }
-    else if (cdktf.Tokenization.isResolvable(value)) {
+    else if (cdktn.Tokenization.isResolvable(value)) {
       this.isEmptyObject = false;
       this.resolvableValue = value;
     }
@@ -616,7 +616,7 @@ export class DataPlaneResourceTimeoutsOutputReference extends cdktf.ComplexObjec
 /**
 * Represents a {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource azapi_data_plane_resource}
 */
-export class DataPlaneResource extends cdktf.TerraformResource {
+export class DataPlaneResource extends cdktn.TerraformResource {
 
   // =================
   // STATIC PROPERTIES
@@ -627,14 +627,14 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   // STATIC Methods
   // ==============
   /**
-  * Generates CDKTF code for importing a DataPlaneResource resource upon running "cdktf plan <stack-name>"
+  * Generates CDKTN code for importing a DataPlaneResource resource upon running "cdktn plan <stack-name>"
   * @param scope The scope in which to define this construct
   * @param importToId The construct id used in the generated config for the DataPlaneResource to import
   * @param importFromId The id of the existing DataPlaneResource that should be imported. Refer to the {@link https://registry.terraform.io/providers/azure/azapi/2.7.0/docs/resources/data_plane_resource#import import section} in the documentation of this resource for the id to use
   * @param provider? Optional instance of the provider where the DataPlaneResource to import is found
   */
-  public static generateConfigForImport(scope: Construct, importToId: string, importFromId: string, provider?: cdktf.TerraformProvider) {
-        return new cdktf.ImportableResource(scope, importToId, { terraformResourceType: "azapi_data_plane_resource", importId: importFromId, provider });
+  public static generateConfigForImport(scope: Construct, importToId: string, importFromId: string, provider?: cdktn.TerraformProvider) {
+        return new cdktn.ImportableResource(scope, importToId, { terraformResourceType: "azapi_data_plane_resource", importId: importFromId, provider });
       }
 
   // ===========
@@ -723,11 +723,11 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // create_query_parameters - computed: false, optional: true, required: false
-  private _createQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable; 
+  private _createQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable; 
   public get createQueryParameters() {
     return this.interpolationForAttribute('create_query_parameters');
   }
-  public set createQueryParameters(value: { [key: string]: string[] } | cdktf.IResolvable) {
+  public set createQueryParameters(value: { [key: string]: string[] } | cdktn.IResolvable) {
     this._createQueryParameters = value;
   }
   public resetCreateQueryParameters() {
@@ -755,11 +755,11 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // delete_query_parameters - computed: false, optional: true, required: false
-  private _deleteQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable; 
+  private _deleteQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable; 
   public get deleteQueryParameters() {
     return this.interpolationForAttribute('delete_query_parameters');
   }
-  public set deleteQueryParameters(value: { [key: string]: string[] } | cdktf.IResolvable) {
+  public set deleteQueryParameters(value: { [key: string]: string[] } | cdktn.IResolvable) {
     this._deleteQueryParameters = value;
   }
   public resetDeleteQueryParameters() {
@@ -776,11 +776,11 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // ignore_casing - computed: true, optional: true, required: false
-  private _ignoreCasing?: boolean | cdktf.IResolvable; 
+  private _ignoreCasing?: boolean | cdktn.IResolvable; 
   public get ignoreCasing() {
     return this.getBooleanAttribute('ignore_casing');
   }
-  public set ignoreCasing(value: boolean | cdktf.IResolvable) {
+  public set ignoreCasing(value: boolean | cdktn.IResolvable) {
     this._ignoreCasing = value;
   }
   public resetIgnoreCasing() {
@@ -792,11 +792,11 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // ignore_missing_property - computed: true, optional: true, required: false
-  private _ignoreMissingProperty?: boolean | cdktf.IResolvable; 
+  private _ignoreMissingProperty?: boolean | cdktn.IResolvable; 
   public get ignoreMissingProperty() {
     return this.getBooleanAttribute('ignore_missing_property');
   }
-  public set ignoreMissingProperty(value: boolean | cdktf.IResolvable) {
+  public set ignoreMissingProperty(value: boolean | cdktn.IResolvable) {
     this._ignoreMissingProperty = value;
   }
   public resetIgnoreMissingProperty() {
@@ -837,7 +837,7 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // output - computed: true, optional: false, required: false
-  private _output = new cdktf.AnyMap(this, "output");
+  private _output = new cdktn.AnyMap(this, "output");
   public get output() {
     return this._output;
   }
@@ -872,11 +872,11 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // read_query_parameters - computed: false, optional: true, required: false
-  private _readQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable; 
+  private _readQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable; 
   public get readQueryParameters() {
     return this.interpolationForAttribute('read_query_parameters');
   }
-  public set readQueryParameters(value: { [key: string]: string[] } | cdktf.IResolvable) {
+  public set readQueryParameters(value: { [key: string]: string[] } | cdktn.IResolvable) {
     this._readQueryParameters = value;
   }
   public resetReadQueryParameters() {
@@ -981,11 +981,11 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   }
 
   // update_query_parameters - computed: false, optional: true, required: false
-  private _updateQueryParameters?: { [key: string]: string[] } | cdktf.IResolvable; 
+  private _updateQueryParameters?: { [key: string]: string[] } | cdktn.IResolvable; 
   public get updateQueryParameters() {
     return this.interpolationForAttribute('update_query_parameters');
   }
-  public set updateQueryParameters(value: { [key: string]: string[] } | cdktf.IResolvable) {
+  public set updateQueryParameters(value: { [key: string]: string[] } | cdktn.IResolvable) {
     this._updateQueryParameters = value;
   }
   public resetUpdateQueryParameters() {
@@ -1018,25 +1018,25 @@ export class DataPlaneResource extends cdktf.TerraformResource {
 
   protected synthesizeAttributes(): { [name: string]: any } {
     return {
-      body: cdktf.hashMapper(cdktf.anyToTerraform)(this._body),
-      create_headers: cdktf.hashMapper(cdktf.stringToTerraform)(this._createHeaders),
-      create_query_parameters: cdktf.hashMapper(cdktf.listMapper(cdktf.stringToTerraform, false))(this._createQueryParameters),
-      delete_headers: cdktf.hashMapper(cdktf.stringToTerraform)(this._deleteHeaders),
-      delete_query_parameters: cdktf.hashMapper(cdktf.listMapper(cdktf.stringToTerraform, false))(this._deleteQueryParameters),
-      ignore_casing: cdktf.booleanToTerraform(this._ignoreCasing),
-      ignore_missing_property: cdktf.booleanToTerraform(this._ignoreMissingProperty),
-      locks: cdktf.listMapper(cdktf.stringToTerraform, false)(this._locks),
-      name: cdktf.stringToTerraform(this._name),
-      parent_id: cdktf.stringToTerraform(this._parentId),
-      read_headers: cdktf.hashMapper(cdktf.stringToTerraform)(this._readHeaders),
-      read_query_parameters: cdktf.hashMapper(cdktf.listMapper(cdktf.stringToTerraform, false))(this._readQueryParameters),
-      replace_triggers_external_values: cdktf.hashMapper(cdktf.anyToTerraform)(this._replaceTriggersExternalValues),
-      replace_triggers_refs: cdktf.listMapper(cdktf.stringToTerraform, false)(this._replaceTriggersRefs),
-      response_export_values: cdktf.hashMapper(cdktf.anyToTerraform)(this._responseExportValues),
+      body: cdktn.hashMapper(cdktn.anyToTerraform)(this._body),
+      create_headers: cdktn.hashMapper(cdktn.stringToTerraform)(this._createHeaders),
+      create_query_parameters: cdktn.hashMapper(cdktn.listMapper(cdktn.stringToTerraform, false))(this._createQueryParameters),
+      delete_headers: cdktn.hashMapper(cdktn.stringToTerraform)(this._deleteHeaders),
+      delete_query_parameters: cdktn.hashMapper(cdktn.listMapper(cdktn.stringToTerraform, false))(this._deleteQueryParameters),
+      ignore_casing: cdktn.booleanToTerraform(this._ignoreCasing),
+      ignore_missing_property: cdktn.booleanToTerraform(this._ignoreMissingProperty),
+      locks: cdktn.listMapper(cdktn.stringToTerraform, false)(this._locks),
+      name: cdktn.stringToTerraform(this._name),
+      parent_id: cdktn.stringToTerraform(this._parentId),
+      read_headers: cdktn.hashMapper(cdktn.stringToTerraform)(this._readHeaders),
+      read_query_parameters: cdktn.hashMapper(cdktn.listMapper(cdktn.stringToTerraform, false))(this._readQueryParameters),
+      replace_triggers_external_values: cdktn.hashMapper(cdktn.anyToTerraform)(this._replaceTriggersExternalValues),
+      replace_triggers_refs: cdktn.listMapper(cdktn.stringToTerraform, false)(this._replaceTriggersRefs),
+      response_export_values: cdktn.hashMapper(cdktn.anyToTerraform)(this._responseExportValues),
       retry: dataPlaneResourceRetryToTerraform(this._retry.internalValue),
-      type: cdktf.stringToTerraform(this._type),
-      update_headers: cdktf.hashMapper(cdktf.stringToTerraform)(this._updateHeaders),
-      update_query_parameters: cdktf.hashMapper(cdktf.listMapper(cdktf.stringToTerraform, false))(this._updateQueryParameters),
+      type: cdktn.stringToTerraform(this._type),
+      update_headers: cdktn.hashMapper(cdktn.stringToTerraform)(this._updateHeaders),
+      update_query_parameters: cdktn.hashMapper(cdktn.listMapper(cdktn.stringToTerraform, false))(this._updateQueryParameters),
       timeouts: dataPlaneResourceTimeoutsToTerraform(this._timeouts.internalValue),
     };
   }
@@ -1044,91 +1044,91 @@ export class DataPlaneResource extends cdktf.TerraformResource {
   protected synthesizeHclAttributes(): { [name: string]: any } {
     const attrs = {
       body: {
-        value: cdktf.hashMapperHcl(cdktf.anyToHclTerraform)(this._body),
+        value: cdktn.hashMapperHcl(cdktn.anyToHclTerraform)(this._body),
         isBlock: false,
         type: "map",
         storageClassType: "anyMap",
       },
       create_headers: {
-        value: cdktf.hashMapperHcl(cdktf.stringToHclTerraform)(this._createHeaders),
+        value: cdktn.hashMapperHcl(cdktn.stringToHclTerraform)(this._createHeaders),
         isBlock: false,
         type: "map",
         storageClassType: "stringMap",
       },
       create_query_parameters: {
-        value: cdktf.hashMapperHcl(cdktf.listMapperHcl(cdktf.stringToHclTerraform, false))(this._createQueryParameters),
+        value: cdktn.hashMapperHcl(cdktn.listMapperHcl(cdktn.stringToHclTerraform, false))(this._createQueryParameters),
         isBlock: false,
         type: "map",
         storageClassType: "stringListMap",
       },
       delete_headers: {
-        value: cdktf.hashMapperHcl(cdktf.stringToHclTerraform)(this._deleteHeaders),
+        value: cdktn.hashMapperHcl(cdktn.stringToHclTerraform)(this._deleteHeaders),
         isBlock: false,
         type: "map",
         storageClassType: "stringMap",
       },
       delete_query_parameters: {
-        value: cdktf.hashMapperHcl(cdktf.listMapperHcl(cdktf.stringToHclTerraform, false))(this._deleteQueryParameters),
+        value: cdktn.hashMapperHcl(cdktn.listMapperHcl(cdktn.stringToHclTerraform, false))(this._deleteQueryParameters),
         isBlock: false,
         type: "map",
         storageClassType: "stringListMap",
       },
       ignore_casing: {
-        value: cdktf.booleanToHclTerraform(this._ignoreCasing),
+        value: cdktn.booleanToHclTerraform(this._ignoreCasing),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       ignore_missing_property: {
-        value: cdktf.booleanToHclTerraform(this._ignoreMissingProperty),
+        value: cdktn.booleanToHclTerraform(this._ignoreMissingProperty),
         isBlock: false,
         type: "simple",
         storageClassType: "boolean",
       },
       locks: {
-        value: cdktf.listMapperHcl(cdktf.stringToHclTerraform, false)(this._locks),
+        value: cdktn.listMapperHcl(cdktn.stringToHclTerraform, false)(this._locks),
         isBlock: false,
         type: "list",
         storageClassType: "stringList",
       },
       name: {
-        value: cdktf.stringToHclTerraform(this._name),
+        value: cdktn.stringToHclTerraform(this._name),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       parent_id: {
-        value: cdktf.stringToHclTerraform(this._parentId),
+        value: cdktn.stringToHclTerraform(this._parentId),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       read_headers: {
-        value: cdktf.hashMapperHcl(cdktf.stringToHclTerraform)(this._readHeaders),
+        value: cdktn.hashMapperHcl(cdktn.stringToHclTerraform)(this._readHeaders),
         isBlock: false,
         type: "map",
         storageClassType: "stringMap",
       },
       read_query_parameters: {
-        value: cdktf.hashMapperHcl(cdktf.listMapperHcl(cdktf.stringToHclTerraform, false))(this._readQueryParameters),
+        value: cdktn.hashMapperHcl(cdktn.listMapperHcl(cdktn.stringToHclTerraform, false))(this._readQueryParameters),
         isBlock: false,
         type: "map",
         storageClassType: "stringListMap",
       },
       replace_triggers_external_values: {
-        value: cdktf.hashMapperHcl(cdktf.anyToHclTerraform)(this._replaceTriggersExternalValues),
+        value: cdktn.hashMapperHcl(cdktn.anyToHclTerraform)(this._replaceTriggersExternalValues),
         isBlock: false,
         type: "map",
         storageClassType: "anyMap",
       },
       replace_triggers_refs: {
-        value: cdktf.listMapperHcl(cdktf.stringToHclTerraform, false)(this._replaceTriggersRefs),
+        value: cdktn.listMapperHcl(cdktn.stringToHclTerraform, false)(this._replaceTriggersRefs),
         isBlock: false,
         type: "list",
         storageClassType: "stringList",
       },
       response_export_values: {
-        value: cdktf.hashMapperHcl(cdktf.anyToHclTerraform)(this._responseExportValues),
+        value: cdktn.hashMapperHcl(cdktn.anyToHclTerraform)(this._responseExportValues),
         isBlock: false,
         type: "map",
         storageClassType: "anyMap",
@@ -1140,19 +1140,19 @@ export class DataPlaneResource extends cdktf.TerraformResource {
         storageClassType: "DataPlaneResourceRetry",
       },
       type: {
-        value: cdktf.stringToHclTerraform(this._type),
+        value: cdktn.stringToHclTerraform(this._type),
         isBlock: false,
         type: "simple",
         storageClassType: "string",
       },
       update_headers: {
-        value: cdktf.hashMapperHcl(cdktf.stringToHclTerraform)(this._updateHeaders),
+        value: cdktn.hashMapperHcl(cdktn.stringToHclTerraform)(this._updateHeaders),
         isBlock: false,
         type: "map",
         storageClassType: "stringMap",
       },
       update_query_parameters: {
-        value: cdktf.hashMapperHcl(cdktf.listMapperHcl(cdktf.stringToHclTerraform, false))(this._updateQueryParameters),
+        value: cdktn.hashMapperHcl(cdktn.listMapperHcl(cdktn.stringToHclTerraform, false))(this._updateQueryParameters),
         isBlock: false,
         type: "map",
         storageClassType: "stringListMap",

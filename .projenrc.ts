@@ -5,7 +5,7 @@ import { JsonPatch } from "projen/lib/json-patch";
 const project = new cdktf.ConstructLibraryCdktf({
   author: "Microsoft",
   authorAddress: "https://microsoft.com",
-  cdktfVersion: "0.20.8",
+  cdktfVersion: "0.21.0", // Use latest available cdktf version for projen compatibility; cdktn@0.22.0 is the actual target
   jsiiVersion: "~5.9.0",
   description:
     "Azure CDK constructs using AZAPI provider for direct Azure REST API access. Version 1.0.0 - Major breaking change migration from AzureRM to AZAPI.",
@@ -20,12 +20,12 @@ const project = new cdktf.ConstructLibraryCdktf({
     "azapi",
     "rest-api",
   ],
-  constructsVersion: "^10.3.0",
+  constructsVersion: "^10.4.2", // cdktn@0.22.0 requires constructs@^10.4.2
   typescriptVersion: "~5.9.3", // should always be the same major/minor as JSII
   minNodeVersion: "20.16.0",
   defaultReleaseBranch: "main",
   name: "@microsoft/terraform-cdk-constructs",
-  majorVersion: 1, // Set to version 1.0.0 for AZAPI migration
+  majorVersion: 2, // Set to version 2.0.0 for cdktn migration (breaking change from cdktf)
   projenrcTs: true,
   jest: true,
   testdir: "",
@@ -36,29 +36,31 @@ const project = new cdktf.ConstructLibraryCdktf({
   pullRequestTemplate: false,
   mergify: false,
   npmAccess: NpmAccess.PUBLIC,
-  publishToNuget: {
-    dotNetNamespace: "Microsoft.Cdktf.Azure.TFConstructs",
-    packageId: "Microsoft.Cdktf.Azure.TFConstructs",
-  },
+  // NOTE: Java and .NET publishing disabled until cdktn publishes to Maven Central and NuGet
+  // See: https://github.com/open-constructs/cdk-terrain - cdktn@0.22.0 only publishes to npm and PyPI
+  // publishToNuget: {
+  //   dotNetNamespace: "Microsoft.Cdktf.Azure.TFConstructs",
+  //   packageId: "Microsoft.Cdktf.Azure.TFConstructs",
+  // },
   publishToPypi: {
     distName: "microsoft-cdktfconstructs",
     module: "microsoft_cdktfconstructs",
   },
-  publishToMaven: {
-    javaPackage: "com.microsoft.terraformcdkconstructs",
-    mavenGroupId: "com.microsoft.terraformcdkconstructs",
-    mavenArtifactId: "cdktf-azure-constructs",
-  },
+  // publishToMaven: {
+  //   javaPackage: "com.microsoft.terraformcdkconstructs",
+  //   mavenGroupId: "com.microsoft.terraformcdkconstructs",
+  //   mavenArtifactId: "cdktf-azure-constructs",
+  // },
   jestOptions: {
     updateSnapshot: UpdateSnapshot.NEVER,
   },
   // Dependencies for AZAPI-only implementation (removed AzureRM dependencies)
   // AZAPI provider classes are built into this package in src/core-azure/lib/providers-azapi/
-  deps: ["cdktf@0.20.8"],
-  peerDeps: ["cdktf@0.20.8", "constructs@^10.3.0"], // Only core CDK dependencies
+  deps: ["cdktn@0.22.0"],
+  peerDeps: ["cdktn@0.22.0", "constructs@^10.4.2"], // Only core CDK dependencies; cdktn@0.22.0 requires constructs@^10.4.2
   bundledDeps: ["uuid@^11.0.3"],
   devDeps: [
-    "cdktf@0.20.8",
+    "cdktn@0.22.0",
     "@types/jest@^29",
     "@types/node@^20",
     "@types/uuid@^10.0.0",
@@ -70,6 +72,27 @@ const project = new cdktf.ConstructLibraryCdktf({
   ],
   releaseToNpm: true,
 });
+
+// Remove cdktf dependency - we only use cdktn
+// Use projen's deps API to remove cdktf that ConstructLibraryCdktf automatically adds
+project.deps.removeDependency("cdktf");
+
+// Update keywords to reflect cdktn migration via package.json overrides
+const packageJson = project.tryFindObjectFile("package.json");
+if (packageJson) {
+  packageJson.addOverride("keywords", [
+    "azapi",
+    "azure",
+    "cdk",
+    "cdktn",
+    "cloud",
+    "devops",
+    "infrastructure",
+    "rest-api",
+    "terraform",
+    "opentofu",
+  ]);
+}
 
 // Required for jest to work with CDK tests
 project.jest?.addSetupFileAfterEnv("<rootDir>/setup.js");
@@ -196,21 +219,21 @@ if (buildWorkflow) {
     "jobs.package-js.steps.1.with.include-hidden-files",
     true,
   );
-  // package-java: step 2 = Download build artifacts (index 2, after setup-java and setup-node)
-  buildWorkflow.addOverride(
-    "jobs.package-java.steps.2.with.include-hidden-files",
-    true,
-  );
+  // NOTE: package-java disabled - cdktn not published to Maven Central
+  // buildWorkflow.addOverride(
+  //   "jobs.package-java.steps.2.with.include-hidden-files",
+  //   true,
+  // );
   // package-python: step 2 = Download build artifacts (index 2, after setup-node and setup-python)
   buildWorkflow.addOverride(
     "jobs.package-python.steps.2.with.include-hidden-files",
     true,
   );
-  // package-dotnet: step 2 = Download build artifacts (index 2, after setup-node and setup-dotnet)
-  buildWorkflow.addOverride(
-    "jobs.package-dotnet.steps.2.with.include-hidden-files",
-    true,
-  );
+  // NOTE: package-dotnet disabled - cdktn not published to NuGet
+  // buildWorkflow.addOverride(
+  //   "jobs.package-dotnet.steps.2.with.include-hidden-files",
+  //   true,
+  // );
 }
 
 // For release workflow (BEFORE Azure step is inserted at position 3):

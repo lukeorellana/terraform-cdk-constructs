@@ -16,7 +16,7 @@
  * - JSII compliance for multi-language support
  */
 
-import * as cdktf from "cdktf";
+import * as cdktn from "cdktn";
 import { Construct } from "constructs";
 import {
   ALL_RULE_COLLECTION_VERSIONS,
@@ -122,9 +122,9 @@ export class SecurityAdminRuleCollection extends AzapiResource {
   public readonly props: SecurityAdminRuleCollectionProps;
 
   // Output properties for easy access and referencing
-  public readonly idOutput: cdktf.TerraformOutput;
-  public readonly nameOutput: cdktf.TerraformOutput;
-  public readonly provisioningStateOutput: cdktf.TerraformOutput;
+  public readonly idOutput: cdktn.TerraformOutput;
+  public readonly nameOutput: cdktn.TerraformOutput;
+  public readonly provisioningStateOutput: cdktn.TerraformOutput;
 
   // Public properties
   public readonly resourceName: string;
@@ -149,17 +149,17 @@ export class SecurityAdminRuleCollection extends AzapiResource {
     this.resourceName = `\${${this.terraformResource.fqn}.name}`;
 
     // Create Terraform outputs for easy access and referencing from other resources
-    this.idOutput = new cdktf.TerraformOutput(this, "id", {
+    this.idOutput = new cdktn.TerraformOutput(this, "id", {
       value: this.id,
       description: "The ID of the Rule Collection",
     });
 
-    this.nameOutput = new cdktf.TerraformOutput(this, "name", {
+    this.nameOutput = new cdktn.TerraformOutput(this, "name", {
       value: this.resourceName,
       description: "The name of the Rule Collection",
     });
 
-    this.provisioningStateOutput = new cdktf.TerraformOutput(
+    this.provisioningStateOutput = new cdktn.TerraformOutput(
       this,
       "provisioningState",
       {
