@@ -127,6 +127,19 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
       },
     ],
   },
+  identity: {
+    dataType: PropertyType.OBJECT,
+    required: false,
+    description:
+      "Managed identities for the Container App to interact with other Azure services without maintaining any secrets or credentials in code.",
+    validation: [
+      {
+        ruleType: ValidationRuleType.TYPE_CHECK,
+        value: PropertyType.OBJECT,
+        message: "identity must be an object",
+      },
+    ],
+  },
   ignoreChanges: {
     dataType: PropertyType.ARRAY,
     required: false,
@@ -235,6 +248,7 @@ export const CONTAINER_APP_SCHEMA_2024_03_01: ApiSchema = {
     "tags",
     "configuration",
     "workloadProfileName",
+    "identity",
     "ignoreChanges",
   ],
   deprecated: [],
@@ -294,6 +308,7 @@ export const CONTAINER_APP_SCHEMA_2025_07_01: ApiSchema = {
     "tags",
     "configuration",
     "workloadProfileName",
+    "identity",
     "ignoreChanges",
   ],
   deprecated: [],

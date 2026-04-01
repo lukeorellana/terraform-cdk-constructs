@@ -1,21 +1,6 @@
 # Azure Container Apps Module
 
-This module provides CDKTF constructs for Azure Container Apps using the AZAPI provider
-for direct Azure REST API access.
-
-## Resources
-
-- **ContainerAppEnvironment** (`Microsoft.App/managedEnvironments`) - Managed hosting infrastructure
-- **ContainerApp** (`Microsoft.App/containerApps`) - Containerized application workloads
-
-## Supported API Versions
-
-| Resource | Version | Status |
-|----------|---------|--------|
-| Microsoft.App/managedEnvironments | 2024-03-01 | Active |
-| Microsoft.App/managedEnvironments | 2025-07-01 | Active (Latest) |
-| Microsoft.App/containerApps | 2024-03-01 | Active |
-| Microsoft.App/containerApps | 2025-07-01 | Active (Latest) |
+This module provides unified, version-aware Azure Container App constructs using the AZAPI provider for direct Azure REST API access. Includes `ContainerAppEnvironment` (`Microsoft.App/managedEnvironments`) and `ContainerApp` (`Microsoft.App/containerApps`).
 
 ## Features
 
@@ -32,6 +17,11 @@ for direct Azure REST API access.
 - **Zone Redundancy** - High availability across availability zones
 - **Peer Authentication** - Mutual TLS (mTLS) between apps (2025-07-01+)
 - **Peer Traffic Encryption** - Encrypt traffic between apps (2025-07-01+)
+
+## Supported API Versions
+
+- `2024-03-01` - Stable release
+- `2025-07-01` - Latest (default) — adds mTLS, peer traffic encryption, ingress configuration, public network access
 
 ## Basic Usage
 
