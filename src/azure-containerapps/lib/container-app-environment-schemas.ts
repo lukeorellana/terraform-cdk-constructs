@@ -119,8 +119,7 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
     dataType: PropertyType.BOOLEAN,
     required: false,
     defaultValue: false,
-    description:
-      "Whether or not this Managed Environment is zone-redundant.",
+    description: "Whether or not this Managed Environment is zone-redundant.",
     validation: [
       {
         ruleType: ValidationRuleType.TYPE_CHECK,
@@ -230,8 +229,7 @@ const READ_ONLY_PROPERTIES: { [key: string]: PropertyDefinition } = {
   staticIp: {
     dataType: PropertyType.STRING,
     required: false,
-    description:
-      "Static IP of the Container App Environment (read-only).",
+    description: "Static IP of the Container App Environment (read-only).",
     validation: [
       {
         ruleType: ValidationRuleType.TYPE_CHECK,
@@ -243,8 +241,7 @@ const READ_ONLY_PROPERTIES: { [key: string]: PropertyDefinition } = {
   deploymentErrors: {
     dataType: PropertyType.STRING,
     required: false,
-    description:
-      "Any errors that occurred during deployment (read-only).",
+    description: "Any errors that occurred during deployment (read-only).",
     validation: [
       {
         ruleType: ValidationRuleType.TYPE_CHECK,

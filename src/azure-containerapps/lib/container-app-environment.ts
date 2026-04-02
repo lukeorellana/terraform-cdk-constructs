@@ -134,6 +134,16 @@ export interface ContainerAppEnvironmentCustomDomainConfig {
 }
 
 /**
+ * Mutual TLS settings for peer authentication
+ */
+export interface ContainerAppEnvironmentMtlsConfig {
+  /**
+   * Whether mTLS is enabled
+   */
+  readonly enabled?: boolean;
+}
+
+/**
  * Peer authentication settings (mTLS) for the Managed Environment.
  * Available in API version 2025-07-01+.
  */
@@ -141,12 +151,17 @@ export interface ContainerAppEnvironmentPeerAuthentication {
   /**
    * Mutual TLS settings
    */
-  readonly mtls?: {
-    /**
-     * Whether mTLS is enabled
-     */
-    readonly enabled?: boolean;
-  };
+  readonly mtls?: ContainerAppEnvironmentMtlsConfig;
+}
+
+/**
+ * Encryption settings for peer traffic
+ */
+export interface ContainerAppEnvironmentEncryptionConfig {
+  /**
+   * Whether encryption is enabled
+   */
+  readonly enabled?: boolean;
 }
 
 /**
@@ -157,12 +172,7 @@ export interface ContainerAppEnvironmentPeerTrafficConfig {
   /**
    * Encryption settings
    */
-  readonly encryption?: {
-    /**
-     * Whether encryption is enabled
-     */
-    readonly enabled?: boolean;
-  };
+  readonly encryption?: ContainerAppEnvironmentEncryptionConfig;
 }
 
 /**
@@ -367,7 +377,11 @@ export class ContainerAppEnvironment extends AzapiResource {
    * @param id - The unique identifier for this instance
    * @param props - Configuration properties for the Container App Environment
    */
-  constructor(scope: Construct, id: string, props: ContainerAppEnvironmentProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: ContainerAppEnvironmentProps,
+  ) {
     super(scope, id, props);
 
     this.props = props;
@@ -398,8 +412,7 @@ export class ContainerAppEnvironment extends AzapiResource {
       "default_domain",
       {
         value: `\${${this.terraformResource.fqn}.output.properties.defaultDomain}`,
-        description:
-          "The default domain of the Container App Environment",
+        description: "The default domain of the Container App Environment",
       },
     );
 
@@ -413,8 +426,7 @@ export class ContainerAppEnvironment extends AzapiResource {
       "provisioning_state",
       {
         value: `\${${this.terraformResource.fqn}.output.properties.provisioningState}`,
-        description:
-          "The provisioning state of the Container App Environment",
+        description: "The provisioning state of the Container App Environment",
       },
     );
 
@@ -493,8 +505,7 @@ export class ContainerAppEnvironment extends AzapiResource {
 
     // Dapr AI instrumentation key
     if (typedProps.daprAIInstrumentationKey) {
-      properties.daprAIInstrumentationKey =
-        typedProps.daprAIInstrumentationKey;
+      properties.daprAIInstrumentationKey = typedProps.daprAIInstrumentationKey;
     }
 
     // Dapr AI connection string
@@ -520,8 +531,7 @@ export class ContainerAppEnvironment extends AzapiResource {
     }
 
     if (typedProps.peerTrafficConfiguration) {
-      properties.peerTrafficConfiguration =
-        typedProps.peerTrafficConfiguration;
+      properties.peerTrafficConfiguration = typedProps.peerTrafficConfiguration;
     }
 
     if (typedProps.ingressConfiguration) {
@@ -608,7 +618,8 @@ export class ContainerAppEnvironment extends AzapiResource {
     // Remove location from body to prevent "East US" vs "eastus" drift
     // The framework handles location as a top-level azapi attribute instead
     if (updatedConfig.body && updatedConfig.body.location) {
-      const { location: _location, ...bodyWithoutLocation } = updatedConfig.body;
+      const { location: _location, ...bodyWithoutLocation } =
+        updatedConfig.body;
       return {
         ...updatedConfig,
         body: bodyWithoutLocation,

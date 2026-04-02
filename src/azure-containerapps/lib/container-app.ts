@@ -236,6 +236,71 @@ export interface ContainerAppContainer {
 }
 
 /**
+ * Azure Queue scale rule configuration
+ */
+export interface ContainerAppAzureQueueScaleRule {
+  /**
+   * Azure Storage account name
+   */
+  readonly accountName?: string;
+
+  /**
+   * Azure Storage queue name
+   */
+  readonly queueName?: string;
+
+  /**
+   * Queue length threshold to trigger scaling
+   */
+  readonly queueLength?: number;
+
+  /**
+   * Managed identity to authenticate with the storage account
+   */
+  readonly identity?: string;
+}
+
+/**
+ * Custom (KEDA) scale rule configuration
+ */
+export interface ContainerAppCustomScaleRule {
+  /**
+   * KEDA trigger type
+   */
+  readonly type: string;
+
+  /**
+   * Trigger metadata as key-value pairs
+   */
+  readonly metadata?: { [key: string]: string };
+
+  /**
+   * Managed identity for the custom scaler
+   */
+  readonly identity?: string;
+}
+
+/**
+ * HTTP scale rule configuration
+ */
+export interface ContainerAppHttpScaleRule {
+  /**
+   * HTTP trigger metadata as key-value pairs
+   */
+  readonly metadata?: { [key: string]: string };
+}
+
+/**
+ * TCP scale rule configuration
+ */
+export interface ContainerAppTcpScaleRule {
+  /**
+   * TCP trigger metadata as key-value pairs
+   */
+  readonly metadata?: { [key: string]: string };
+}
+
+/**
  * Scale rule definition
  */
 export interface ContainerAppScaleRule {
@@ -247,35 +312,22 @@ export interface ContainerAppScaleRule {
   /**
    * Azure Queue scale rule
    */
-  readonly azureQueue?: {
-    readonly accountName?: string;
-    readonly queueName?: string;
-    readonly queueLength?: number;
-    readonly identity?: string;
-  };
+  readonly azureQueue?: ContainerAppAzureQueueScaleRule;
 
   /**
    * Custom scale rule (KEDA)
    */
-  readonly custom?: {
-    readonly type: string;
-    readonly metadata?: { [key: string]: string };
-    readonly identity?: string;
-  };
+  readonly custom?: ContainerAppCustomScaleRule;
 
   /**
    * HTTP scale rule
    */
-  readonly http?: {
-    readonly metadata?: { [key: string]: string };
-  };
+  readonly http?: ContainerAppHttpScaleRule;
 
   /**
    * TCP scale rule
    */
-  readonly tcp?: {
-    readonly metadata?: { [key: string]: string };
-  };
+  readonly tcp?: ContainerAppTcpScaleRule;
 }
 
 /**
@@ -609,13 +661,37 @@ export interface ContainerAppDapr {
   /**
    * App health check configuration
    */
-  readonly appHealth?: {
-    readonly enabled?: boolean;
-    readonly path?: string;
-    readonly probeIntervalSeconds?: number;
-    readonly probeTimeoutMilliseconds?: number;
-    readonly threshold?: number;
-  };
+  readonly appHealth?: ContainerAppDaprHealthConfig;
+}
+
+/**
+ * Dapr app health check configuration
+ */
+export interface ContainerAppDaprHealthConfig {
+  /**
+   * Whether app health check is enabled
+   */
+  readonly enabled?: boolean;
+
+  /**
+   * Health check endpoint path
+   */
+  readonly path?: string;
+
+  /**
+   * Probe interval in seconds
+   */
+  readonly probeIntervalSeconds?: number;
+
+  /**
+   * Probe timeout in milliseconds
+   */
+  readonly probeTimeoutMilliseconds?: number;
+
+  /**
+   * Number of consecutive failures before marking unhealthy
+   */
+  readonly threshold?: number;
 }
 
 /**
@@ -684,18 +760,23 @@ export interface ContainerAppIdentitySetting {
 }
 
 /**
+ * Java runtime configuration (2025-07-01+)
+ */
+export interface ContainerAppJavaRuntimeConfig {
+  /**
+   * Whether to enable Java metrics
+   */
+  readonly enableMetrics?: boolean;
+}
+
+/**
  * Runtime configuration (2025-07-01+)
  */
 export interface ContainerAppRuntime {
   /**
    * Java runtime configuration
    */
-  readonly java?: {
-    /**
-     * Whether to enable Java metrics
-     */
-    readonly enableMetrics?: boolean;
-  };
+  readonly java?: ContainerAppJavaRuntimeConfig;
 }
 
 /**
@@ -772,7 +853,7 @@ export interface ContainerAppIdentity {
   /**
    * User-assigned identity resource IDs
    */
-  readonly userAssignedIdentities?: { [key: string]: Record<string, never> };
+  readonly userAssignedIdentities?: { [key: string]: any };
 }
 
 // =============================================================================
@@ -968,8 +1049,7 @@ export class ContainerApp extends AzapiResource {
       "latest_revision_fqdn",
       {
         value: `\${${this.terraformResource.fqn}.output.properties.latestRevisionFqdn}`,
-        description:
-          "The FQDN of the latest revision of the Container App",
+        description: "The FQDN of the latest revision of the Container App",
       },
     );
 

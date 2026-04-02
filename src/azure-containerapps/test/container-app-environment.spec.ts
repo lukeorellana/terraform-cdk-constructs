@@ -101,9 +101,7 @@ describe("ContainerAppEnvironment - Unified Implementation", () => {
 
       expect(env.versionConfig).toBeDefined();
       expect(env.versionConfig.version).toBe("2025-07-01");
-      expect(env.versionConfig.supportLevel).toBe(
-        VersionSupportLevel.ACTIVE,
-      );
+      expect(env.versionConfig.supportLevel).toBe(VersionSupportLevel.ACTIVE);
     });
 
     it("should provide supported versions", () => {

@@ -769,7 +769,11 @@ describe("ContainerApp - Unified Implementation", () => {
             targetPort: 3000,
             traffic: [
               { revisionName: "my-container-app-v1", weight: 80 },
-              { revisionName: "my-container-app-v2", weight: 20, label: "staging" },
+              {
+                revisionName: "my-container-app-v2",
+                weight: 20,
+                label: "staging",
+              },
             ],
           },
         },
