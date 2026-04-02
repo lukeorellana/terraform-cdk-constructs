@@ -7,6 +7,7 @@
  *
  * Supported API Versions:
  * - 2024-03-01 (Active)
+ * - 2025-02-02-preview (Active, Latest azapi-compatible)
  * - 2025-07-01 (Active, Latest)
  */
 
@@ -353,6 +354,69 @@ export const CONTAINER_APP_SCHEMA_2025_07_01: ApiSchema = {
   ],
 };
 
+/**
+ * API Schema for Container App version 2025-02-02-preview
+ *
+ * This is the latest version supported by the azapi provider ~> 2.7.0.
+ * It has the same properties as 2024-03-01 with additional preview features.
+ */
+export const CONTAINER_APP_SCHEMA_2025_02_02_PREVIEW: ApiSchema = {
+  resourceType: "Microsoft.App/containerApps",
+  version: "2025-02-02-preview",
+  properties: {
+    ...COMMON_PROPERTIES,
+    ...READ_ONLY_PROPERTIES,
+  },
+  required: ["location", "name", "environmentId", "template"],
+  optional: [
+    "tags",
+    "configuration",
+    "workloadProfileName",
+    "identity",
+    "ignoreChanges",
+  ],
+  deprecated: [],
+  transformationRules: {},
+  validationRules: [
+    {
+      property: "location",
+      rules: [
+        {
+          ruleType: ValidationRuleType.REQUIRED,
+          message: "Location is required for Container Apps",
+        },
+      ],
+    },
+    {
+      property: "name",
+      rules: [
+        {
+          ruleType: ValidationRuleType.REQUIRED,
+          message: "Name is required for Container Apps",
+        },
+      ],
+    },
+    {
+      property: "environmentId",
+      rules: [
+        {
+          ruleType: ValidationRuleType.REQUIRED,
+          message: "Environment ID is required for Container Apps",
+        },
+      ],
+    },
+    {
+      property: "template",
+      rules: [
+        {
+          ruleType: ValidationRuleType.REQUIRED,
+          message: "Template is required for Container Apps",
+        },
+      ],
+    },
+  ],
+};
+
 // =============================================================================
 // VERSION CONFIGURATIONS
 // =============================================================================
@@ -374,6 +438,28 @@ export const CONTAINER_APP_VERSION_2024_03_01: VersionConfig = {
       changeType: "added",
       description:
         "Stable release of Container App API with ingress, Dapr, scaling, secrets, and managed identity support",
+      breaking: false,
+    },
+  ],
+};
+
+/**
+ * Version configuration for Container App 2025-02-02-preview
+ */
+export const CONTAINER_APP_VERSION_2025_02_02_PREVIEW: VersionConfig = {
+  version: "2025-02-02-preview",
+  schema: CONTAINER_APP_SCHEMA_2025_02_02_PREVIEW,
+  supportLevel: VersionSupportLevel.ACTIVE,
+  releaseDate: "2025-02-02",
+  deprecationDate: undefined,
+  sunsetDate: undefined,
+  breakingChanges: [],
+  migrationGuide: "/docs/container-app/migration-2025-02-02-preview",
+  changeLog: [
+    {
+      changeType: "added",
+      description:
+        "Preview release with additional identity settings, runtime configuration, and service binds",
       breaking: false,
     },
   ],
@@ -406,6 +492,7 @@ export const CONTAINER_APP_VERSION_2025_07_01: VersionConfig = {
  */
 export const ALL_CONTAINER_APP_VERSIONS: VersionConfig[] = [
   CONTAINER_APP_VERSION_2024_03_01,
+  CONTAINER_APP_VERSION_2025_02_02_PREVIEW,
   CONTAINER_APP_VERSION_2025_07_01,
 ];
 

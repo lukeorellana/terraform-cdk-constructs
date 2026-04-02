@@ -61,8 +61,9 @@ class ContainerAppEnvironmentExampleStack extends BaseTestStack {
     // Create Container App Environment with basic configuration
     new ContainerAppEnvironment(this, "container-env", {
       name: envName,
-      location: "eastus",
+      location: resourceGroup.location,
       resourceGroupId: resourceGroup.id,
+      apiVersion: "2025-02-02-preview",
       workloadProfiles: [
         {
           name: "Consumption",

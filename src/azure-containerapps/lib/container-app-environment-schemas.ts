@@ -7,6 +7,7 @@
  *
  * Supported API Versions:
  * - 2024-03-01 (Active)
+ * - 2025-02-02-preview (Active, Latest azapi-compatible)
  * - 2025-07-01 (Active, Latest)
  */
 
@@ -368,6 +369,63 @@ export const CONTAINER_APP_ENVIRONMENT_SCHEMA_2024_03_01: ApiSchema = {
 };
 
 /**
+ * API Schema for Container App Environment version 2025-02-02-preview
+ *
+ * This is the latest version supported by the azapi provider ~> 2.7.0.
+ * It includes the same properties as 2024-03-01 plus preview features
+ * like peer authentication, peer traffic encryption, ingress configuration,
+ * and public network access controls.
+ */
+export const CONTAINER_APP_ENVIRONMENT_SCHEMA_2025_02_02_PREVIEW: ApiSchema = {
+  resourceType: "Microsoft.App/managedEnvironments",
+  version: "2025-02-02-preview",
+  properties: {
+    ...COMMON_PROPERTIES,
+    ...READ_ONLY_PROPERTIES,
+    ...V2025_07_01_PROPERTIES,
+  },
+  required: ["location", "name"],
+  optional: [
+    "tags",
+    "appLogsConfiguration",
+    "vnetConfiguration",
+    "workloadProfiles",
+    "zoneRedundant",
+    "daprAIInstrumentationKey",
+    "daprAIConnectionString",
+    "customDomainConfiguration",
+    "infrastructureResourceGroup",
+    "peerAuthentication",
+    "peerTrafficConfiguration",
+    "ingressConfiguration",
+    "publicNetworkAccess",
+    "ignoreChanges",
+  ],
+  deprecated: [],
+  transformationRules: {},
+  validationRules: [
+    {
+      property: "location",
+      rules: [
+        {
+          ruleType: ValidationRuleType.REQUIRED,
+          message: "Location is required for Container App Environments",
+        },
+      ],
+    },
+    {
+      property: "name",
+      rules: [
+        {
+          ruleType: ValidationRuleType.REQUIRED,
+          message: "Name is required for Container App Environments",
+        },
+      ],
+    },
+  ],
+};
+
+/**
  * API Schema for Container App Environment version 2025-07-01
  */
 export const CONTAINER_APP_ENVIRONMENT_SCHEMA_2025_07_01: ApiSchema = {
@@ -446,6 +504,30 @@ export const CONTAINER_APP_ENVIRONMENT_VERSION_2024_03_01: VersionConfig = {
 };
 
 /**
+ * Version configuration for Container App Environment 2025-02-02-preview
+ */
+export const CONTAINER_APP_ENVIRONMENT_VERSION_2025_02_02_PREVIEW: VersionConfig =
+  {
+    version: "2025-02-02-preview",
+    schema: CONTAINER_APP_ENVIRONMENT_SCHEMA_2025_02_02_PREVIEW,
+    supportLevel: VersionSupportLevel.ACTIVE,
+    releaseDate: "2025-02-02",
+    deprecationDate: undefined,
+    sunsetDate: undefined,
+    breakingChanges: [],
+    migrationGuide:
+      "/docs/container-app-environment/migration-2025-02-02-preview",
+    changeLog: [
+      {
+        changeType: "added",
+        description:
+          "Preview release adding peer authentication (mTLS), peer traffic encryption, ingress configuration, and public network access controls",
+        breaking: false,
+      },
+    ],
+  };
+
+/**
  * Version configuration for Container App Environment 2025-07-01
  */
 export const CONTAINER_APP_ENVIRONMENT_VERSION_2025_07_01: VersionConfig = {
@@ -472,6 +554,7 @@ export const CONTAINER_APP_ENVIRONMENT_VERSION_2025_07_01: VersionConfig = {
  */
 export const ALL_CONTAINER_APP_ENVIRONMENT_VERSIONS: VersionConfig[] = [
   CONTAINER_APP_ENVIRONMENT_VERSION_2024_03_01,
+  CONTAINER_APP_ENVIRONMENT_VERSION_2025_02_02_PREVIEW,
   CONTAINER_APP_ENVIRONMENT_VERSION_2025_07_01,
 ];
 

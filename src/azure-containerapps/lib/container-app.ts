@@ -1016,7 +1016,7 @@ export class ContainerApp extends AzapiResource {
    * Gets the default API version to use when no explicit version is specified
    */
   protected defaultVersion(): string {
-    return "2025-07-01";
+    return "2025-02-02-preview";
   }
 
   /**
@@ -1131,6 +1131,41 @@ export class ContainerApp extends AzapiResource {
     if (this.props.tags && this.props.tags[key]) {
       delete this.props.tags[key];
     }
+  }
+
+  // =============================================================================
+  // RESOURCE CONFIG CUSTOMIZATION
+  // =============================================================================
+
+  /**
+   * Customizes the resource configuration to handle Azure value normalization.
+   *
+   * Azure normalizes values in API responses:
+   * - Location: "eastus" → "East US"
+   * - Enum values: "auto" → "Auto", "enabled" → "Enabled"
+   *
+   * This override:
+   * 1. Removes `location` from the body (the framework passes it as a top-level
+   *    attribute which the azapi provider normalizes properly)
+   * 2. Enables `ignoreCasing` to suppress diffs from Azure's value normalization
+   *    (e.g., "auto" vs "Auto" for transport, "enabled" vs "Enabled")
+   */
+  protected customizeResourceConfig(config: any): any {
+    const updatedConfig = { ...config, ignoreCasing: true };
+
+    // Remove location from body to prevent "East US" vs "eastus" drift
+    // The framework handles location as a top-level azapi attribute instead
+    if (updatedConfig.body && updatedConfig.body.location) {
+      const { location: _location, ...bodyWithoutLocation } =
+        updatedConfig.body;
+      return {
+        ...updatedConfig,
+        body: bodyWithoutLocation,
+        // Ensure location is set as top-level attribute
+        location: updatedConfig.location || _location,
+      };
+    }
+    return updatedConfig;
   }
 
   // =============================================================================

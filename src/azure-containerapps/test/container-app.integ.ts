@@ -67,6 +67,7 @@ class ContainerAppExampleStack extends BaseTestStack {
     const environment = new ContainerAppEnvironment(this, "container-env", {
       name: envName,
       location: "eastus",
+      apiVersion: "2025-02-02-preview",
       resourceGroupId: resourceGroup.id,
       workloadProfiles: [
         {
@@ -84,6 +85,7 @@ class ContainerAppExampleStack extends BaseTestStack {
     new ContainerApp(this, "container-app", {
       name: appName,
       location: "eastus",
+      apiVersion: "2025-02-02-preview",
       resourceGroupId: resourceGroup.id,
       environmentId: environment.id,
       template: {
