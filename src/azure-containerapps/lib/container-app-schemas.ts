@@ -31,8 +31,7 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
   location: {
     dataType: PropertyType.STRING,
     required: true,
-    description:
-      "The Azure region where the Container App will be created.",
+    description: "The Azure region where the Container App will be created.",
     validation: [
       {
         ruleType: ValidationRuleType.REQUIRED,
@@ -72,8 +71,7 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
       {
         ruleType: ValidationRuleType.VALUE_RANGE,
         value: { minLength: 2, maxLength: 32 },
-        message:
-          "Container App name must be between 2 and 32 characters",
+        message: "Container App name must be between 2 and 32 characters",
       },
     ],
   },
@@ -85,8 +83,7 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
     validation: [
       {
         ruleType: ValidationRuleType.REQUIRED,
-        message:
-          "Environment ID is required for Container Apps",
+        message: "Environment ID is required for Container Apps",
       },
     ],
   },
@@ -118,8 +115,7 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
   workloadProfileName: {
     dataType: PropertyType.STRING,
     required: false,
-    description:
-      "Workload profile name to pin for container app execution.",
+    description: "Workload profile name to pin for container app execution.",
     validation: [
       {
         ruleType: ValidationRuleType.TYPE_CHECK,
@@ -166,8 +162,7 @@ const READ_ONLY_PROPERTIES: { [key: string]: PropertyDefinition } = {
   provisioningState: {
     dataType: PropertyType.STRING,
     required: false,
-    description:
-      "The provisioning state of the Container App (read-only).",
+    description: "The provisioning state of the Container App (read-only).",
     validation: [
       {
         ruleType: ValidationRuleType.TYPE_CHECK,
@@ -218,8 +213,7 @@ const READ_ONLY_PROPERTIES: { [key: string]: PropertyDefinition } = {
   runningStatus: {
     dataType: PropertyType.STRING,
     required: false,
-    description:
-      "Current running status of the Container App (read-only).",
+    description: "Current running status of the Container App (read-only).",
     validation: [
       {
         ruleType: ValidationRuleType.TYPE_CHECK,

@@ -15,8 +15,8 @@ import { ResourceGroup } from "../../azure-resourcegroup/lib/resource-group";
 import { AzapiProvider } from "../../core-azure/lib/azapi/providers-azapi/provider";
 import { BaseTestStack, TerraformApplyCheckAndDestroy } from "../../testing";
 import { TestRunMetadata } from "../../testing/lib/metadata";
-import { ContainerAppEnvironment } from "../lib/container-app-environment";
 import { ContainerApp } from "../lib/container-app";
+import { ContainerAppEnvironment } from "../lib/container-app-environment";
 
 // Generate unique test run metadata for this test suite
 const testMetadata = new TestRunMetadata("containerapp-integration", {
