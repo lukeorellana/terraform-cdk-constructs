@@ -236,11 +236,11 @@ export const CONTAINER_REGISTRY_SCHEMA_2023_07_01: ApiSchema = {
 };
 
 /**
- * API Schema for Container Registry version 2025-11-01
+ * API Schema for Container Registry version 2025-04-01
  */
-export const CONTAINER_REGISTRY_SCHEMA_2025_11_01: ApiSchema = {
+export const CONTAINER_REGISTRY_SCHEMA_2025_04_01: ApiSchema = {
   resourceType: "Microsoft.ContainerRegistry/registries",
-  version: "2025-11-01",
+  version: "2025-04-01",
   properties: {
     ...COMMON_PROPERTIES,
   },
@@ -309,17 +309,17 @@ export const CONTAINER_REGISTRY_VERSION_2023_07_01: VersionConfig = {
 };
 
 /**
- * Version configuration for Container Registry 2025-11-01
+ * Version configuration for Container Registry 2025-04-01
  */
-export const CONTAINER_REGISTRY_VERSION_2025_11_01: VersionConfig = {
-  version: "2025-11-01",
-  schema: CONTAINER_REGISTRY_SCHEMA_2025_11_01,
+export const CONTAINER_REGISTRY_VERSION_2025_04_01: VersionConfig = {
+  version: "2025-04-01",
+  schema: CONTAINER_REGISTRY_SCHEMA_2025_04_01,
   supportLevel: VersionSupportLevel.ACTIVE,
-  releaseDate: "2025-11-01",
+  releaseDate: "2025-04-01",
   deprecationDate: undefined,
   sunsetDate: undefined,
   breakingChanges: [],
-  migrationGuide: "/docs/container-registry/migration-2025-11-01",
+  migrationGuide: "/docs/container-registry/migration-2025-04-01",
   changeLog: [
     {
       changeType: "updated",
@@ -335,7 +335,7 @@ export const CONTAINER_REGISTRY_VERSION_2025_11_01: VersionConfig = {
  */
 export const ALL_CONTAINER_REGISTRY_VERSIONS: VersionConfig[] = [
   CONTAINER_REGISTRY_VERSION_2023_07_01,
-  CONTAINER_REGISTRY_VERSION_2025_11_01,
+  CONTAINER_REGISTRY_VERSION_2025_04_01,
 ];
 
 /**

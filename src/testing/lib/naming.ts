@@ -22,6 +22,7 @@ const RESOURCE_PREFIXES: Record<string, string> = {
   "Microsoft.Insights/actionGroups": "ag",
   "Microsoft.Insights/metricAlerts": "ma",
   "Microsoft.Insights/activityLogAlerts": "ala",
+  "Microsoft.ContainerRegistry/registries": "acr",
 };
 
 /**
@@ -130,6 +131,13 @@ const RESOURCE_CONSTRAINTS: Record<string, ResourceConstraints> = {
     allowUnderscores: true,
     allowPeriods: true,
     casePolicy: "any",
+  },
+  "Microsoft.ContainerRegistry/registries": {
+    maxLength: 50,
+    allowHyphens: false,
+    allowUnderscores: false,
+    allowPeriods: false,
+    casePolicy: "lower",
   },
 };
 

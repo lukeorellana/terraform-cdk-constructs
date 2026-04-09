@@ -15,7 +15,7 @@ This module provides a CDK for Terraform construct for managing Azure Container 
 
 | Version | Status | Description |
 |---------|--------|-------------|
-| 2025-11-01 | **Active** | Latest version with improved features |
+| 2025-04-01 | **Active** | Latest version with improved features |
 | 2023-07-01 | Maintenance | Stable release with policy and encryption support |
 
 ## Basic Usage

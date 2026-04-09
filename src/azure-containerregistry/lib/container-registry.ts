@@ -7,7 +7,7 @@
  *
  * Supported API Versions:
  * - 2023-07-01 (Maintenance)
- * - 2025-11-01 (Active, Latest)
+ * - 2025-04-01 (Active, Latest)
  *
  * Features:
  * - Automatic latest version resolution when no version is specified
@@ -393,7 +393,7 @@ export class ContainerRegistry extends AzapiResource {
    * Gets the default API version to use when no explicit version is specified
    */
   protected defaultVersion(): string {
-    return "2025-11-01";
+    return "2025-04-01";
   }
 
   /**
