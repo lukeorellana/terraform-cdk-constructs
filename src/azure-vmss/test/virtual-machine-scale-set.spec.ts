@@ -1580,9 +1580,9 @@ describe("VirtualMachineScaleSet - Comprehensive Tests", () => {
         vmss.props.virtualMachineProfile?.networkProfile
           ?.networkInterfaceConfigurations?.[0].properties?.ipConfigurations[0]
           .properties?.publicIPAddressConfiguration;
-      expect(
-        publicIpConfig?.properties?.publicIPPrefix?.id,
-      ).toContain("publicIPPrefixes");
+      expect(publicIpConfig?.properties?.publicIPPrefix?.id).toContain(
+        "publicIPPrefixes",
+      );
     });
 
     it("should support NIC delete option and TCP state tracking", () => {
@@ -1669,9 +1669,7 @@ describe("VirtualMachineScaleSet - Comprehensive Tests", () => {
     });
 
     it("should create Azure Monitor extension for Linux", () => {
-      const ext = VirtualMachineScaleSet.azureMonitorExtension(
-        "azure-monitor",
-      );
+      const ext = VirtualMachineScaleSet.azureMonitorExtension("azure-monitor");
 
       expect(ext.name).toBe("azure-monitor");
       expect(ext.properties?.publisher).toBe("Microsoft.Azure.Monitor");

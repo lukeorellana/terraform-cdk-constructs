@@ -834,7 +834,8 @@ export const COMMON_VMSS_PROPERTIES: { [key: string]: PropertyDefinition } = {
   constrainedMaximumCapacity: {
     dataType: PropertyType.BOOLEAN,
     required: false,
-    description: "Whether the VMSS should be constrained to the maximum capacity",
+    description:
+      "Whether the VMSS should be constrained to the maximum capacity",
   },
   ignoreChanges: {
     dataType: PropertyType.ARRAY,
