@@ -1165,5 +1165,603 @@ describe("VirtualMachineScaleSet - Comprehensive Tests", () => {
       expect(vmss.props.scaleInPolicy?.rules).toEqual(["Default", "OldestVM"]);
       expect(vmss.props.scaleInPolicy?.forceDeletion).toBe(false);
     });
+
+    it("should support hibernation capability", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "HibernationVMSS", {
+        name: "hibernation-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        additionalCapabilities: {
+          ultraSSDEnabled: false,
+          hibernationEnabled: true,
+        },
+      });
+
+      expect(vmss.props.additionalCapabilities?.hibernationEnabled).toBe(true);
+    });
+
+    it("should support spot restore policy", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "SpotRestoreVMSS", {
+        name: "spot-restore-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 5 },
+        spotRestorePolicy: {
+          enabled: true,
+          restoreTimeout: "PT1H",
+        },
+        virtualMachineProfile: {
+          priority: "Spot",
+          evictionPolicy: "Deallocate",
+        },
+      });
+
+      expect(vmss.props.spotRestorePolicy?.enabled).toBe(true);
+      expect(vmss.props.spotRestorePolicy?.restoreTimeout).toBe("PT1H");
+    });
+
+    it("should support priority mix policy", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "PriorityMixVMSS", {
+        name: "priority-mix-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 10 },
+        priorityMixPolicy: {
+          baseRegularPriorityCount: 3,
+          regularPriorityPercentageAboveBase: 50,
+        },
+        virtualMachineProfile: {
+          priority: "Spot",
+          evictionPolicy: "Deallocate",
+        },
+      });
+
+      expect(vmss.props.priorityMixPolicy?.baseRegularPriorityCount).toBe(3);
+      expect(
+        vmss.props.priorityMixPolicy?.regularPriorityPercentageAboveBase,
+      ).toBe(50);
+    });
+
+    it("should support resiliency policy", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "ResiliencyVMSS", {
+        name: "resiliency-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 9 },
+        zones: ["1", "2", "3"],
+        resiliencyPolicy: {
+          resilientVMCreationPolicy: {
+            enabled: true,
+          },
+          resilientVMDeletionPolicy: {
+            enabled: true,
+          },
+          automaticZoneRebalancingPolicy: {
+            enabled: true,
+            rebalanceStrategy: "Recreate",
+            rebalanceBehavior: "CreateBeforeDelete",
+          },
+        },
+      });
+
+      expect(
+        vmss.props.resiliencyPolicy?.resilientVMCreationPolicy?.enabled,
+      ).toBe(true);
+      expect(
+        vmss.props.resiliencyPolicy?.resilientVMDeletionPolicy?.enabled,
+      ).toBe(true);
+      expect(
+        vmss.props.resiliencyPolicy?.automaticZoneRebalancingPolicy?.enabled,
+      ).toBe(true);
+    });
+
+    it("should support constrained maximum capacity", () => {
+      const vmss = new VirtualMachineScaleSet(
+        stack,
+        "ConstrainedCapacityVMSS",
+        {
+          name: "constrained-vmss",
+          location: "eastus",
+          sku: { name: "Standard_D2s_v3", capacity: 5 },
+          constrainedMaximumCapacity: true,
+        },
+      );
+
+      expect(vmss.props.constrainedMaximumCapacity).toBe(true);
+    });
+  });
+
+  describe("Enhanced VM Profile Features", () => {
+    it("should support user data", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "UserDataVMSS", {
+        name: "userdata-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          userData: "IyEvYmluL2Jhc2g=", // base64-encoded script
+        },
+      });
+
+      expect(vmss.props.virtualMachineProfile?.userData).toBe(
+        "IyEvYmluL2Jhc2g=",
+      );
+    });
+
+    it("should support gallery application profile", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "GalleryAppVMSS", {
+        name: "gallery-app-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          applicationProfile: {
+            galleryApplications: [
+              {
+                packageReferenceId:
+                  "/subscriptions/test/resourceGroups/test-rg/providers/Microsoft.Compute/galleries/test-gallery/applications/test-app/versions/1.0.0",
+                order: 1,
+                treatFailureAsDeploymentFailure: true,
+                enableAutomaticUpgrade: false,
+              },
+            ],
+          },
+        },
+      });
+
+      expect(
+        vmss.props.virtualMachineProfile?.applicationProfile
+          ?.galleryApplications,
+      ).toHaveLength(1);
+      expect(
+        vmss.props.virtualMachineProfile?.applicationProfile
+          ?.galleryApplications?.[0].order,
+      ).toBe(1);
+    });
+
+    it("should support capacity reservation", () => {
+      const vmss = new VirtualMachineScaleSet(
+        stack,
+        "CapacityReservationVMSS",
+        {
+          name: "capacity-reservation-vmss",
+          location: "eastus",
+          sku: { name: "Standard_D2s_v3", capacity: 3 },
+          virtualMachineProfile: {
+            capacityReservation: {
+              capacityReservationGroup: {
+                id: "/subscriptions/test/resourceGroups/test-rg/providers/Microsoft.Compute/capacityReservationGroups/test-crg",
+              },
+            },
+          },
+        },
+      );
+
+      expect(
+        vmss.props.virtualMachineProfile?.capacityReservation
+          ?.capacityReservationGroup?.id,
+      ).toContain("capacityReservationGroups");
+    });
+
+    it("should support hardware profile with VM size properties", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "HardwareProfileVMSS", {
+        name: "hardware-profile-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          hardwareProfile: {
+            vmSizeProperties: {
+              vCPUsAvailable: 2,
+              vCPUsPerCore: 1,
+            },
+          },
+        },
+      });
+
+      expect(
+        vmss.props.virtualMachineProfile?.hardwareProfile?.vmSizeProperties
+          ?.vCPUsAvailable,
+      ).toBe(2);
+    });
+
+    it("should support service artifact reference", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "ServiceArtifactVMSS", {
+        name: "service-artifact-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          serviceArtifactReference: {
+            id: "/subscriptions/test/resourceGroups/test-rg/providers/Microsoft.Compute/galleries/test-gallery/serviceArtifacts/test-artifact/vmArtifactsProfiles/test-profile",
+          },
+        },
+      });
+
+      expect(
+        vmss.props.virtualMachineProfile?.serviceArtifactReference?.id,
+      ).toContain("serviceArtifacts");
+    });
+
+    it("should support scheduled events with OS image notification", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "ScheduledEventsVMSS", {
+        name: "scheduled-events-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          scheduledEventsProfile: {
+            terminateNotificationProfile: {
+              notBeforeTimeout: "PT5M",
+              enable: true,
+            },
+            osImageNotificationProfile: {
+              notBeforeTimeout: "PT15M",
+              enable: true,
+            },
+          },
+        },
+      });
+
+      expect(
+        vmss.props.virtualMachineProfile?.scheduledEventsProfile
+          ?.osImageNotificationProfile?.enable,
+      ).toBe(true);
+      expect(
+        vmss.props.virtualMachineProfile?.scheduledEventsProfile
+          ?.terminateNotificationProfile?.enable,
+      ).toBe(true);
+    });
+  });
+
+  describe("Enhanced Extension Properties", () => {
+    it("should support extension ordering with provisionAfterExtensions", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "ExtOrderVMSS", {
+        name: "ext-order-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          extensionProfile: {
+            extensions: [
+              {
+                name: "health-ext",
+                properties: {
+                  publisher: "Microsoft.ManagedServices",
+                  type: "ApplicationHealthLinux",
+                  typeHandlerVersion: "1.0",
+                  autoUpgradeMinorVersion: true,
+                },
+              },
+              {
+                name: "custom-script",
+                properties: {
+                  publisher: "Microsoft.Azure.Extensions",
+                  type: "CustomScript",
+                  typeHandlerVersion: "2.1",
+                  provisionAfterExtensions: ["health-ext"],
+                  enableAutomaticUpgrade: true,
+                  suppressFailures: false,
+                  forceUpdateTag: "v1.0",
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      const extensions =
+        vmss.props.virtualMachineProfile?.extensionProfile?.extensions;
+      expect(extensions).toHaveLength(2);
+      expect(extensions?.[1].properties?.provisionAfterExtensions).toEqual([
+        "health-ext",
+      ]);
+      expect(extensions?.[1].properties?.enableAutomaticUpgrade).toBe(true);
+      expect(extensions?.[1].properties?.suppressFailures).toBe(false);
+      expect(extensions?.[1].properties?.forceUpdateTag).toBe("v1.0");
+    });
+
+    it("should support extensions time budget", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "ExtTimeBudgetVMSS", {
+        name: "ext-time-budget-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          extensionProfile: {
+            extensions: [
+              {
+                name: "custom-script",
+                properties: {
+                  publisher: "Microsoft.Azure.Extensions",
+                  type: "CustomScript",
+                  typeHandlerVersion: "2.1",
+                },
+              },
+            ],
+            extensionsTimeBudget: "PT1H30M",
+          },
+        },
+      });
+
+      expect(
+        vmss.props.virtualMachineProfile?.extensionProfile
+          ?.extensionsTimeBudget,
+      ).toBe("PT1H30M");
+    });
+  });
+
+  describe("Enhanced Network Profile Features", () => {
+    it("should support public IP tags", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "PublicIPTagVMSS", {
+        name: "public-ip-tag-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          networkProfile: {
+            networkInterfaceConfigurations: [
+              {
+                name: "nic-config",
+                properties: {
+                  primary: true,
+                  ipConfigurations: [
+                    {
+                      name: "ip-config",
+                      properties: {
+                        subnet: { id: "/test/subnet" },
+                        publicIPAddressConfiguration: {
+                          name: "public-ip",
+                          properties: {
+                            idleTimeoutInMinutes: 10,
+                            ipTags: [
+                              {
+                                ipTagType: "RoutingPreference",
+                                tag: "Internet",
+                              },
+                            ],
+                            publicIPAddressVersion: "IPv4",
+                          },
+                          sku: {
+                            name: "Standard",
+                            tier: "Regional",
+                          },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      const ipConfig =
+        vmss.props.virtualMachineProfile?.networkProfile
+          ?.networkInterfaceConfigurations?.[0].properties?.ipConfigurations[0];
+      expect(
+        ipConfig?.properties?.publicIPAddressConfiguration?.properties?.ipTags,
+      ).toHaveLength(1);
+      expect(
+        ipConfig?.properties?.publicIPAddressConfiguration?.properties
+          ?.ipTags?.[0].ipTagType,
+      ).toBe("RoutingPreference");
+      expect(
+        ipConfig?.properties?.publicIPAddressConfiguration?.sku?.name,
+      ).toBe("Standard");
+    });
+
+    it("should support public IP prefix", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "PublicIPPrefixVMSS", {
+        name: "public-ip-prefix-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          networkProfile: {
+            networkInterfaceConfigurations: [
+              {
+                name: "nic-config",
+                properties: {
+                  primary: true,
+                  ipConfigurations: [
+                    {
+                      name: "ip-config",
+                      properties: {
+                        subnet: { id: "/test/subnet" },
+                        publicIPAddressConfiguration: {
+                          name: "public-ip",
+                          properties: {
+                            publicIPPrefix: {
+                              id: "/subscriptions/test/resourceGroups/test-rg/providers/Microsoft.Network/publicIPPrefixes/test-prefix",
+                            },
+                          },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      const publicIpConfig =
+        vmss.props.virtualMachineProfile?.networkProfile
+          ?.networkInterfaceConfigurations?.[0].properties?.ipConfigurations[0]
+          .properties?.publicIPAddressConfiguration;
+      expect(publicIpConfig?.properties?.publicIPPrefix?.id).toContain(
+        "publicIPPrefixes",
+      );
+    });
+
+    it("should support NIC delete option and TCP state tracking", () => {
+      const vmss = new VirtualMachineScaleSet(stack, "NicOptionsVMSS", {
+        name: "nic-options-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          networkProfile: {
+            networkInterfaceConfigurations: [
+              {
+                name: "nic-config",
+                properties: {
+                  primary: true,
+                  ipConfigurations: [
+                    {
+                      name: "ip-config",
+                      properties: {
+                        subnet: { id: "/test/subnet" },
+                      },
+                    },
+                  ],
+                  deleteOption: "Delete",
+                  disableTcpStateTracking: true,
+                  auxiliaryMode: "AcceleratedConnections",
+                  auxiliarySku: "A1",
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      const nicConfig =
+        vmss.props.virtualMachineProfile?.networkProfile
+          ?.networkInterfaceConfigurations?.[0];
+      expect(nicConfig?.properties?.deleteOption).toBe("Delete");
+      expect(nicConfig?.properties?.disableTcpStateTracking).toBe(true);
+      expect(nicConfig?.properties?.auxiliaryMode).toBe(
+        "AcceleratedConnections",
+      );
+      expect(nicConfig?.properties?.auxiliarySku).toBe("A1");
+    });
+  });
+
+  describe("Convenience Helper Methods", () => {
+    it("should create custom script extension", () => {
+      const ext = VirtualMachineScaleSet.customScriptExtension(
+        "install-app",
+        ["https://example.com/install.sh"],
+        "bash install.sh",
+      );
+
+      expect(ext.name).toBe("install-app");
+      expect(ext.properties?.publisher).toBe("Microsoft.Azure.Extensions");
+      expect(ext.properties?.type).toBe("CustomScript");
+      expect(ext.properties?.typeHandlerVersion).toBe("2.1");
+      expect(ext.properties?.autoUpgradeMinorVersion).toBe(true);
+      expect(ext.properties?.settings).toEqual({
+        fileUris: ["https://example.com/install.sh"],
+      });
+      expect(ext.properties?.protectedSettings).toEqual({
+        commandToExecute: "bash install.sh",
+      });
+    });
+
+    it("should create custom script extension with options", () => {
+      const ext = VirtualMachineScaleSet.customScriptExtension(
+        "custom-ext",
+        ["https://example.com/script.sh"],
+        "bash script.sh",
+        {
+          typeHandlerVersion: "2.0",
+          suppressFailures: true,
+          forceUpdateTag: "v2",
+          provisionAfterExtensions: ["health-ext"],
+        },
+      );
+
+      expect(ext.properties?.typeHandlerVersion).toBe("2.0");
+      expect(ext.properties?.suppressFailures).toBe(true);
+      expect(ext.properties?.forceUpdateTag).toBe("v2");
+      expect(ext.properties?.provisionAfterExtensions).toEqual(["health-ext"]);
+    });
+
+    it("should create Azure Monitor extension for Linux", () => {
+      const ext = VirtualMachineScaleSet.azureMonitorExtension("azure-monitor");
+
+      expect(ext.name).toBe("azure-monitor");
+      expect(ext.properties?.publisher).toBe("Microsoft.Azure.Monitor");
+      expect(ext.properties?.type).toBe("AzureMonitorLinuxAgent");
+      expect(ext.properties?.enableAutomaticUpgrade).toBe(true);
+    });
+
+    it("should create Azure Monitor extension for Windows", () => {
+      const ext = VirtualMachineScaleSet.azureMonitorExtension(
+        "azure-monitor-win",
+        true,
+      );
+
+      expect(ext.properties?.type).toBe("AzureMonitorWindowsAgent");
+    });
+
+    it("should create Application Health extension for Linux", () => {
+      const ext = VirtualMachineScaleSet.applicationHealthExtension(
+        "health-ext",
+        "http",
+        80,
+        false,
+        {
+          requestPath: "/health",
+          intervalInSeconds: 5,
+          numberOfProbes: 3,
+          gracePeriod: 600,
+        },
+      );
+
+      expect(ext.name).toBe("health-ext");
+      expect(ext.properties?.publisher).toBe("Microsoft.ManagedServices");
+      expect(ext.properties?.type).toBe("ApplicationHealthLinux");
+      expect(ext.properties?.settings).toEqual({
+        protocol: "http",
+        port: 80,
+        requestPath: "/health",
+        intervalInSeconds: 5,
+        numberOfProbes: 3,
+        gracePeriod: 600,
+      });
+    });
+
+    it("should create Application Health extension for Windows", () => {
+      const ext = VirtualMachineScaleSet.applicationHealthExtension(
+        "health-ext-win",
+        "tcp",
+        443,
+        true,
+      );
+
+      expect(ext.properties?.type).toBe("ApplicationHealthWindows");
+      expect(ext.properties?.settings).toEqual({
+        protocol: "tcp",
+        port: 443,
+      });
+    });
+
+    it("should use helper methods in VMSS profile", () => {
+      const healthExt = VirtualMachineScaleSet.applicationHealthExtension(
+        "health",
+        "http",
+        80,
+        false,
+        { requestPath: "/" },
+      );
+      const monitorExt = VirtualMachineScaleSet.azureMonitorExtension(
+        "monitor",
+        false,
+        { provisionAfterExtensions: ["health"] },
+      );
+      const scriptExt = VirtualMachineScaleSet.customScriptExtension(
+        "setup",
+        ["https://example.com/setup.sh"],
+        "bash setup.sh",
+        { provisionAfterExtensions: ["health", "monitor"] },
+      );
+
+      const vmss = new VirtualMachineScaleSet(stack, "HelperMethodVMSS", {
+        name: "helper-vmss",
+        location: "eastus",
+        sku: { name: "Standard_D2s_v3", capacity: 3 },
+        virtualMachineProfile: {
+          extensionProfile: {
+            extensions: [healthExt, monitorExt, scriptExt],
+          },
+        },
+      });
+
+      expect(
+        vmss.props.virtualMachineProfile?.extensionProfile?.extensions,
+      ).toHaveLength(3);
+    });
   });
 });
