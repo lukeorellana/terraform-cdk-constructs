@@ -120,11 +120,31 @@ export interface PublicIPDnsSettings {
 }
 
 /**
+ * Public IP tag for routing preference configuration
+ */
+export interface PublicIPTag {
+  readonly ipTagType: string;
+  readonly tag: string;
+}
+
+/**
+ * Public IP address SKU
+ */
+export interface PublicIPAddressSku {
+  readonly name?: string;
+  readonly tier?: string;
+}
+
+/**
  * Public IP address configuration properties
  */
 export interface PublicIPAddressConfigurationProperties {
   readonly idleTimeoutInMinutes?: number;
   readonly dnsSettings?: PublicIPDnsSettings;
+  readonly ipTags?: PublicIPTag[];
+  readonly publicIPPrefix?: ResourceReference;
+  readonly publicIPAddressVersion?: string;
+  readonly deleteOption?: string;
 }
 
 /**
@@ -133,6 +153,7 @@ export interface PublicIPAddressConfigurationProperties {
 export interface PublicIPAddressConfiguration {
   readonly name: string;
   readonly properties?: PublicIPAddressConfigurationProperties;
+  readonly sku?: PublicIPAddressSku;
 }
 
 /**
@@ -181,6 +202,10 @@ export interface NetworkInterfaceConfigurationProperties {
   readonly networkSecurityGroup?: NetworkSecurityGroupReference;
   readonly ipConfigurations: IPConfiguration[];
   readonly dnsSettings?: NetworkInterfaceDnsSettings;
+  readonly deleteOption?: string;
+  readonly disableTcpStateTracking?: boolean;
+  readonly auxiliaryMode?: string;
+  readonly auxiliarySku?: string;
 }
 
 /**
@@ -228,6 +253,10 @@ export interface VMExtensionProperties {
   readonly autoUpgradeMinorVersion?: boolean;
   readonly settings?: any;
   readonly protectedSettings?: any;
+  readonly provisionAfterExtensions?: string[];
+  readonly enableAutomaticUpgrade?: boolean;
+  readonly suppressFailures?: boolean;
+  readonly forceUpdateTag?: string;
 }
 
 /**
@@ -243,6 +272,7 @@ export interface VMExtension {
  */
 export interface ExtensionProfile {
   readonly extensions?: VMExtension[];
+  readonly extensionsTimeBudget?: string;
 }
 
 /**
@@ -258,6 +288,63 @@ export interface TerminateNotificationProfile {
  */
 export interface ScheduledEventsProfile {
   readonly terminateNotificationProfile?: TerminateNotificationProfile;
+  readonly osImageNotificationProfile?: OSImageNotificationProfile;
+}
+
+/**
+ * OS image notification profile for scheduled events
+ */
+export interface OSImageNotificationProfile {
+  readonly notBeforeTimeout?: string;
+  readonly enable?: boolean;
+}
+
+/**
+ * Gallery application reference
+ */
+export interface GalleryApplication {
+  readonly packageReferenceId: string;
+  readonly configurationReference?: string;
+  readonly order?: number;
+  readonly tags?: string;
+  readonly treatFailureAsDeploymentFailure?: boolean;
+  readonly enableAutomaticUpgrade?: boolean;
+}
+
+/**
+ * Application profile for gallery applications
+ */
+export interface ApplicationProfile {
+  readonly galleryApplications?: GalleryApplication[];
+}
+
+/**
+ * Capacity reservation profile reference
+ */
+export interface CapacityReservationProfile {
+  readonly capacityReservationGroup?: ResourceReference;
+}
+
+/**
+ * Hardware profile for VM size properties
+ */
+export interface VmssHardwareProfile {
+  readonly vmSizeProperties?: VmSizeProperties;
+}
+
+/**
+ * VM size properties for constrained vCPU configurations
+ */
+export interface VmSizeProperties {
+  readonly vCPUsAvailable?: number;
+  readonly vCPUsPerCore?: number;
+}
+
+/**
+ * Service artifact reference for shared image gallery
+ */
+export interface ServiceArtifactReference {
+  readonly id: string;
 }
 
 /**
@@ -292,6 +379,11 @@ export interface VirtualMachineScaleSetVMProfile {
   readonly evictionPolicy?: string;
   readonly billingProfile?: VirtualMachineBillingProfile;
   readonly scheduledEventsProfile?: ScheduledEventsProfile;
+  readonly userData?: string;
+  readonly applicationProfile?: ApplicationProfile;
+  readonly capacityReservation?: CapacityReservationProfile;
+  readonly hardwareProfile?: VmssHardwareProfile;
+  readonly serviceArtifactReference?: ServiceArtifactReference;
 }
 
 /**
@@ -452,6 +544,48 @@ export interface HostGroupReference {
  */
 export interface AdditionalCapabilities {
   readonly ultraSSDEnabled?: boolean;
+  readonly hibernationEnabled?: boolean;
+}
+
+/**
+ * Spot restore policy for restoring evicted spot instances
+ */
+export interface SpotRestorePolicy {
+  readonly enabled?: boolean;
+  readonly restoreTimeout?: string;
+}
+
+/**
+ * Priority mix policy for mixing spot and regular VMs
+ */
+export interface PriorityMixPolicy {
+  readonly baseRegularPriorityCount?: number;
+  readonly regularPriorityPercentageAboveBase?: number;
+}
+
+/**
+ * Resilience VM deletion policy for zone rebalancing
+ */
+export interface ResilienceVMDeletionPolicy {
+  readonly enabled?: boolean;
+}
+
+/**
+ * Automatic zone rebalancing policy
+ */
+export interface AutomaticZoneRebalancingPolicy {
+  readonly enabled?: boolean;
+  readonly rebalanceStrategy?: string;
+  readonly rebalanceBehavior?: string;
+}
+
+/**
+ * Resiliency policy for zone-level failure handling
+ */
+export interface ResiliencyPolicy {
+  readonly resilientVMCreationPolicy?: ResilienceVMDeletionPolicy;
+  readonly resilientVMDeletionPolicy?: ResilienceVMDeletionPolicy;
+  readonly automaticZoneRebalancingPolicy?: AutomaticZoneRebalancingPolicy;
 }
 
 /**
@@ -480,6 +614,10 @@ export interface VirtualMachineScaleSetProps {
   readonly proximityPlacementGroup?: ProximityPlacementGroupReference;
   readonly hostGroup?: HostGroupReference;
   readonly additionalCapabilities?: AdditionalCapabilities;
+  readonly spotRestorePolicy?: SpotRestorePolicy;
+  readonly priorityMixPolicy?: PriorityMixPolicy;
+  readonly resiliencyPolicy?: ResiliencyPolicy;
+  readonly constrainedMaximumCapacity?: boolean;
   readonly monitoring?: any;
   readonly ignoreChanges?: string[];
   readonly enableMigrationAnalysis?: boolean;
@@ -504,6 +642,10 @@ export interface VirtualMachineScaleSetBodyProperties {
   readonly proximityPlacementGroup?: ProximityPlacementGroupReference;
   readonly hostGroup?: HostGroupReference;
   readonly additionalCapabilities?: AdditionalCapabilities;
+  readonly spotRestorePolicy?: SpotRestorePolicy;
+  readonly priorityMixPolicy?: PriorityMixPolicy;
+  readonly resiliencyPolicy?: ResiliencyPolicy;
+  readonly constrainedMaximumCapacity?: boolean;
 }
 
 /**
@@ -674,6 +816,26 @@ export const COMMON_VMSS_PROPERTIES: { [key: string]: PropertyDefinition } = {
     required: false,
     description: "Additional capabilities like Ultra SSD",
   },
+  spotRestorePolicy: {
+    dataType: PropertyType.OBJECT,
+    required: false,
+    description: "Spot restore policy for restoring evicted spot instances",
+  },
+  priorityMixPolicy: {
+    dataType: PropertyType.OBJECT,
+    required: false,
+    description: "Priority mix policy for mixing spot and regular VMs",
+  },
+  resiliencyPolicy: {
+    dataType: PropertyType.OBJECT,
+    required: false,
+    description: "Resiliency policy for zone-level failure handling",
+  },
+  constrainedMaximumCapacity: {
+    dataType: PropertyType.BOOLEAN,
+    required: false,
+    description: "Whether the VMSS should be constrained to the maximum capacity",
+  },
   ignoreChanges: {
     dataType: PropertyType.ARRAY,
     required: false,
@@ -720,6 +882,10 @@ export const VMSS_SCHEMA_2025_01_02: ApiSchema = {
     "proximityPlacementGroup",
     "hostGroup",
     "additionalCapabilities",
+    "spotRestorePolicy",
+    "priorityMixPolicy",
+    "resiliencyPolicy",
+    "constrainedMaximumCapacity",
     "ignoreChanges",
   ],
   deprecated: [],
@@ -783,6 +949,10 @@ export const VMSS_SCHEMA_2025_02_01: ApiSchema = {
     "proximityPlacementGroup",
     "hostGroup",
     "additionalCapabilities",
+    "spotRestorePolicy",
+    "priorityMixPolicy",
+    "resiliencyPolicy",
+    "constrainedMaximumCapacity",
     "ignoreChanges",
   ],
   deprecated: [],
@@ -846,6 +1016,10 @@ export const VMSS_SCHEMA_2025_04_01: ApiSchema = {
     "proximityPlacementGroup",
     "hostGroup",
     "additionalCapabilities",
+    "spotRestorePolicy",
+    "priorityMixPolicy",
+    "resiliencyPolicy",
+    "constrainedMaximumCapacity",
     "ignoreChanges",
   ],
   deprecated: [],
