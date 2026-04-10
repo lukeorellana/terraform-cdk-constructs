@@ -128,9 +128,9 @@ export interface PublicIPTag {
 }
 
 /**
- * Public IP address SKU
+ * Public IP address SKU for VMSS public IP configuration
  */
-export interface PublicIPAddressSku {
+export interface VmssPublicIPAddressSku {
   readonly name?: string;
   readonly tier?: string;
 }
@@ -153,7 +153,7 @@ export interface PublicIPAddressConfigurationProperties {
 export interface PublicIPAddressConfiguration {
   readonly name: string;
   readonly properties?: PublicIPAddressConfigurationProperties;
-  readonly sku?: PublicIPAddressSku;
+  readonly sku?: VmssPublicIPAddressSku;
 }
 
 /**
@@ -1135,3 +1135,86 @@ export const ALL_VMSS_VERSIONS: VersionConfig[] = [
  * Resource type constant
  */
 export const VMSS_TYPE = "Microsoft.Compute/virtualMachineScaleSets";
+
+// =============================================================================
+// HELPER METHOD OPTION INTERFACES
+// =============================================================================
+
+/**
+ * Options for extension helper methods
+ *
+ * Provides common configuration options used by the convenience methods
+ * for creating VM extension configurations.
+ *
+ * @stability stable
+ */
+export interface ExtensionHelperOptions {
+  /**
+   * The version of the extension handler to use
+   */
+  readonly typeHandlerVersion?: string;
+
+  /**
+   * Whether to automatically upgrade the minor version of the extension
+   * @default true
+   */
+  readonly autoUpgradeMinorVersion?: boolean;
+
+  /**
+   * Whether to enable automatic upgrade of the extension
+   */
+  readonly enableAutomaticUpgrade?: boolean;
+
+  /**
+   * Whether to suppress failures from the extension
+   */
+  readonly suppressFailures?: boolean;
+
+  /**
+   * A tag to force the extension to re-run
+   */
+  readonly forceUpdateTag?: string;
+
+  /**
+   * Array of extension names that this extension must be provisioned after
+   */
+  readonly provisionAfterExtensions?: string[];
+
+  /**
+   * Additional settings for the extension
+   */
+  readonly settings?: any;
+
+  /**
+   * Additional protected settings for the extension
+   */
+  readonly protectedSettings?: any;
+}
+
+/**
+ * Options for the Application Health extension helper method
+ *
+ * @stability stable
+ */
+export interface HealthExtensionOptions extends ExtensionHelperOptions {
+  /**
+   * The request path for HTTP/HTTPS health probes
+   * @example "/"
+   */
+  readonly requestPath?: string;
+
+  /**
+   * The interval in seconds between health probes
+   */
+  readonly intervalInSeconds?: number;
+
+  /**
+   * The number of consecutive probes before marking unhealthy
+   */
+  readonly numberOfProbes?: number;
+
+  /**
+   * The grace period in seconds after VM provisioning before health probes begin
+   */
+  readonly gracePeriod?: number;
+}
