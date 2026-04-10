@@ -1,38 +1,65 @@
-# Azure Container Registry Construct
+# Azure Container Registry Module
 
-This module provides a CDK for Terraform construct for managing Azure Container Registries using the AZAPI provider for direct Azure REST API access.
+This module provides a unified, version-aware Azure Container Registry construct using the AZAPI provider for direct Azure REST API access.
 
 ## Features
 
-- **Version-aware**: Supports multiple API versions with automatic latest version resolution
-- **Schema-driven validation**: Built-in property validation based on API schemas
-- **Full backward compatibility**: Works with all supported API versions
-- **JSII-compliant**: Multi-language support (TypeScript, Python)
-- **Tag management**: Built-in tag add/remove operations
-- **Policy support**: Configure retention, trust, export, and soft delete policies
+- **Automatic Version Management** - Uses latest API version by default
+- **Version Pinning** - Pin to a specific API version for stability
+- **Schema Validation** - Properties validated against API schemas
+- **SKU Tiers** - Basic, Standard, and Premium with tier-specific features
+- **Network Security** - Network rule sets, public access control, trusted service bypass (Premium)
+- **Encryption** - Customer-managed key (CMK) encryption support (Premium)
+- **Zone Redundancy** - High availability across availability zones (Premium)
+- **Policy Support** - Retention, trust, export, and soft delete policies
+- **Managed Identity** - SystemAssigned, UserAssigned, or both
+- **Multi-Language Support** - Full JSII compliance for TypeScript, Python, Java, and .NET
 
 ## Supported API Versions
 
-| Version | Status | Description |
-|---------|--------|-------------|
-| 2025-04-01 | **Active** | Latest version with improved features |
+| API Version | Status | Description |
+|-------------|--------|-------------|
+| 2025-04-01 | ✅ Active, Latest | Latest version with improved features |
 | 2023-07-01 | Maintenance | Stable release with policy and encryption support |
 
 ## Basic Usage
 
 ```typescript
 import { ContainerRegistry } from "@microsoft/terraform-cdk-constructs";
+import { ResourceGroup } from "@microsoft/terraform-cdk-constructs/azure-resourcegroup";
 
-// Basic Container Registry with Standard SKU
+// Create a resource group first
+const resourceGroup = new ResourceGroup(this, "rg", {
+  name: "my-resource-group",
+  location: "eastus",
+});
+
+// Create a container registry with automatic version resolution
 const registry = new ContainerRegistry(this, "acr", {
   name: "mycontainerregistry",
   location: "eastus",
   resourceGroupId: resourceGroup.id,
   sku: { name: "Standard" },
+  tags: {
+    environment: "production",
+    project: "myapp",
+  },
 });
 ```
 
 ## Advanced Usage
+
+### Version Pinning
+
+```typescript
+const registry = new ContainerRegistry(this, "acr", {
+  name: "mycontainerregistry",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard" },
+  apiVersion: "2023-07-01", // Pin to specific version
+});
+```
 
 ### Premium Registry with Security Features
 
@@ -111,7 +138,7 @@ const registry = new ContainerRegistry(this, "acr", {
 });
 ```
 
-### Explicit API Version Pinning
+### With Managed Identity
 
 ```typescript
 const registry = new ContainerRegistry(this, "acr", {
@@ -119,51 +146,42 @@ const registry = new ContainerRegistry(this, "acr", {
   location: "eastus",
   resourceGroupId: resourceGroup.id,
   sku: { name: "Standard" },
-  apiVersion: "2023-07-01",
+  identity: {
+    type: "SystemAssigned",
+  },
 });
 ```
 
 ## Properties
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `name` | string | Yes | - | Registry name (5-50 alphanumeric characters, globally unique) |
-| `location` | string | Yes | - | Azure region |
-| `sku` | object | Yes | - | SKU tier: Basic, Standard, or Premium |
-| `resourceGroupId` | string | No | - | Parent resource group ID |
-| `adminUserEnabled` | boolean | No | false | Enable admin user authentication |
-| `publicNetworkAccess` | string | No | "Enabled" | Public network access (Enabled/Disabled) |
-| `networkRuleSet` | object | No | - | Network rule set (Premium only) |
-| `encryption` | object | No | - | Customer-managed key encryption (Premium only) |
-| `policies` | object | No | - | Registry policies configuration |
-| `identity` | object | No | - | Managed identity configuration |
-| `zoneRedundancy` | string | No | "Disabled" | Zone redundancy (Premium only) |
-| `dataEndpointEnabled` | boolean | No | false | Dedicated data endpoint (Premium only) |
-| `anonymousPullEnabled` | boolean | No | false | Anonymous pull access |
-| `networkRuleBypassOptions` | string | No | "AzureServices" | Trusted service bypass |
-| `tags` | object | No | {} | Resource tags |
-| `apiVersion` | string | No | Latest | API version to use |
-| `ignoreChanges` | string[] | No | - | Properties to ignore during updates |
+### Required Properties
 
-## Outputs
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | string | Registry name (5-50 alphanumeric characters, globally unique) |
+| `location` | string | Azure region |
+| `sku` | object | SKU configuration with `name` property (Basic, Standard, or Premium) |
 
-| Output | Description |
-|--------|-------------|
-| `idOutput` | The resource ID of the Container Registry |
-| `locationOutput` | The Azure region of the Container Registry |
-| `nameOutput` | The name of the Container Registry |
-| `tagsOutput` | The tags assigned to the Container Registry |
-| `loginServerOutput` | The login server URL (e.g., myregistry.azurecr.io) |
+### Optional Properties
 
-## Methods
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `resourceGroupId` | string | - | Parent resource group ID |
+| `apiVersion` | string | Latest | API version to use |
+| `adminUserEnabled` | boolean | false | Enable admin user authentication |
+| `publicNetworkAccess` | string | "Enabled" | Public network access (Enabled/Disabled) |
+| `networkRuleSet` | object | - | Network rule set configuration (Premium only) |
+| `encryption` | object | - | Customer-managed key encryption (Premium only) |
+| `policies` | object | - | Registry policies (retention, trust, export, soft delete) |
+| `identity` | object | - | Managed identity configuration |
+| `zoneRedundancy` | string | "Disabled" | Zone redundancy (Premium only) |
+| `dataEndpointEnabled` | boolean | false | Dedicated data endpoint (Premium only) |
+| `anonymousPullEnabled` | boolean | false | Anonymous pull access (Standard/Premium only) |
+| `networkRuleBypassOptions` | string | "AzureServices" | Trusted service bypass |
+| `tags` | object | {} | Resource tags |
+| `ignoreChanges` | string[] | - | Properties to ignore during updates |
 
-| Method | Description |
-|--------|-------------|
-| `loginServer` | Get the login server URL |
-| `addTag(key, value)` | Add a tag to the registry |
-| `removeTag(key)` | Remove a tag from the registry |
-
-## SKU Comparison
+## SKU Tiers
 
 | Feature | Basic | Standard | Premium |
 |---------|-------|----------|---------|
@@ -175,3 +193,19 @@ const registry = new ContainerRegistry(this, "acr", {
 | Content Trust | ❌ | ❌ | ✅ |
 | Anonymous Pull | ❌ | ✅ | ✅ |
 | Geo-Replication | ❌ | ❌ | ✅ |
+
+## Outputs
+
+The ContainerRegistry construct provides the following outputs:
+
+- `idOutput` - The resource ID
+- `nameOutput` - The container registry name
+- `locationOutput` - The Azure region
+- `tagsOutput` - The resource tags
+- `loginServerOutput` - The login server URL (e.g., myregistry.azurecr.io)
+
+## Methods
+
+- `loginServer` - Get the login server URL
+- `addTag(key, value)` - Add a tag to the container registry
+- `removeTag(key)` - Remove a tag from the container registry
