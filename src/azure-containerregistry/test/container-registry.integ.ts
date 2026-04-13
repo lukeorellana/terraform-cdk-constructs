@@ -17,12 +17,9 @@ import { TestRunMetadata } from "../../testing/lib/metadata";
 import { ContainerRegistry } from "../lib/container-registry";
 
 // Generate unique test run metadata for this test suite
-const testMetadata = new TestRunMetadata(
-  "container-registry-integration",
-  {
-    maxAgeHours: 4,
-  },
-);
+const testMetadata = new TestRunMetadata("container-registry-integration", {
+  maxAgeHours: 4,
+});
 
 /**
  * Example stack demonstrating Container Registry usage
