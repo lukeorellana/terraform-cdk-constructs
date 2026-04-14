@@ -7,7 +7,7 @@
  *
  * Supported API Versions:
  * - 2024-04-01 (Maintenance)
- * - 2025-05-01 (Active, Latest)
+ * - 2024-11-01 (Active, Latest)
  *
  * Features:
  * - Automatic latest version resolution when no version is specified

@@ -208,11 +208,11 @@ export const FUNCTION_APP_SCHEMA_2024_04_01: ApiSchema = {
 };
 
 /**
- * API Schema for Function App version 2025-05-01
+ * API Schema for Function App version 2024-11-01
  */
-export const FUNCTION_APP_SCHEMA_2025_05_01: ApiSchema = {
+export const FUNCTION_APP_SCHEMA_2024_11_01: ApiSchema = {
   resourceType: "Microsoft.Web/sites",
-  version: "2025-05-01",
+  version: "2024-11-01",
   properties: {
     ...COMMON_PROPERTIES,
   },
@@ -281,17 +281,17 @@ export const FUNCTION_APP_VERSION_2024_04_01: VersionConfig = {
 };
 
 /**
- * Version configuration for Function App 2025-05-01
+ * Version configuration for Function App 2024-11-01
  */
-export const FUNCTION_APP_VERSION_2025_05_01: VersionConfig = {
-  version: "2025-05-01",
-  schema: FUNCTION_APP_SCHEMA_2025_05_01,
+export const FUNCTION_APP_VERSION_2024_11_01: VersionConfig = {
+  version: "2024-11-01",
+  schema: FUNCTION_APP_SCHEMA_2024_11_01,
   supportLevel: VersionSupportLevel.ACTIVE,
-  releaseDate: "2025-05-01",
+  releaseDate: "2024-11-01",
   deprecationDate: undefined,
   sunsetDate: undefined,
   breakingChanges: [],
-  migrationGuide: "/docs/function-app/migration-2025-05-01",
+  migrationGuide: "/docs/function-app/migration-2024-11-01",
   changeLog: [
     {
       changeType: "updated",
@@ -307,7 +307,7 @@ export const FUNCTION_APP_VERSION_2025_05_01: VersionConfig = {
  */
 export const ALL_FUNCTION_APP_VERSIONS: VersionConfig[] = [
   FUNCTION_APP_VERSION_2024_04_01,
-  FUNCTION_APP_VERSION_2025_05_01,
+  FUNCTION_APP_VERSION_2024_11_01,
 ];
 
 /**

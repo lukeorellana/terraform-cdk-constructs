@@ -19,7 +19,7 @@ This module provides a unified, version-aware Azure Function App construct using
 
 | API Version | Status | Description |
 |-------------|--------|-------------|
-| 2025-05-01 | ✅ Active, Latest | Latest version with improved features |
+| 2024-11-01 | ✅ Active, Latest | Latest version with improved features |
 | 2024-04-01 | Maintenance | Stable release with Function App support |
 
 ## Basic Usage
