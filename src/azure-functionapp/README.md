@@ -7,6 +7,7 @@ This module provides a unified, version-aware Azure Function App construct using
 - **Automatic Version Management** - Uses latest API version by default
 - **Version Pinning** - Pin to a specific API version for stability
 - **Schema Validation** - Properties validated against API schemas
+- **Flex Consumption Support** - First-class support for Flex Consumption (FC1) plans with `functionAppConfig`
 - **Runtime Support** - Node.js, Python, .NET, Java, and PowerShell runtimes
 - **Linux & Windows** - Support for both Linux and Windows Function Apps
 - **Site Configuration** - Full control over app settings, runtime stack, and CORS
@@ -171,6 +172,43 @@ const functionApp = new FunctionApp(this, "func", {
 });
 ```
 
+### Flex Consumption Plan (No VM Quota Required)
+
+```typescript
+// Flex Consumption plans use FC1 SKU and don't require traditional VM quota
+const functionApp = new FunctionApp(this, "func", {
+  name: "my-flex-function",
+  location: "eastus2",
+  resourceGroupId: resourceGroup.id,
+  serverFarmId: flexConsumptionPlan.id,
+  kind: "functionapp,linux",
+  httpsOnly: true,
+  siteConfig: {},
+  functionAppConfig: {
+    deployment: {
+      storage: {
+        type: "blobContainer",
+        value: "https://mystorage.blob.core.windows.net/deployments",
+        authentication: {
+          type: "SystemAssignedIdentity",
+        },
+      },
+    },
+    runtime: {
+      name: "node",
+      version: "20",
+    },
+    scaleAndConcurrency: {
+      maximumInstanceCount: 100,
+      instanceMemoryMB: 2048,
+    },
+  },
+  identity: {
+    type: "SystemAssigned",
+  },
+});
+```
+
 ## Properties
 
 ### Required Properties
@@ -197,6 +235,7 @@ const functionApp = new FunctionApp(this, "func", {
 | `virtualNetworkSubnetId` | string | - | Subnet resource ID for VNet integration |
 | `clientCertEnabled` | boolean | false | Enable client certificate authentication |
 | `clientCertMode` | string | - | Client certificate mode (Required, Optional) |
+| `functionAppConfig` | object | - | Flex Consumption config (deployment, runtime, scaling) |
 | `tags` | object | {} | Resource tags |
 | `ignoreChanges` | string[] | - | Properties to ignore during updates |
 

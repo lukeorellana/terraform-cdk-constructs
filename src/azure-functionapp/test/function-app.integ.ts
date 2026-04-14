@@ -4,6 +4,9 @@
  * This test demonstrates usage of the FunctionApp construct
  * and validates deployment, idempotency, and cleanup.
  *
+ * Uses Flex Consumption (FC1) plan which does not require
+ * traditional App Service VM quota.
+ *
  * Run with: npm run integration:nostream
  */
 
@@ -24,7 +27,7 @@ const testMetadata = new TestRunMetadata("function-app-integration", {
 });
 
 /**
- * Example stack demonstrating Function App usage
+ * Example stack demonstrating Function App usage with Flex Consumption plan
  */
 class FunctionAppExampleStack extends BaseTestStack {
   constructor(scope: Construct, id: string) {
@@ -45,22 +48,22 @@ class FunctionAppExampleStack extends BaseTestStack {
       "func",
     );
 
-    // Create a resource group
+    // Create a resource group (eastus2 supports Flex Consumption)
     const resourceGroup = new ResourceGroup(this, "example-rg", {
       name: rgName,
-      location: "eastus",
+      location: "eastus2",
       tags: {
         ...this.systemTags(),
       },
     });
 
-    // Create a storage account for Function App
+    // Create a storage account for Function App deployment artifacts
     const storageAccountName = this.generateResourceName(
       "Microsoft.Storage/storageAccounts",
       "func",
     );
 
-    new StorageAccount(this, "func-storage", {
+    const storageAccount = new StorageAccount(this, "func-storage", {
       name: storageAccountName,
       location: resourceGroup.props.location!,
       resourceGroupId: resourceGroup.id,
@@ -71,7 +74,8 @@ class FunctionAppExampleStack extends BaseTestStack {
       },
     });
 
-    // Create an App Service Plan (Consumption plan for Function Apps)
+    // Create an App Service Plan using Flex Consumption (FC1)
+    // FC1/FlexConsumption does not require traditional App Service VM quota
     const planName = this.generateResourceName(
       "Microsoft.Web/serverfarms",
       "func",
@@ -81,12 +85,12 @@ class FunctionAppExampleStack extends BaseTestStack {
       type: "Microsoft.Web/serverfarms@2024-04-01",
       parentId: resourceGroup.id,
       name: planName,
-      location: "eastus",
+      location: "eastus2",
       body: {
         kind: "functionapp",
         sku: {
-          name: "Y1",
-          tier: "Dynamic",
+          name: "FC1",
+          tier: "FlexConsumption",
         },
         properties: {
           reserved: true,
@@ -100,7 +104,7 @@ class FunctionAppExampleStack extends BaseTestStack {
       "basic",
     );
 
-    // Example: Basic Linux Function App (Node.js) using managed identity for storage
+    // Linux Function App (Node.js 20) on Flex Consumption plan
     new FunctionApp(this, "basic-func", {
       name: funcAppName,
       location: resourceGroup.props.location!,
@@ -108,23 +112,32 @@ class FunctionAppExampleStack extends BaseTestStack {
       serverFarmId: appServicePlan.id,
       kind: "functionapp,linux",
       httpsOnly: true,
-      siteConfig: {
-        appSettings: [
-          { name: "FUNCTIONS_WORKER_RUNTIME", value: "node" },
-          { name: "FUNCTIONS_EXTENSION_VERSION", value: "~4" },
-          {
-            name: "AzureWebJobsStorage__accountName",
-            value: storageAccountName,
+      siteConfig: {},
+      functionAppConfig: {
+        deployment: {
+          storage: {
+            type: "blobContainer",
+            value: `${storageAccount.primaryBlobEndpoint}deployments`,
+            authentication: {
+              type: "SystemAssignedIdentity",
+            },
           },
-        ],
-        linuxFxVersion: "NODE|20",
+        },
+        runtime: {
+          name: "node",
+          version: "20",
+        },
+        scaleAndConcurrency: {
+          maximumInstanceCount: 40,
+          instanceMemoryMB: 2048,
+        },
       },
       identity: {
         type: "SystemAssigned",
       },
       tags: {
         ...this.systemTags(),
-        example: "basic-function-app",
+        example: "flex-consumption-function-app",
       },
     });
   }

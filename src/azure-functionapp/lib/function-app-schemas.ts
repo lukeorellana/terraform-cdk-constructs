@@ -141,6 +141,12 @@ const COMMON_PROPERTIES: { [key: string]: PropertyDefinition } = {
     description:
       "Client certificate mode (Required, Optional, OptionalInteractiveUser)",
   },
+  functionAppConfig: {
+    dataType: PropertyType.OBJECT,
+    required: false,
+    description:
+      "Function App configuration for Flex Consumption plans (deployment, runtime, scaling)",
+  },
   ignoreChanges: {
     dataType: PropertyType.ARRAY,
     required: false,
@@ -181,6 +187,7 @@ export const FUNCTION_APP_SCHEMA_2024_04_01: ApiSchema = {
     "virtualNetworkSubnetId",
     "clientCertEnabled",
     "clientCertMode",
+    "functionAppConfig",
     "ignoreChanges",
   ],
   deprecated: [],
@@ -229,6 +236,7 @@ export const FUNCTION_APP_SCHEMA_2024_11_01: ApiSchema = {
     "virtualNetworkSubnetId",
     "clientCertEnabled",
     "clientCertMode",
+    "functionAppConfig",
     "ignoreChanges",
   ],
   deprecated: [],

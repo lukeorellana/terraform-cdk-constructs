@@ -561,4 +561,146 @@ describe("FunctionApp", () => {
       expect(functionApp.defaultHostName).toBeDefined();
     });
   });
+
+  describe("Flex Consumption configuration", () => {
+    it("should configure functionAppConfig for Flex Consumption plan", () => {
+      const rg = new ResourceGroup(stack, "TestRG", {
+        name: "test-rg",
+        location: "eastus2",
+      });
+
+      const props: FunctionAppProps = {
+        name: "test-func-flex",
+        location: "eastus2",
+        resourceGroupId: rg.id,
+        serverFarmId:
+          "/subscriptions/sub-id/resourceGroups/rg/providers/Microsoft.Web/serverfarms/plan",
+        kind: "functionapp,linux",
+        siteConfig: {},
+        functionAppConfig: {
+          deployment: {
+            storage: {
+              type: "blobContainer",
+              value: "https://mystorage.blob.core.windows.net/deployments",
+              authentication: {
+                type: "SystemAssignedIdentity",
+              },
+            },
+          },
+          runtime: {
+            name: "node",
+            version: "20",
+          },
+          scaleAndConcurrency: {
+            maximumInstanceCount: 40,
+            instanceMemoryMB: 2048,
+          },
+        },
+        identity: {
+          type: "SystemAssigned",
+        },
+      };
+
+      const functionApp = new FunctionApp(stack, "TestFuncApp", props);
+
+      expect(functionApp.props.functionAppConfig).toBeDefined();
+      expect(functionApp.props.functionAppConfig!.runtime.name).toBe("node");
+      expect(functionApp.props.functionAppConfig!.runtime.version).toBe("20");
+      expect(
+        functionApp.props.functionAppConfig!.scaleAndConcurrency
+          ?.maximumInstanceCount,
+      ).toBe(40);
+      expect(
+        functionApp.props.functionAppConfig!.deployment.storage.authentication
+          .type,
+      ).toBe("SystemAssignedIdentity");
+    });
+
+    it("should configure functionAppConfig with Python runtime", () => {
+      const rg = new ResourceGroup(stack, "TestRG", {
+        name: "test-rg",
+        location: "eastus2",
+      });
+
+      const props: FunctionAppProps = {
+        name: "test-func-flex-python",
+        location: "eastus2",
+        resourceGroupId: rg.id,
+        serverFarmId:
+          "/subscriptions/sub-id/resourceGroups/rg/providers/Microsoft.Web/serverfarms/plan",
+        kind: "functionapp,linux",
+        siteConfig: {},
+        functionAppConfig: {
+          deployment: {
+            storage: {
+              type: "blobContainer",
+              value: "https://mystorage.blob.core.windows.net/deployments",
+              authentication: {
+                type: "SystemAssignedIdentity",
+              },
+            },
+          },
+          runtime: {
+            name: "python",
+            version: "3.11",
+          },
+        },
+        identity: {
+          type: "SystemAssigned",
+        },
+      };
+
+      const functionApp = new FunctionApp(stack, "TestFuncApp", props);
+
+      expect(functionApp.props.functionAppConfig!.runtime.name).toBe("python");
+      expect(functionApp.props.functionAppConfig!.runtime.version).toBe("3.11");
+    });
+
+    it("should synthesize Flex Consumption config to valid Terraform", () => {
+      const rg = new ResourceGroup(stack, "TestRG", {
+        name: "test-rg",
+        location: "eastus2",
+      });
+
+      const props: FunctionAppProps = {
+        name: "test-func-flex-synth",
+        location: "eastus2",
+        resourceGroupId: rg.id,
+        serverFarmId:
+          "/subscriptions/sub-id/resourceGroups/rg/providers/Microsoft.Web/serverfarms/plan",
+        kind: "functionapp,linux",
+        siteConfig: {},
+        functionAppConfig: {
+          deployment: {
+            storage: {
+              type: "blobContainer",
+              value: "https://mystorage.blob.core.windows.net/deployments",
+              authentication: {
+                type: "SystemAssignedIdentity",
+              },
+            },
+          },
+          runtime: {
+            name: "node",
+            version: "20",
+          },
+          scaleAndConcurrency: {
+            maximumInstanceCount: 100,
+            instanceMemoryMB: 4096,
+          },
+        },
+        identity: {
+          type: "SystemAssigned",
+        },
+      };
+
+      new FunctionApp(stack, "TestFuncApp", props);
+
+      const synthesized = Testing.synth(stack);
+      expect(synthesized).toBeDefined();
+
+      const stackConfig = JSON.parse(synthesized);
+      expect(stackConfig.resource).toBeDefined();
+    });
+  });
 });

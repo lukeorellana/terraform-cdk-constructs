@@ -130,6 +130,111 @@ export interface FunctionAppIdentity {
 }
 
 /**
+ * Storage authentication configuration for Flex Consumption deployment
+ */
+export interface FunctionAppStorageAuthentication {
+  /**
+   * The authentication type (SystemAssignedIdentity, UserAssignedIdentity, StorageAccountConnectionString)
+   */
+  readonly type: string;
+
+  /**
+   * User assigned identity resource ID (when type is UserAssignedIdentity)
+   */
+  readonly userAssignedIdentityResourceId?: string;
+
+  /**
+   * Storage account connection string setting name (when type is StorageAccountConnectionString)
+   */
+  readonly storageAccountConnectionStringName?: string;
+}
+
+/**
+ * Deployment storage configuration for Flex Consumption plans
+ */
+export interface FunctionAppDeploymentStorage {
+  /**
+   * The storage type (blobContainer)
+   */
+  readonly type: string;
+
+  /**
+   * The blob container URL for deployment artifacts
+   */
+  readonly value: string;
+
+  /**
+   * Authentication configuration for the storage
+   */
+  readonly authentication: FunctionAppStorageAuthentication;
+}
+
+/**
+ * Deployment configuration for Flex Consumption Function Apps
+ */
+export interface FunctionAppDeployment {
+  /**
+   * Storage configuration for deployment artifacts
+   */
+  readonly storage: FunctionAppDeploymentStorage;
+}
+
+/**
+ * Runtime configuration for Flex Consumption Function Apps
+ */
+export interface FunctionAppRuntime {
+  /**
+   * The runtime name (node, python, dotnet-isolated, java, powershell)
+   */
+  readonly name: string;
+
+  /**
+   * The runtime version
+   */
+  readonly version: string;
+}
+
+/**
+ * Scale and concurrency configuration for Flex Consumption Function Apps
+ */
+export interface FunctionAppScaleAndConcurrency {
+  /**
+   * Maximum number of instances
+   * @default 100
+   */
+  readonly maximumInstanceCount?: number;
+
+  /**
+   * Instance memory in MB (512, 1024, 2048, 4096)
+   * @default 2048
+   */
+  readonly instanceMemoryMB?: number;
+}
+
+/**
+ * Function App configuration for Flex Consumption plans
+ *
+ * Required when using FlexConsumption SKU (FC1) App Service Plans.
+ * Configures deployment storage, runtime, and scaling.
+ */
+export interface FunctionAppConfig {
+  /**
+   * Deployment configuration with storage for artifacts
+   */
+  readonly deployment: FunctionAppDeployment;
+
+  /**
+   * Runtime configuration (name and version)
+   */
+  readonly runtime: FunctionAppRuntime;
+
+  /**
+   * Scale and concurrency settings
+   */
+  readonly scaleAndConcurrency?: FunctionAppScaleAndConcurrency;
+}
+
+/**
  * Properties for the unified Azure Function App
  *
  * Extends AzapiResourceProps with Function App specific properties
@@ -196,6 +301,14 @@ export interface FunctionAppProps extends AzapiResourceProps {
    * Client certificate mode (Required, Optional, OptionalInteractiveUser)
    */
   readonly clientCertMode?: string;
+
+  /**
+   * Function App configuration for Flex Consumption plans
+   *
+   * Required when using FlexConsumption SKU (FC1) App Service Plans.
+   * Configures deployment storage, runtime, and scaling.
+   */
+  readonly functionAppConfig?: FunctionAppConfig;
 
   /**
    * The lifecycle rules to ignore changes
@@ -388,9 +501,12 @@ export class FunctionApp extends AzapiResource {
       properties.clientCertMode = typedProps.clientCertMode;
     }
 
+    if (typedProps.functionAppConfig) {
+      properties.functionAppConfig = typedProps.functionAppConfig;
+    }
+
     return {
       kind: typedProps.kind || "functionapp",
-      location: this.location,
       tags: this.allTags(),
       properties: properties,
       identity: typedProps.identity,
