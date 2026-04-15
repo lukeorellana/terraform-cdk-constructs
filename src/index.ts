@@ -11,6 +11,7 @@
  * - azure_aks: Azure Kubernetes Service constructs with version-aware AZAPI implementation
  * - azure_containerapps: Azure Container Apps constructs for serverless container hosting
  * - azure_containerregistry: Azure Container Registry constructs with version-aware AZAPI implementation
+ * - azure_functionapp: Azure Function App constructs with version-aware AZAPI implementation
  * - azure_loganalyticsworkspace: Log Analytics Workspace constructs for log data collection
  * - azure_diagnosticsettings: Azure Diagnostic Settings constructs for monitoring and observability
  * - azure_dnsforwardingruleset: DNS Forwarding Ruleset constructs for private DNS resolution
@@ -56,6 +57,7 @@ export * as azure_activitylogalert from "./azure-activitylogalert";
 export * as azure_aks from "./azure-aks";
 export * as azure_containerapps from "./azure-containerapps";
 export * as azure_containerregistry from "./azure-containerregistry";
+export * as azure_functionapp from "./azure-functionapp";
 export * as azure_diagnosticsettings from "./azure-diagnosticsettings";
 export * as azure_dnsforwardingruleset from "./azure-dnsforwardingruleset";
 export * as azure_loganalyticsworkspace from "./azure-loganalyticsworkspace";
@@ -89,6 +91,7 @@ export * from "./azure-activitylogalert";
 export * from "./azure-aks";
 export * from "./azure-containerapps";
 export * from "./azure-containerregistry";
+export * from "./azure-functionapp";
 export * from "./azure-diagnosticsettings";
 export * from "./azure-dnsforwardingruleset";
 export * from "./azure-dnsresolver";
