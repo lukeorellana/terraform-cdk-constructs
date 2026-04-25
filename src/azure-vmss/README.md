@@ -10,6 +10,14 @@ This module provides a CDK construct for creating and managing Azure Virtual Mac
 - **Orchestration Modes**: Support for both Uniform and Flexible orchestration
 - **Scaling Features**: Overprovision, zone balance, and automatic repairs
 - **Upgrade Policies**: Automatic, Manual, and Rolling upgrade modes
+- **Extension Support**: Custom Script, Azure Monitor Agent, Application Health, and arbitrary extensions with ordering
+- **Public IP Configuration**: IP tags, routing preferences, public IP prefixes, and SKU control
+- **Spot VM Support**: Spot restore policy and priority mix policy for cost optimization
+- **Resiliency**: Zone rebalancing, resilient VM creation/deletion policies
+- **Gallery Applications**: Deploy applications from Azure Compute Gallery
+- **Capacity Reservation**: Reserve VM capacity for guaranteed availability
+- **Scheduled Events**: Terminate and OS image notification profiles
+- **Convenience Helpers**: Static methods for common extension configurations
 - **Full JSII Compliance**: Multi-language support (TypeScript, Python, Java, C#, Go)
 
 ## Installation
@@ -395,7 +403,11 @@ const vmss = new VirtualMachineScaleSet(this, "vmss-pinned", {
 - **scaleInPolicy**: Scale-in policy configuration
 - **proximityPlacementGroup**: Proximity placement group reference
 - **hostGroup**: Dedicated host group reference
-- **additionalCapabilities**: Additional capabilities like Ultra SSD
+- **additionalCapabilities**: Additional capabilities (Ultra SSD, hibernation)
+- **spotRestorePolicy**: Spot restore policy for restoring evicted spot instances
+- **priorityMixPolicy**: Priority mix policy for mixing spot and regular VMs
+- **resiliencyPolicy**: Resiliency policy for zone-level failure handling
+- **constrainedMaximumCapacity**: Whether the VMSS capacity is constrained
 - **ignoreChanges**: Properties to ignore during updates
 
 ## Outputs
@@ -417,6 +429,18 @@ Add a tag to the VMSS (requires redeployment).
 ### removeTag(key: string)
 
 Remove a tag from the VMSS (requires redeployment).
+
+### Static: customScriptExtension(name, fileUris, commandToExecute, options?)
+
+Creates a Custom Script Extension configuration for Linux VMs.
+
+### Static: azureMonitorExtension(name, isWindows?, options?)
+
+Creates an Azure Monitor Agent extension configuration.
+
+### Static: applicationHealthExtension(name, protocol, port, isWindows?, options?)
+
+Creates an Application Health extension configuration for automatic repairs and rolling upgrades.
 
 ## Advanced Features
 
@@ -467,6 +491,7 @@ const vmss = new VirtualMachineScaleSet(this, "vmss-ext", {
       // ... network configuration
     },
     extensionProfile: {
+      extensionsTimeBudget: "PT1H30M", // Time budget for all extensions
       extensions: [
         {
           name: "customScript",
@@ -475,6 +500,9 @@ const vmss = new VirtualMachineScaleSet(this, "vmss-ext", {
             type: "CustomScript",
             typeHandlerVersion: "2.1",
             autoUpgradeMinorVersion: true,
+            enableAutomaticUpgrade: true,
+            suppressFailures: false,
+            forceUpdateTag: "v1.0",
             settings: {
               fileUris: ["https://example.com/script.sh"],
             },
@@ -484,6 +512,278 @@ const vmss = new VirtualMachineScaleSet(this, "vmss-ext", {
           },
         },
       ],
+    },
+  },
+});
+```
+
+### Extension Helper Methods
+
+Use convenience methods to create common extension configurations:
+
+```typescript
+// Custom Script Extension
+const scriptExt = VirtualMachineScaleSet.customScriptExtension(
+  "install-app",
+  ["https://example.com/install.sh"],
+  "bash install.sh",
+  { suppressFailures: false }
+);
+
+// Azure Monitor Agent Extension
+const monitorExt = VirtualMachineScaleSet.azureMonitorExtension(
+  "azure-monitor",
+  false, // isWindows
+  { provisionAfterExtensions: ["install-app"] }
+);
+
+// Application Health Extension
+const healthExt = VirtualMachineScaleSet.applicationHealthExtension(
+  "health-ext",
+  "http",
+  80,
+  false, // isWindows
+  {
+    requestPath: "/health",
+    intervalInSeconds: 5,
+    numberOfProbes: 3,
+    gracePeriod: 600,
+  }
+);
+
+// Use extensions in VMSS
+const vmss = new VirtualMachineScaleSet(this, "vmss-helpers", {
+  name: "my-vmss",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 3 },
+  virtualMachineProfile: {
+    // ... other profile config
+    extensionProfile: {
+      extensions: [healthExt, scriptExt, monitorExt],
+    },
+  },
+});
+```
+
+### Extension Ordering
+
+Control extension execution order using `provisionAfterExtensions`:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-ordered", {
+  name: "my-vmss-ordered",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 3 },
+  virtualMachineProfile: {
+    extensionProfile: {
+      extensions: [
+        {
+          name: "health-probe",
+          properties: {
+            publisher: "Microsoft.ManagedServices",
+            type: "ApplicationHealthLinux",
+            typeHandlerVersion: "1.0",
+            enableAutomaticUpgrade: true,
+          },
+        },
+        {
+          name: "custom-script",
+          properties: {
+            publisher: "Microsoft.Azure.Extensions",
+            type: "CustomScript",
+            typeHandlerVersion: "2.1",
+            provisionAfterExtensions: ["health-probe"], // Run after health probe
+          },
+        },
+      ],
+    },
+  },
+});
+```
+
+### Public IP Tags and Routing Preference
+
+Configure public IP addresses with tags, SKU, and routing preference:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-public-ip", {
+  name: "my-vmss-public-ip",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 3 },
+  virtualMachineProfile: {
+    networkProfile: {
+      networkInterfaceConfigurations: [{
+        name: "nic-config",
+        properties: {
+          primary: true,
+          ipConfigurations: [{
+            name: "ip-config",
+            properties: {
+              subnet: { id: subnet.id },
+              publicIPAddressConfiguration: {
+                name: "public-ip",
+                properties: {
+                  idleTimeoutInMinutes: 10,
+                  publicIPAddressVersion: "IPv4",
+                  ipTags: [{
+                    ipTagType: "RoutingPreference",
+                    tag: "Internet",
+                  }],
+                  publicIPPrefix: {
+                    id: publicIPPrefix.id,
+                  },
+                },
+                sku: {
+                  name: "Standard",
+                  tier: "Regional",
+                },
+              },
+            },
+          }],
+        },
+      }],
+    },
+  },
+});
+```
+
+### Spot VMs and Priority Mix
+
+Configure spot VMs with restore policies and priority mixing:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-spot", {
+  name: "my-vmss-spot",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 10 },
+  spotRestorePolicy: {
+    enabled: true,
+    restoreTimeout: "PT1H",
+  },
+  priorityMixPolicy: {
+    baseRegularPriorityCount: 3,     // First 3 VMs are regular priority
+    regularPriorityPercentageAboveBase: 50, // 50% regular above base
+  },
+  virtualMachineProfile: {
+    priority: "Spot",
+    evictionPolicy: "Deallocate",
+    billingProfile: {
+      maxPrice: 0.05,
+    },
+  },
+});
+```
+
+### Resiliency Policy
+
+Configure zone-level resiliency for high availability:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-resilient", {
+  name: "my-vmss-resilient",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 9 },
+  zones: ["1", "2", "3"],
+  resiliencyPolicy: {
+    resilientVMCreationPolicy: {
+      enabled: true,
+    },
+    resilientVMDeletionPolicy: {
+      enabled: true,
+    },
+    automaticZoneRebalancingPolicy: {
+      enabled: true,
+      rebalanceStrategy: "Recreate",
+      rebalanceBehavior: "CreateBeforeDelete",
+    },
+  },
+});
+```
+
+### Gallery Applications
+
+Deploy applications from Azure Compute Gallery:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-gallery", {
+  name: "my-vmss-gallery",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 3 },
+  virtualMachineProfile: {
+    applicationProfile: {
+      galleryApplications: [{
+        packageReferenceId: galleryAppVersion.id,
+        order: 1,
+        treatFailureAsDeploymentFailure: true,
+        enableAutomaticUpgrade: true,
+      }],
+    },
+  },
+});
+```
+
+### Capacity Reservation
+
+Reserve VM capacity for guaranteed availability:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-reserved", {
+  name: "my-vmss-reserved",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 5 },
+  virtualMachineProfile: {
+    capacityReservation: {
+      capacityReservationGroup: {
+        id: capacityReservationGroup.id,
+      },
+    },
+  },
+});
+```
+
+### User Data
+
+Provide custom data to VM instances:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-userdata", {
+  name: "my-vmss-userdata",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 3 },
+  virtualMachineProfile: {
+    userData: Buffer.from("#!/bin/bash\napt-get update").toString("base64"),
+  },
+});
+```
+
+### Scheduled Events
+
+Configure terminate and OS image notification profiles:
+
+```typescript
+const vmss = new VirtualMachineScaleSet(this, "vmss-events", {
+  name: "my-vmss-events",
+  location: "eastus",
+  resourceGroupId: resourceGroup.id,
+  sku: { name: "Standard_D2s_v3", capacity: 3 },
+  virtualMachineProfile: {
+    scheduledEventsProfile: {
+      terminateNotificationProfile: {
+        notBeforeTimeout: "PT5M",
+        enable: true,
+      },
+      osImageNotificationProfile: {
+        notBeforeTimeout: "PT15M",
+        enable: true,
+      },
     },
   },
 });

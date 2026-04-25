@@ -28,6 +28,9 @@ import {
   OrchestrationMode,
   VirtualMachineScaleSetProps,
   VmssMonitoringOptions,
+  VMExtension,
+  ExtensionHelperOptions,
+  HealthExtensionOptions,
 } from "./vmss-schemas";
 import {
   NETWORK_INTERFACE_TYPE,
@@ -300,6 +303,161 @@ export class VirtualMachineScaleSet extends AzapiResource {
     };
   }
 
+  // =============================================================================
+  // CONVENIENCE HELPER METHODS (STATIC)
+  // =============================================================================
+
+  /**
+   * Creates a Custom Script Extension configuration for Linux VMs
+   *
+   * This helper creates a properly configured Custom Script extension that can be
+   * included in the extensionProfile of the virtualMachineProfile.
+   *
+   * @param name - The name of the extension
+   * @param fileUris - Array of URIs to script files
+   * @param commandToExecute - The command to execute
+   * @param options - Optional configuration for extension behavior
+   * @returns A VMExtension object ready to include in extensionProfile.extensions
+   *
+   * @example
+   * const ext = VirtualMachineScaleSet.customScriptExtension(
+   *   "install-app",
+   *   ["https://example.com/install.sh"],
+   *   "bash install.sh"
+   * );
+   *
+   * @stability stable
+   */
+  public static customScriptExtension(
+    name: string,
+    fileUris: string[],
+    commandToExecute: string,
+    options?: ExtensionHelperOptions,
+  ): VMExtension {
+    return {
+      name,
+      properties: {
+        publisher: "Microsoft.Azure.Extensions",
+        type: "CustomScript",
+        typeHandlerVersion: options?.typeHandlerVersion ?? "2.1",
+        autoUpgradeMinorVersion: options?.autoUpgradeMinorVersion ?? true,
+        enableAutomaticUpgrade: options?.enableAutomaticUpgrade,
+        suppressFailures: options?.suppressFailures,
+        forceUpdateTag: options?.forceUpdateTag,
+        provisionAfterExtensions: options?.provisionAfterExtensions,
+        settings: {
+          fileUris,
+        },
+        protectedSettings: {
+          commandToExecute,
+        },
+      },
+    };
+  }
+
+  /**
+   * Creates an Azure Monitor Agent extension configuration
+   *
+   * The Azure Monitor Agent collects monitoring data from the guest operating system
+   * and delivers it to Azure Monitor. This replaces the legacy Log Analytics agent.
+   *
+   * @param name - The name of the extension
+   * @param isWindows - Whether the target OS is Windows (default: false for Linux)
+   * @param options - Optional configuration for extension behavior
+   * @returns A VMExtension object ready to include in extensionProfile.extensions
+   *
+   * @example
+   * const ext = VirtualMachineScaleSet.azureMonitorExtension("azure-monitor");
+   *
+   * @stability stable
+   */
+  public static azureMonitorExtension(
+    name: string,
+    isWindows?: boolean,
+    options?: ExtensionHelperOptions,
+  ): VMExtension {
+    return {
+      name,
+      properties: {
+        publisher: "Microsoft.Azure.Monitor",
+        type: isWindows ? "AzureMonitorWindowsAgent" : "AzureMonitorLinuxAgent",
+        typeHandlerVersion: options?.typeHandlerVersion ?? "1.0",
+        autoUpgradeMinorVersion: options?.autoUpgradeMinorVersion ?? true,
+        enableAutomaticUpgrade: options?.enableAutomaticUpgrade ?? true,
+        suppressFailures: options?.suppressFailures,
+        forceUpdateTag: options?.forceUpdateTag,
+        provisionAfterExtensions: options?.provisionAfterExtensions,
+        settings: options?.settings,
+        protectedSettings: options?.protectedSettings,
+      },
+    };
+  }
+
+  /**
+   * Creates an Application Health extension configuration
+   *
+   * The Application Health extension reports on application health from inside
+   * the VMSS instance. It is required for features like automatic repairs and
+   * rolling upgrades.
+   *
+   * @param name - The name of the extension
+   * @param protocol - Health probe protocol ("http", "https", or "tcp")
+   * @param port - The port to probe
+   * @param isWindows - Whether the target OS is Windows (default: false for Linux)
+   * @param options - Optional configuration including requestPath for HTTP/HTTPS
+   * @returns A VMExtension object ready to include in extensionProfile.extensions
+   *
+   * @example
+   * const ext = VirtualMachineScaleSet.applicationHealthExtension(
+   *   "health-ext",
+   *   "http",
+   *   80,
+   *   false,
+   *   { requestPath: "/" }
+   * );
+   *
+   * @stability stable
+   */
+  public static applicationHealthExtension(
+    name: string,
+    protocol: string,
+    port: number,
+    isWindows?: boolean,
+    options?: HealthExtensionOptions,
+  ): VMExtension {
+    const settings: { [key: string]: any } = {
+      protocol,
+      port,
+    };
+    if (options?.requestPath) {
+      settings.requestPath = options.requestPath;
+    }
+    if (options?.intervalInSeconds !== undefined) {
+      settings.intervalInSeconds = options.intervalInSeconds;
+    }
+    if (options?.numberOfProbes !== undefined) {
+      settings.numberOfProbes = options.numberOfProbes;
+    }
+    if (options?.gracePeriod !== undefined) {
+      settings.gracePeriod = options.gracePeriod;
+    }
+
+    return {
+      name,
+      properties: {
+        publisher: "Microsoft.ManagedServices",
+        type: isWindows ? "ApplicationHealthWindows" : "ApplicationHealthLinux",
+        typeHandlerVersion: options?.typeHandlerVersion ?? "1.0",
+        autoUpgradeMinorVersion: options?.autoUpgradeMinorVersion ?? true,
+        enableAutomaticUpgrade: options?.enableAutomaticUpgrade ?? true,
+        suppressFailures: options?.suppressFailures,
+        forceUpdateTag: options?.forceUpdateTag,
+        provisionAfterExtensions: options?.provisionAfterExtensions,
+        settings,
+      },
+    };
+  }
+
   static {
     // Register Network Interface schemas first (dependency)
     AzapiResource.registerSchemas(
@@ -467,6 +625,10 @@ export class VirtualMachineScaleSet extends AzapiResource {
         proximityPlacementGroup: typedProps.proximityPlacementGroup,
         hostGroup: typedProps.hostGroup,
         additionalCapabilities: typedProps.additionalCapabilities,
+        spotRestorePolicy: typedProps.spotRestorePolicy,
+        priorityMixPolicy: typedProps.priorityMixPolicy,
+        resiliencyPolicy: typedProps.resiliencyPolicy,
+        constrainedMaximumCapacity: typedProps.constrainedMaximumCapacity,
       },
     };
   }
