@@ -12,11 +12,12 @@
  *   - Must be authenticated with Azure (`az login` or OIDC in CI)
  */
 
-import * as fs from "fs";
-import * as path from "path";
-import * as https from "https";
-import { execSync } from "child_process";
-import { getSpecTreeUrl } from "./spec-mapping";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+const { execSync } = require("child_process");
+const specMapping = require("./spec-mapping");
 
 interface SchemaFileInfo {
   schemaFile: string;
@@ -55,8 +56,8 @@ function scanSchemaFiles(): SchemaFileInfo[] {
 
   const azureDirs = fs
     .readdirSync(srcDir)
-    .filter((d) => d.startsWith("azure-"))
-    .map((d) => path.join(srcDir, d));
+    .filter((d: string) => d.startsWith("azure-"))
+    .map((d: string) => path.join(srcDir, d));
 
   for (const dir of azureDirs) {
     const libDir = path.join(dir, "lib");
@@ -146,7 +147,7 @@ function findConstructFile(
   // Look for .ts files (not -schemas.ts) that contain defaultVersion()
   const tsFiles = fs
     .readdirSync(libDir)
-    .filter((f) => f.endsWith(".ts") && !f.endsWith("-schemas.ts") && f !== "index.ts");
+    .filter((f: string) => f.endsWith(".ts") && !f.endsWith("-schemas.ts") && f !== "index.ts");
 
   for (const f of tsFiles) {
     const content = fs.readFileSync(path.join(libDir, f), "utf-8");
@@ -163,7 +164,7 @@ function findTestFile(constructDir: string, _prefix: string): string | null {
 
   const specFiles = fs
     .readdirSync(testDir)
-    .filter((f) => f.endsWith(".spec.ts"));
+    .filter((f: string) => f.endsWith(".spec.ts"));
   return specFiles.length > 0 ? path.join(testDir, specFiles[0]) : null;
 }
 
@@ -213,7 +214,7 @@ function httpGet(
       method: "GET",
       headers: { ...headers, "Content-Type": "application/json" },
     };
-    const req = https.request(options, (res) => {
+    const req = https.request(options, (res: any) => {
       let body = "";
       res.on("data", (chunk: Buffer) => (body += chunk.toString()));
       res.on("end", () => {
@@ -351,7 +352,7 @@ async function main(): Promise<void> {
     // Build spec URLs for each new version
     const specUrls: Record<string, string> = {};
     for (const v of newVersions) {
-      specUrls[v] = getSpecTreeUrl(info.resourceType, v);
+      specUrls[v] = specMapping.getSpecTreeUrl(info.resourceType, v);
     }
 
     manifest.updates.push({
