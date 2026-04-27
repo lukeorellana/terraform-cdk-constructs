@@ -13,7 +13,7 @@
  * The path is relative to the azure-rest-api-specs repo root.
  * Use {version} as placeholder for the API version string.
  */
-export const SPEC_PATH_MAP: Record<string, string> = {
+const SPEC_PATH_MAP: Record<string, string> = {
   // Resources
   "Microsoft.Resources/resourceGroups":
     "specification/resources/resource-manager/Microsoft.Resources/stable/{version}",
@@ -140,7 +140,7 @@ export const SPEC_PATH_MAP: Record<string, string> = {
 /**
  * Build the GitHub tree URL for a given resource type and version.
  */
-export function getSpecTreeUrl(resourceType: string, version: string): string {
+function getSpecTreeUrl(resourceType: string, version: string): string {
   const basePath = SPEC_PATH_MAP[resourceType];
   if (basePath) {
     const path = basePath.replace("{version}", version);
@@ -160,3 +160,5 @@ function buildFallbackSpecUrl(resourceType: string, version: string): string {
   const path = `specification/${service}/resource-manager/${namespace}/stable/${version}`;
   return `https://github.com/Azure/azure-rest-api-specs/tree/main/${path}`;
 }
+
+module.exports = { SPEC_PATH_MAP, getSpecTreeUrl };

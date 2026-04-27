@@ -12,7 +12,8 @@
  * Outputs the issue body (markdown) to stdout for piping to `gh issue create --body-file -`.
  */
 
-import * as fs from "fs";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require("fs");
 
 interface UpdateEntry {
   schemaFile: string;
