@@ -9,6 +9,7 @@
  * - azure_actiongroup: Azure Action Group constructs for Azure Monitor alerts
  * - azure_activitylogalert: Azure Activity Log Alert constructs for operation monitoring
  * - azure_aks: Azure Kubernetes Service constructs with version-aware AZAPI implementation
+ * - azure_applicationinsights: Azure Application Insights constructs for application performance monitoring
  * - azure_containerapps: Azure Container Apps constructs for serverless container hosting
  * - azure_containerregistry: Azure Container Registry constructs with version-aware AZAPI implementation
  * - azure_functionapp: Azure Function App constructs with version-aware AZAPI implementation
@@ -55,6 +56,7 @@ export * from "./core-azure";
 export * as azure_actiongroup from "./azure-actiongroup";
 export * as azure_activitylogalert from "./azure-activitylogalert";
 export * as azure_aks from "./azure-aks";
+export * as azure_applicationinsights from "./azure-applicationinsights";
 export * as azure_containerapps from "./azure-containerapps";
 export * as azure_containerregistry from "./azure-containerregistry";
 export * as azure_functionapp from "./azure-functionapp";
@@ -89,6 +91,7 @@ export * as azure_vmss from "./azure-vmss";
 export * from "./azure-actiongroup";
 export * from "./azure-activitylogalert";
 export * from "./azure-aks";
+export * from "./azure-applicationinsights";
 export * from "./azure-containerapps";
 export * from "./azure-containerregistry";
 export * from "./azure-functionapp";
