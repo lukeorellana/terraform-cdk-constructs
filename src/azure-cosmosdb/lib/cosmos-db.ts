@@ -456,15 +456,27 @@ export class CosmosDbAccount extends AzapiResource {
   // =============================================================================
 
   /**
-   * Applies ignore changes lifecycle rules if specified in props
+   * Applies ignore changes lifecycle rules
+   *
+   * Cosmos DB's REST API normalizes location values (e.g. "centralus" -> "Central US")
+   * after the resource is created, which causes Terraform to detect drift on every
+   * plan. To make the resource idempotent, the construct automatically adds the
+   * normalized location fields to `ignore_changes`. Any user-specified
+   * `ignoreChanges` are merged in.
    */
   private _applyIgnoreChanges(): void {
-    if (this.props.ignoreChanges && this.props.ignoreChanges.length > 0) {
-      this.terraformResource.addOverride("lifecycle", [
-        {
-          ignore_changes: this.props.ignoreChanges,
-        },
-      ]);
-    }
+    const defaultIgnore = [
+      "location",
+      "body.location",
+      "body.properties.locations",
+    ];
+    const userIgnore = this.props.ignoreChanges ?? [];
+    const ignoreChanges = Array.from(new Set([...defaultIgnore, ...userIgnore]));
+
+    this.terraformResource.addOverride("lifecycle", [
+      {
+        ignore_changes: ignoreChanges,
+      },
+    ]);
   }
 }

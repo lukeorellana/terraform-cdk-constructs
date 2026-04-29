@@ -45,7 +45,7 @@ class CosmosDbExampleStack extends BaseTestStack {
 
     const resourceGroup = new ResourceGroup(this, "example-rg", {
       name: rgName,
-      location: "eastus",
+      location: "centralus",
       tags: {
         ...this.systemTags(),
       },
