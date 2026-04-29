@@ -136,7 +136,7 @@ describe("KeyVault", () => {
 
       const keyVault = new KeyVault(stack, "TestKv", props);
 
-      expect(keyVault.vaultUri).toContain("vaultUri");
+      expect(keyVault.vaultUri).toContain("vault.azure.net");
     });
   });
 

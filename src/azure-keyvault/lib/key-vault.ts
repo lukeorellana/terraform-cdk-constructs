@@ -339,12 +339,6 @@ export class KeyVault extends AzapiResource {
   public readonly vaultUriOutput: cdktn.TerraformOutput;
 
   /**
-   * Tenant ID resolved either from props or from the AZAPI client config
-   * @internal
-   */
-  private readonly _resolvedTenantId: string;
-
-  /**
    * Creates a new Azure Key Vault using the AzapiResource framework
    *
    * @param scope - The scope in which to define this construct
@@ -365,8 +359,8 @@ export class KeyVault extends AzapiResource {
     }
 
     // If tenantId is not provided, fall back to the current AZAPI client tenant.
-    // The DataAzapiClientConfig data source must be created on the same scope
-    // (parent stack) so it is available before super() is called.
+    // The DataAzapiClientConfig data source must be created on the parent scope
+    // so it is available before super() is called.
     const resolvedTenantId =
       props.tenantId ??
       (() => {
@@ -381,7 +375,6 @@ export class KeyVault extends AzapiResource {
     super(scope, id, { ...props, tenantId: resolvedTenantId } as KeyVaultProps);
 
     this.props = props;
-    this._resolvedTenantId = resolvedTenantId;
 
     // Create Terraform outputs
     this.idOutput = new cdktn.TerraformOutput(this, "id", {
@@ -460,7 +453,7 @@ export class KeyVault extends AzapiResource {
     const typedProps = props as KeyVaultProps;
 
     const properties: any = {
-      tenantId: this._resolvedTenantId,
+      tenantId: typedProps.tenantId,
       sku: {
         name: typedProps.sku?.name ?? "standard",
         family: typedProps.sku?.family ?? "A",
@@ -505,9 +498,14 @@ export class KeyVault extends AzapiResource {
 
   /**
    * Get the data plane URI of the Key Vault
+   *
+   * Returns the deterministic Azure public cloud Key Vault URI in the form
+   * `https://{name}.vault.azure.net/`. This avoids depending on the AZAPI
+   * resource `output` attribute which is only populated for properties listed
+   * in `response_export_values`.
    */
   public get vaultUri(): string {
-    return `\${${this.terraformResource.fqn}.output.properties.vaultUri}`;
+    return `https://\${${this.terraformResource.fqn}.name}.vault.azure.net/`;
   }
 
   /**
