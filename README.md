@@ -62,6 +62,7 @@ With AZAPI L2 Constructs, you get the following benefits:
 |---------|-------------|--------|
 | [Resource Groups](./src/azure-resourcegroup/README.md) | 2024-11-01, 2025-01-01, 2025-03-01 | ✅ Available |
 | [Storage Accounts](./src/azure-storageaccount/README.md) | 2023-01-01, 2023-05-01, 2024-01-01 | ✅ Available |
+| [Key Vaults](./src/azure-keyvault/README.md) | 2023-02-01, 2023-07-01, 2024-11-01 | ✅ Available |
 
 ## Quick Example
 
