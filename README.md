@@ -56,6 +56,7 @@ With AZAPI L2 Constructs, you get the following benefits:
 | [Metric Alerts](./src/azure-metricalert/README.md) | 2018-03-01 | ✅ Available |
 | [Activity Log Alerts](./src/azure-activitylogalert/README.md) | 2020-10-01 | ✅ Available |
 | [Diagnostic Settings](./src/azure-diagnosticsettings/README.md) | 2016-09-01, 2021-05-01-preview | ✅ Available |
+| [Application Insights](./src/azure-applicationinsights/README.md) | 2020-02-02 | ✅ Available |
 
 ### Foundation
 
