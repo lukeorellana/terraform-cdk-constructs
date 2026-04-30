@@ -31,6 +31,7 @@
  * - azure_resourcegroup: Resource Group constructs with version-aware AZAPI implementation
  * - azure_roleassignment: Role Assignment constructs for Azure RBAC
  * - azure_roledefinition: Role Definition constructs for custom RBAC roles
+ * - azure_staticwebapp: Static Web App constructs with version-aware AZAPI implementation
  * - azure_storageaccount: Storage Account constructs with version-aware AZAPI implementation
  * - azure_subnet: Subnet constructs with version-aware AZAPI implementation
  * - azure_virtualmachine: Virtual Machine constructs with version-aware AZAPI implementation
@@ -78,6 +79,7 @@ export * as azure_publicipaddress from "./azure-publicipaddress";
 export * as azure_resourcegroup from "./azure-resourcegroup";
 export * as azure_roleassignment from "./azure-roleassignment";
 export * as azure_roledefinition from "./azure-roledefinition";
+export * as azure_staticwebapp from "./azure-staticwebapp";
 export * as azure_storageaccount from "./azure-storageaccount";
 export * as azure_subnet from "./azure-subnet";
 export * as azure_virtualmachine from "./azure-virtualmachine";
@@ -113,6 +115,7 @@ export * from "./azure-publicipaddress";
 export * from "./azure-resourcegroup";
 export * from "./azure-roleassignment";
 export * from "./azure-roledefinition";
+export * from "./azure-staticwebapp";
 export * from "./azure-storageaccount";
 export * from "./azure-subnet";
 export * from "./azure-virtualmachine";
