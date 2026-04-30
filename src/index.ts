@@ -12,6 +12,7 @@
  * - azure_containerapps: Azure Container Apps constructs for serverless container hosting
  * - azure_containerregistry: Azure Container Registry constructs with version-aware AZAPI implementation
  * - azure_functionapp: Azure Function App constructs with version-aware AZAPI implementation
+ * - azure_keyvault: Azure Key Vault constructs with version-aware AZAPI implementation
  * - azure_loganalyticsworkspace: Log Analytics Workspace constructs for log data collection
  * - azure_diagnosticsettings: Azure Diagnostic Settings constructs for monitoring and observability
  * - azure_dnsforwardingruleset: DNS Forwarding Ruleset constructs for private DNS resolution
@@ -60,6 +61,7 @@ export * as azure_containerregistry from "./azure-containerregistry";
 export * as azure_functionapp from "./azure-functionapp";
 export * as azure_diagnosticsettings from "./azure-diagnosticsettings";
 export * as azure_dnsforwardingruleset from "./azure-dnsforwardingruleset";
+export * as azure_keyvault from "./azure-keyvault";
 export * as azure_loganalyticsworkspace from "./azure-loganalyticsworkspace";
 export * as azure_dnsresolver from "./azure-dnsresolver";
 export * as azure_dnszone from "./azure-dnszone";
@@ -95,6 +97,7 @@ export * from "./azure-functionapp";
 export * from "./azure-diagnosticsettings";
 export * from "./azure-dnsforwardingruleset";
 export * from "./azure-dnsresolver";
+export * from "./azure-keyvault";
 export * from "./azure-loganalyticsworkspace";
 export * from "./azure-dnszone";
 export * from "./azure-metricalert";
