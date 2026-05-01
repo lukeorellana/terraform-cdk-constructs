@@ -471,7 +471,9 @@ export class CosmosDbAccount extends AzapiResource {
       "body.properties.locations",
     ];
     const userIgnore = this.props.ignoreChanges ?? [];
-    const ignoreChanges = Array.from(new Set([...defaultIgnore, ...userIgnore]));
+    const ignoreChanges = Array.from(
+      new Set([...defaultIgnore, ...userIgnore]),
+    );
 
     this.terraformResource.addOverride("lifecycle", [
       {
