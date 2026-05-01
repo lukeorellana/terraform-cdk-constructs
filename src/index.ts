@@ -12,6 +12,7 @@
  * - azure_applicationinsights: Azure Application Insights constructs for application performance monitoring
  * - azure_containerapps: Azure Container Apps constructs for serverless container hosting
  * - azure_containerregistry: Azure Container Registry constructs with version-aware AZAPI implementation
+ * - azure_cosmosdb: Azure Cosmos DB Account constructs with version-aware AZAPI implementation
  * - azure_functionapp: Azure Function App constructs with version-aware AZAPI implementation
  * - azure_keyvault: Azure Key Vault constructs with version-aware AZAPI implementation
  * - azure_loganalyticsworkspace: Log Analytics Workspace constructs for log data collection
@@ -61,6 +62,7 @@ export * as azure_aks from "./azure-aks";
 export * as azure_applicationinsights from "./azure-applicationinsights";
 export * as azure_containerapps from "./azure-containerapps";
 export * as azure_containerregistry from "./azure-containerregistry";
+export * as azure_cosmosdb from "./azure-cosmosdb";
 export * as azure_functionapp from "./azure-functionapp";
 export * as azure_diagnosticsettings from "./azure-diagnosticsettings";
 export * as azure_dnsforwardingruleset from "./azure-dnsforwardingruleset";
@@ -98,6 +100,7 @@ export * from "./azure-aks";
 export * from "./azure-applicationinsights";
 export * from "./azure-containerapps";
 export * from "./azure-containerregistry";
+export * from "./azure-cosmosdb";
 export * from "./azure-functionapp";
 export * from "./azure-diagnosticsettings";
 export * from "./azure-dnsforwardingruleset";
