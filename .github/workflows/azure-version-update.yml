@@ -1,0 +1,91 @@
+name: azure-version-update
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 10 15 * *" # 15th of each month at 10:00 UTC
+
+jobs:
+  discover:
+    name: Discover New API Versions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+    environment: Build
+    outputs:
+      has_updates: ${{ steps.discover.outputs.has_updates }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0
+      - name: Authenticate with Azure
+        uses: azure/login@v2
+        with:
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+      - name: Discover new versions
+        id: discover
+        run: |
+          npx ts-node --project scripts/azure-version-updater/tsconfig.json scripts/azure-version-updater/discover.ts > version-manifest.json
+          cat version-manifest.json >&2
+          HAS_UPDATES=$(jq 'if .updates | length > 0 then "true" else "false" end' -r version-manifest.json)
+          echo "has_updates=$HAS_UPDATES" >> "$GITHUB_OUTPUT"
+      - name: Upload manifest
+        if: steps.discover.outputs.has_updates == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-manifest
+          path: version-manifest.json
+
+  create-issue:
+    name: Create Copilot Agent Issue
+    needs: discover
+    if: needs.discover.outputs.has_updates == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+      - name: Download manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: version-manifest
+      - name: Generate issue body and create issue
+        env:
+          GH_TOKEN: ${{ secrets.PROJEN_GITHUB_TOKEN }}
+        run: |
+          MONTH_YEAR=$(date +"%B %Y")
+          npx ts-node --project scripts/azure-version-updater/tsconfig.json scripts/azure-version-updater/create-issue.ts version-manifest.json > issue-body.md
+
+          # Check if an open issue already exists for this month
+          EXISTING=$(gh issue list \
+            --search "feat(azure): update API versions - ${MONTH_YEAR}" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING" ]; then
+            echo "Issue #${EXISTING} already exists for ${MONTH_YEAR}. Updating body."
+            gh issue edit "$EXISTING" --body-file issue-body.md
+          else
+            gh issue create \
+              --title "feat(azure): update API versions - ${MONTH_YEAR}" \
+              --body-file issue-body.md \
+              --assignee copilot \
+              --label "automated,api-version-update"
+          fi
