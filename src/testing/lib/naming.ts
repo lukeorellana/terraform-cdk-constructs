@@ -26,6 +26,7 @@ const RESOURCE_PREFIXES: Record<string, string> = {
   "Microsoft.Web/sites": "func",
   "Microsoft.Web/serverfarms": "plan",
   "Microsoft.DocumentDB/databaseAccounts": "cosmos",
+  "Microsoft.KeyVault/vaults": "kv",
 };
 
 /**
@@ -158,6 +159,13 @@ const RESOURCE_CONSTRAINTS: Record<string, ResourceConstraints> = {
   },
   "Microsoft.DocumentDB/databaseAccounts": {
     maxLength: 44,
+    allowHyphens: true,
+    allowUnderscores: false,
+    allowPeriods: false,
+    casePolicy: "lower",
+  },
+  "Microsoft.KeyVault/vaults": {
+    maxLength: 24,
     allowHyphens: true,
     allowUnderscores: false,
     allowPeriods: false,

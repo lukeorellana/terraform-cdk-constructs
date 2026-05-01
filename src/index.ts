@@ -9,10 +9,12 @@
  * - azure_actiongroup: Azure Action Group constructs for Azure Monitor alerts
  * - azure_activitylogalert: Azure Activity Log Alert constructs for operation monitoring
  * - azure_aks: Azure Kubernetes Service constructs with version-aware AZAPI implementation
+ * - azure_applicationinsights: Azure Application Insights constructs for application performance monitoring
  * - azure_containerapps: Azure Container Apps constructs for serverless container hosting
  * - azure_containerregistry: Azure Container Registry constructs with version-aware AZAPI implementation
  * - azure_cosmosdb: Azure Cosmos DB Account constructs with version-aware AZAPI implementation
  * - azure_functionapp: Azure Function App constructs with version-aware AZAPI implementation
+ * - azure_keyvault: Azure Key Vault constructs with version-aware AZAPI implementation
  * - azure_loganalyticsworkspace: Log Analytics Workspace constructs for log data collection
  * - azure_diagnosticsettings: Azure Diagnostic Settings constructs for monitoring and observability
  * - azure_dnsforwardingruleset: DNS Forwarding Ruleset constructs for private DNS resolution
@@ -31,6 +33,7 @@
  * - azure_resourcegroup: Resource Group constructs with version-aware AZAPI implementation
  * - azure_roleassignment: Role Assignment constructs for Azure RBAC
  * - azure_roledefinition: Role Definition constructs for custom RBAC roles
+ * - azure_staticwebapp: Static Web App constructs with version-aware AZAPI implementation
  * - azure_storageaccount: Storage Account constructs with version-aware AZAPI implementation
  * - azure_subnet: Subnet constructs with version-aware AZAPI implementation
  * - azure_virtualmachine: Virtual Machine constructs with version-aware AZAPI implementation
@@ -56,12 +59,14 @@ export * from "./core-azure";
 export * as azure_actiongroup from "./azure-actiongroup";
 export * as azure_activitylogalert from "./azure-activitylogalert";
 export * as azure_aks from "./azure-aks";
+export * as azure_applicationinsights from "./azure-applicationinsights";
 export * as azure_containerapps from "./azure-containerapps";
 export * as azure_containerregistry from "./azure-containerregistry";
 export * as azure_cosmosdb from "./azure-cosmosdb";
 export * as azure_functionapp from "./azure-functionapp";
 export * as azure_diagnosticsettings from "./azure-diagnosticsettings";
 export * as azure_dnsforwardingruleset from "./azure-dnsforwardingruleset";
+export * as azure_keyvault from "./azure-keyvault";
 export * as azure_loganalyticsworkspace from "./azure-loganalyticsworkspace";
 export * as azure_dnsresolver from "./azure-dnsresolver";
 export * as azure_dnszone from "./azure-dnszone";
@@ -78,6 +83,7 @@ export * as azure_publicipaddress from "./azure-publicipaddress";
 export * as azure_resourcegroup from "./azure-resourcegroup";
 export * as azure_roleassignment from "./azure-roleassignment";
 export * as azure_roledefinition from "./azure-roledefinition";
+export * as azure_staticwebapp from "./azure-staticwebapp";
 export * as azure_storageaccount from "./azure-storageaccount";
 export * as azure_subnet from "./azure-subnet";
 export * as azure_virtualmachine from "./azure-virtualmachine";
@@ -91,6 +97,7 @@ export * as azure_vmss from "./azure-vmss";
 export * from "./azure-actiongroup";
 export * from "./azure-activitylogalert";
 export * from "./azure-aks";
+export * from "./azure-applicationinsights";
 export * from "./azure-containerapps";
 export * from "./azure-containerregistry";
 export * from "./azure-cosmosdb";
@@ -98,6 +105,7 @@ export * from "./azure-functionapp";
 export * from "./azure-diagnosticsettings";
 export * from "./azure-dnsforwardingruleset";
 export * from "./azure-dnsresolver";
+export * from "./azure-keyvault";
 export * from "./azure-loganalyticsworkspace";
 export * from "./azure-dnszone";
 export * from "./azure-metricalert";
@@ -113,6 +121,7 @@ export * from "./azure-publicipaddress";
 export * from "./azure-resourcegroup";
 export * from "./azure-roleassignment";
 export * from "./azure-roledefinition";
+export * from "./azure-staticwebapp";
 export * from "./azure-storageaccount";
 export * from "./azure-subnet";
 export * from "./azure-virtualmachine";

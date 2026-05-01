@@ -36,6 +36,7 @@ With AZAPI L2 Constructs, you get the following benefits:
 | [Virtual Machines](./src/azure-virtualmachine/README.md) | 2024-07-01, 2024-11-01, 2025-04-01 | ✅ Built-in | ✅ Available |
 | [AKS Clusters](./src/azure-aks/README.md) | 2025-05-01, 2025-07-01, 2025-08-01 | ✅ Built-in | ✅ Available |
 | [Virtual Machine Scale Sets](./src/azure-vmss/README.md) | 2025-01-02, 2025-02-01, 2025-04-01 | ✅ Built-in | ✅ Available |
+| [Static Web Apps](./src/azure-staticwebapp/README.md) | 2022-03-01, 2023-12-01, 2024-04-01 | ❌ Not yet | ✅ Available |
 
 ### Networking
 
@@ -55,6 +56,7 @@ With AZAPI L2 Constructs, you get the following benefits:
 | [Metric Alerts](./src/azure-metricalert/README.md) | 2018-03-01 | ✅ Available |
 | [Activity Log Alerts](./src/azure-activitylogalert/README.md) | 2020-10-01 | ✅ Available |
 | [Diagnostic Settings](./src/azure-diagnosticsettings/README.md) | 2016-09-01, 2021-05-01-preview | ✅ Available |
+| [Application Insights](./src/azure-applicationinsights/README.md) | 2020-02-02 | ✅ Available |
 
 ### Foundation
 
@@ -62,6 +64,7 @@ With AZAPI L2 Constructs, you get the following benefits:
 |---------|-------------|--------|
 | [Resource Groups](./src/azure-resourcegroup/README.md) | 2024-11-01, 2025-01-01, 2025-03-01 | ✅ Available |
 | [Storage Accounts](./src/azure-storageaccount/README.md) | 2023-01-01, 2023-05-01, 2024-01-01 | ✅ Available |
+| [Key Vaults](./src/azure-keyvault/README.md) | 2023-02-01, 2023-07-01, 2024-11-01 | ✅ Available |
 
 ### Database
 
