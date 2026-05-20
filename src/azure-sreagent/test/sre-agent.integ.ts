@@ -47,7 +47,7 @@ class SreAgentExampleStack extends BaseTestStack {
 
     const resourceGroup = new ResourceGroup(this, "test-rg", {
       name: resourceGroupName,
-      location: "eastus",
+      location: "eastus2",
       tags: {
         ...this.systemTags(),
         purpose: "sre-agent-testing",
@@ -60,7 +60,7 @@ class SreAgentExampleStack extends BaseTestStack {
     // below is sufficient for synthesis and plan validation.
     new SreAgent(this, "sre-agent", {
       name: agentName,
-      location: "eastus",
+      location: "eastus2",
       resourceGroupId: resourceGroup.id,
       identity: { type: "SystemAssigned" },
       agentIdentity: {

@@ -256,6 +256,26 @@ export class SreAgent extends AzapiResource {
   }
 
   /**
+   * Disable AZAPI provider schema validation for this resource.
+   *
+   * The Azure SRE Agent resource type (`Microsoft.App/agents`) was introduced
+   * after the AZAPI provider version currently pinned by this repository and
+   * is therefore not yet present in the provider's embedded schema. Disabling
+   * schema validation lets the resource be applied against the live Azure API
+   * (which is the source of truth) without requiring a provider upgrade.
+   *
+   * `ignoreMissingProperty` is also enabled because the API returns a number
+   * of computed/read-only fields that aren't part of the request body.
+   */
+  protected customizeResourceConfig(config: any): any {
+    return {
+      ...config,
+      schemaValidationEnabled: false,
+      ignoreMissingProperty: true,
+    };
+  }
+
+  /**
    * Build the resource body for the Microsoft.App/agents Azure REST API.
    */
   protected createResourceBody(props: any): any {
