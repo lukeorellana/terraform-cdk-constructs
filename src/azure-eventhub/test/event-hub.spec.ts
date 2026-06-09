@@ -8,10 +8,7 @@
 
 import { Testing } from "cdktn";
 import * as cdktf from "cdktn";
-import {
-  Eventhub,
-  EventhubProps,
-} from "../lib/event-hub";
+import { Eventhub, EventhubProps } from "../lib/event-hub";
 import {
   EventhubNamespace,
   EventhubNamespaceProps,

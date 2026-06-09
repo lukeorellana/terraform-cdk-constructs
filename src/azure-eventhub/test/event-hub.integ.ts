@@ -10,12 +10,12 @@
 import { Testing } from "cdktn";
 import { Construct } from "constructs";
 import "cdktn/lib/testing/adapters/jest";
-import { Eventhub } from "../lib/event-hub";
-import { EventhubNamespace } from "../lib/event-hub-namespace";
 import { ResourceGroup } from "../../azure-resourcegroup";
 import { AzapiProvider } from "../../core-azure/lib/azapi/providers-azapi/provider";
 import { BaseTestStack, TerraformApplyCheckAndDestroy } from "../../testing";
 import { TestRunMetadata } from "../../testing/lib/metadata";
+import { Eventhub } from "../lib/event-hub";
+import { EventhubNamespace } from "../lib/event-hub-namespace";
 
 // Generate unique test run metadata for this test suite
 const testMetadata = new TestRunMetadata("event-hub-integration", {
